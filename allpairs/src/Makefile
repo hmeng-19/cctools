@@ -13,7 +13,7 @@ allpairs_multicore: allpairs_multicore.o allpairs_compare.o ${CCTOOLS_HOME}/dtto
 	${CCTOOLS_LD} -o $@ allpairs_multicore.o allpairs_compare.o -lpthread ${LOCAL_LDFLAGS}
 
 allpairs_mpi.o: allpairs_mpi.c
-	mpicc -o $@ $^
+	mpicc -c $(CCTOOLS_INTERNAL_CCFLAGS) $(CCTOOLS_CCFLAGS) -o $@ $^
 
 allpairs_mpi: allpairs_mpi.o allpairs_compare.o ${CCTOOLS_HOME}/dttools/src/libdttools.a
 	${CCTOOLS_LD} -o $@ $^ -lpthread ${LOCAL_LDFLAGS}

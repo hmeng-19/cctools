@@ -431,8 +431,12 @@ do
 		continue
 	fi
 	#delete all slash '/' at the end of line.
-	#Problem delete all the slashes at the end of one line?
-	line=${line%/}
+	last_ch=`echo "${line:${#line} - 1}"`
+	while [ $last_ch == "/" ]
+	do
+		line=${line%/}
+		last_ch=`echo "${line:${#line} - 1}"`
+	done
 	#judge the existence of the file
 	if [[ ! -e $line ]]; then
 		echo "this source file does not exist!" >> $log

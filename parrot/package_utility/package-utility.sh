@@ -2,11 +2,7 @@
 #in this version, the structure of namelist has been changed: <filepath, the fork info of resolve_name>.
 #the idea here is: once we need the whole content of a file, there will be one line containing only the file name, and with the help of sort command,we must first meet this line. 
 #otherwise, the filepath will be followed by the fork info of resolve_name. In this case, when we first meet one filepath, it will be followed by sth.
-listfile=""
-package_path="/dev/shm/package-hep"
-log="/dev/shm/package-hep.log"
 
-date>>$log
 show_help()
 {
 	echo "Use: /bin/bash package-utility.sh -L namelist"
@@ -27,6 +23,11 @@ do
 			shift
 			listfile=$1
 			;;
+		-p | --path)
+			shift
+			package_path=$1
+			log=$package_path.log
+			;;
 		-h | --help)
 			show_help
 			;;
@@ -37,6 +38,15 @@ do
 	shift
 done
 
+#create package directory
+if [[ -e $package_path ]]; then
+	echo "The package directory has existed. Please change another package directory or delete the existed package directory first."
+	exit 1
+fi
+mkdir -p $package_path 2>/dev/null
+
+date>>$log
+
 #sort the namelist file and delete the duplicate items.
 cp $listfile $listfile.bak
 sort -u $listfile >$listfile.tmp
@@ -44,13 +54,6 @@ rm $listfile
 cp $listfile.tmp $listfile
 rm $listfile.tmp
 echo "Backup the original namelist file as .bak file"
-
-#create package directory
-if [[ -e $package_path ]]; then
-	echo "The package directory has existed. Please change another package directory or delete the existed package directory first."
-	exit 1
-fi
-mkdir -p $package_path 2>/dev/null
 
 n=0
 nocopy="no"
@@ -64,12 +67,12 @@ declare -a special_path_list=($special_path_strings)
 special_caller="lstat stat open_object bind32 connect32 bind64 connect64 truncate link1 mkalloc lsalloc whoami md5 copyfile1 copyfile2 follow_symlink link2 symlink2 readlink unlink"
 declare -a special_caller_list=($special_caller)
 
-#get the relative path version of one absolute path
+#get the relative path prefix of one absolute path. If current_path is /home/hmeng, the prefix will be ../.., the relative path will be ../../home/hmeng.
 relative_path()
 {
-	first_parameter=$1
+	current_path=$1
 	prefix=$2
-	num=${line//[^\/]}
+	num=${current_path//[^\/]}
 	n1=${#num}
 	n1=`expr $n1 - 1`
 	for i in `seq 1 $n1`
@@ -79,7 +82,7 @@ relative_path()
 	prefix=$prefix".."
 }
 
-#deal with the sub-directory items under one common directory
+#create the sub-directory items under one common directory to maintain the 1th-depth directory struction.
 subdir_process()
 {
 	line=$1
@@ -95,6 +98,7 @@ subdir_process()
 	fi
 }
 
+#create the sub-file items under one common directory to maintain the 1th-depth directory struction.
 subfile_process()
 {
 	line=$1
@@ -104,7 +108,6 @@ subfile_process()
 		set $filelist
 		for subfile in $@
 		do
-			#echo "subfile:"$subfile
 			if [[ ! -e $package_path$subfile ]]; then
 				touch $package_path$subfile
 			fi
@@ -113,6 +116,7 @@ subfile_process()
 	fi
 }
 
+#create one symbolink and transfer absolute link target into relative link target.
 create_symbolink()
 {
 	sublink=$1
@@ -132,6 +136,9 @@ create_symbolink()
 	fi
 }
 
+#create the sub-symbolink items under one common directory to maintain the 1th-depth directory struction.
+#as for each symbolink item (directory link or file link), first create its target and then create the symbolink.
+#Problem of this implementation: if the target of one symbolink is still a symbolink, what will happen?
 sublink_process()
 {
 	linklist=`find $line/ -maxdepth 1 -type l`
@@ -142,8 +149,8 @@ sublink_process()
 		do
 			filename=${sublink##/*/}
 			filepath=${sublink%$filename}
-			#dir; if yes, exit; if no, create the empty dir and the empty linked dir, maintain their link relationship.
 			if [[ -d $sublink ]]; then
+				#dir. if the dir has existed, exit; if no, create the empty dir and the empty linked dir, maintain their link relationship.
 				if [[ ! -e $package_path$sublink ]]; then
 					readlink_f_path=`readlink -f $sublink`
 					parrot_actual_path=$package_path$readlink_f_path
@@ -155,7 +162,7 @@ sublink_process()
 					cd ->/dev/null 2>&1
 				fi
 			else
-				#file; if yes, exit; if no, create the null file and null linked file, maintain their link relationship.
+				#file. if the file has existed, exit; if no, create the null file and null linked file, maintain their link relationship.
 				if [[ ! -e $package_path$sublink ]]; then
 					readlink_f_path=`readlink -f $sublink`
 					actual_filename=${readlink_f_path##/*/}
@@ -181,7 +188,7 @@ sublink_process()
 	fi
 }
 
-#process a common directory item
+#process a common directory item. To maintain the 1st-depth directory struction of the directory item, each file, directory, symbolink directly under the directory will be created. If the struction of one directory is complete, one .__complete file will be placed under the directory.
 regular_dir()
 {
 	line=$1
@@ -190,16 +197,14 @@ regular_dir()
 	if [[ -e $package_path$line ]]; then
 		#if yes, check if the .__complete file exist under the target directory.
 		if [[ -e $package_path$line/.__complete ]]; then
-			#if yes, nothing to do. leave.
+			#if yes, nothing to do. 
 			echo "regular dir; the dir exists and complete!">>$log
 		else
-			echo "the dir exist, but the dir tree is not full">>$log
 			#if no, begin to deal with type d, type f, type l.
-			#type d; for each dir, first check whether it exists in the pacakge. if yes, exit; if no, create an empty dir.
+			#type d; for each dir, create an empty dir.
 			subdir_process $line
 			#type f; for each file, first check whether it exists in the package.if yes, exit; if no, touch it.
 			subfile_process $line
-
 			#type l; for each link, first check whether it exists, in the pacakge. if yes, exit; if no, create it and the linked file/dir.
 			sublink_process $line
 			#create the .__complete file under the target directory.
@@ -207,13 +212,13 @@ regular_dir()
 			echo "regular dir; the dir exists but not complete, now has been created completely!">>$log
 		fi
 	else
-		#if no, compelte create.
+		#if no, compeltely create the directory.
 		#type d; create an empty dir.
 		mkdir -p $package_path$line
 		#begin to deal with type d, type f, type l.
 		#type d
 		subdir_process $line
-		#type f; touch it.
+		#type f 
 		subfile_process $line
 		#type l
 		sublink_process $line
@@ -223,28 +228,24 @@ regular_dir()
 	fi
 }
 
-
+#process one symbolink directory item. First treat its target as a regular directory and create it; then create the symbolink.
+#Problem of this implementation: if the target of one symbolink is still a symbolink, what will happen?
 symbolink_dir()
 {
 	line=$1
-	#symbolic link dirA (linked dir is dirB).(do not consider recursively symbolic link dir)
 	line_bak=$line
 	filename=${line##/*/}
 	filepath=${line%$filename}
-	#as for the dirB, treat it as one rugular dir and do the above things.
 	readlink_f_path=`readlink -f $line`
 	parrot_actual_path=$package_path$readlink_f_path
 	echo "symbolic link dir: "$line", its linked dir is: "$readlink_f_path"  the next line is about the linked dir">>$log
 	regular_dir $readlink_f_path
-
 	if [[ ! -e $package_path$line_bak ]]; then
 		line=$line_bak
 		filename=${line##/*/}
 		filepath=${line%$filename}
 		readlink_f_path=`readlink -f $line`
 		parrot_actual_path=$package_path$readlink_f_path
-		#echo "regular_dir after line: "$line
-		#as for the dirA, ln -s dirB dirA
 		parrot_symlink_path=$package_path$filepath
 		mkdir -p $parrot_symlink_path
 		cd $parrot_symlink_path
@@ -256,19 +257,20 @@ symbolink_dir()
 	fi
 }
 
+#full copy of one file item.
+#maintain two files under each directory to maintain the list of full-copy files and metadata-copy files: .__wholefiles and .__metadatafiles.
 fullcopy_file()
 {
 	line=$1
 	filename=$2
 	filepath=$3
-	#metadata + data. check whether the file is in the .wholefiles, items inside the .__wholefiles should avoid the longest prefix matching.
+	#check whether the file is in the .wholefiles, items inside the .__wholefiles should avoid the longest prefix matching.
 	find_result=`cat $package_path$filepath/.__wholefiles 2>/dev/null|grep "$line whole"`
-	#if yes, no need to copy. do nothing. exit.
-	#if no, judge whether it is a symbolic link file.
+	#if yes, do nothing. if no, judge whether it is a symbolic link file.
 	if [[ X$find_result == X"" ]]; then
 		if [[ -L $line ]]; then
-			#if yes, cp -p(linked file); create the file itself and ln -s it to the linked file,. then add it into .wholefiles.
-			#test how to preserve the metadata using cp command.(doubt)
+			#if is a symbolink, use cp -p(linked file) to create the target file, create the file itself and maintain their relationship. then add it into .wholefiles.
+			#Problem: test how to preserve the metadata using cp command?
 			readlink_f_path=`readlink -f $line`
 			actual_filename=${readlink_f_path##/*/}
 			actual_filepath=${readlink_f_path%$actual_filename}
@@ -291,7 +293,6 @@ fullcopy_file()
 			fi
 			mkdir -p $package_path$filepath
 			cd $package_path$filepath
-			#doubt use rsync pt parameter to ensure that the metadata of file is preserved.
 			create_symbolink $line $filename $filepath $readlink_f_path
 			cd ->/dev/null 2>&1
 			echo $line whole>>$package_path$filepath/.__wholefiles
@@ -310,19 +311,19 @@ fullcopy_file()
 	fi #if [[ X$find_result == X"" ]];
 }
 
+#only preserve metadata of one file.
+#Problem: How to complete metadata preservation?
 metadatacopy_file()
 {
 	line=$1
 	filename=$2
 	filepath=$3
+	#First, judge whether this metadata of the file has been preserved. if yes, no need to copy. do nothing. exit.
 	find_result=`cat $package_path$filepath/.__metadatafiles 2>/dev/null|grep "$line metadata"`
-	#if yes, no need to copy. do nothing. exit.
 	if [[ X$find_result == X"" ]]; then
-		#if no, judge whether it is a symbolic link file.
-		#echo "file not exist in medata"
+		#judge whether it is a symbolic link file.
 		if [[ -L $line ]]; then
-			#if yes, cp -p + truncate(linked file); create the file itself and ln -s it to the linked file. then add it into .metadatafiles.
-			#test how to preserve the metadata using cp command.(doubt)
+			#if yes, create the target file and the file itself and maintain their relationship. then add it into .metadatafiles.
 			readlink_f_path=`readlink -f $line`
 			actual_filename=${readlink_f_path##/*/}
 			actual_filepath=${readlink_f_path%$actual_filename}
@@ -345,13 +346,12 @@ metadatacopy_file()
 			fi
 			mkdir -p $package_path$filepath
 			cd $package_path$filepath
-			#doubt use rsync pt parameter to ensure that the metadata of file is preserved.
 			create_symbolink $line $filename $filepath $readlink_f_path
 			cd ->/dev/null 2>&1
 			echo $line metadata>>$package_path$filepath/.__metadatafiles
 			echo "symbolic link file; metadata only, does not exist and copy successfully">>$log
 		else
-			#if no, cp -p + truncate. then add it into .metadatafiles.
+			#if no, create one empty file and then add it into .metadatafiles.
 			mkdir -p $package_path$filepath
 			touch $package_path$line
 			last_modified=`stat -c "%y" $line`
@@ -364,30 +364,23 @@ metadatacopy_file()
 	fi
 }
 
-
+#process one line of the namelist file. There are four subtypes: common file item; common directory item; symbolink file item; symbolic directory item.
 line_process()
 {
 	line=$1
-	echo "line_process the line: "$line >> $log
 	if [[ -d $line ]]; then
-		#first check whether it is a symbolic link dir.
-		#regular dir.
 		if [[ ! -L $line ]]; then
 			regular_dir $line
 		else
 			symbolink_dir $line
 		fi
 	else
-		#echo "this is one file item inside the namelist"
 		caller=$2
 		filename=${line##/*/}
 		filepath=${line%$filename}
-		#file item of namelist (maintain two list file under the target directory in the pacakge: .__wholefiles + .__metadatafiles.)
-		#first judge whether it is necessary to copy metadata + data.
 		if [[ X$caller == X"" ]]; then
 			fullcopy_file $line $filename $filepath
 		else
-			#metadata. check whether the file is in the .__metadatafiles.
 			metadatacopy_file $line $filename $filepath
 		fi #final of metadata file/metadata+data file
 	fi #final of file/dir
@@ -398,16 +391,14 @@ last_filename=""
 last_caller=""
 for whole_line in $(cat $listfile)
 do
-	echo `expr $n + 1` >> $log
 	n=`expr $n + 1`
-	echo "whole_line: "$whole_line >>$log
+	echo "line" $n": "$whole_line >> $log
 	IFS="|"     # Set the field separator
 	set $whole_line      # Breaks the string into $1, $2, ...
 	line=$1
 	caller=$2
 	IFS=""
-	echo "line: "$line >> $log
-	echo "last_filename: "$last_filename >> $log
+	#use null to differentiate special system calls of files which need to be fully copied.
 	for i in ${special_caller_list[*]};
 	do
 		if [[ "$i" == "$caller" ]]; then
@@ -422,14 +413,11 @@ do
 		last_filename=$line
 		last_caller=$caller
 	fi
-	first_path=""
-	second_path=""
-	echo $line >> $log
 	IFS="/"     # Set the field separator
 	set $line      # Breaks the string into $1, $2, ...
 	first_path=$2
-	second_path=$3
 	IFS=""
+	#judge whether this file is under special directories (/dev /proc /sys /net ...)
 	for i in ${special_path_list[*]};
 	do
 		if [[ "$i" == "$first_path" ]]; then
@@ -438,23 +426,22 @@ do
 		fi
 	done
 	if [ "$nocopy" == "yes" ]; then
-		nocopy="no"
 		echo "this file is under proc dev sys, no necessary to copy it!" >> $log
+		nocopy="no"
 		continue
 	fi
-	#here, delete all slash '/' at the end of line.
-	#doubt, modify it.
+	#delete all slash '/' at the end of line.
+	#Problem delete all the slashes at the end of one line?
 	line=${line%/}
 	#judge the existence of the file
 	if [[ ! -e $line ]]; then
 		echo "this source file does not exist!" >> $log
 		continue
+	else
+		line_process $line $caller
 	fi
-	line_process $line $caller
 done
 
-
-#echo "/cvmfs* /tmp/FilePackage1.3/cvmfs" >> $mountlistfile
 sizeinfo=`du -hs $package_path`
 IFS=" "
 set $sizeinfo
@@ -462,15 +449,20 @@ size=$1
 IFS=""
 
 file_num=`find $package_path -type f|wc -l`
+dir_num=`find $package_path -type d|wc -l`
+symlink_num=`find $package_path -type l|wc -l`
 
 echo "the path of pacakge is: "$package_path >> $log
 echo "the total size of package is: "$size >> $log
 echo "the total number of files is: "$file_num >> $log
-
+echo "the total number of directories is: "$dir_num >> $log
+echo "the total number of symlink is: "$symlink_num >> $log
 echo "the path of pacakge is: "$package_path
 echo "the total size of package is: "$size
 echo "the total number of files is: "$file_num
-
+echo "the total number of directories is: "$dir_num 
+echo "the total number of symlink is: "$symlink_num
+echo "the log file is: "$log
 date>>$log
 
 

@@ -390,7 +390,7 @@ line_process()
 		filename=${line##/*/}
 		filepath=${line%$filename}
 		delete_slash $filepath
-	
+
 		if [[ X$caller == X"" ]]; then
 			fullcopy_file $line $filename $filepath
 		else

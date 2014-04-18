@@ -17,6 +17,10 @@ show_help()
 	exit 1
 }
 
+env_path=""
+listfile=""
+package_path=""
+
 #options parse
 while [ $# -gt 0 ]
 do
@@ -24,7 +28,7 @@ do
 		-e | --env)
 			shift
 			env_path=$1
-			;
+			;;
 		-L | --namelist)
 			shift
 			listfile=$1
@@ -80,12 +84,27 @@ relative_path()
 	prefix=$2
 	num=${current_path//[^\/]}
 	n1=${#num}
-	n1=`expr $n1 - 1`
-	for i in `seq 1 $n1`
+	echo $n1
+	n=1
+	while [ $n -lt $n1 ]
 	do
 		prefix=$prefix"../"
+		n=`expr $n + 1`
 	done
 	prefix=$prefix".."
+	echo $prefix
+}
+
+#delete the slashes at the end of one file path
+delete_slash()
+{
+	filepath=$1
+	last_ch=`echo "${filepath:${#filepath} - 1}"`
+	while [ $last_ch == "/" ]
+	do
+		filepath=${filepath%/}
+		last_ch=`echo "${filepath:${#filepath} - 1}"`
+	done
 }
 
 #create the sub-directory items under one common directory to maintain the 1th-depth directory struction.
@@ -133,6 +152,7 @@ create_symbolink()
 	first_ch=${readlink_path:0:1}
 	if [[ $first_ch == '/' ]]; then
 		current_dir=$filepath
+		delete_slash $current_dir
 		prefix=""
 		relative_path $current_dir $prefix
 		real_path=$prefix$readlink_f_path
@@ -155,6 +175,7 @@ sublink_process()
 		do
 			filename=${sublink##/*/}
 			filepath=${sublink%$filename}
+			delete_slash $filepath
 			if [[ -d $sublink ]]; then
 				#dir. if the dir has existed, exit; if no, create the empty dir and the empty linked dir, maintain their link relationship.
 				if [[ ! -e $package_path$sublink ]]; then
@@ -173,15 +194,11 @@ sublink_process()
 					readlink_f_path=`readlink -f $sublink`
 					actual_filename=${readlink_f_path##/*/}
 					actual_filepath=${readlink_f_path%$actual_filename}
+					delete_slash $actual_filepath
 					mkdir -p $package_path$actual_filepath
 					#judge whether the linked file exist, if yes, do nothing. if no, touch the linked file.
 					if [[ ! -e $package_path$readlink_f_path ]]; then
 						touch $package_path$readlink_f_path
-					fi
-					len=${#filepath}
-					len=`expr $len - 1`
-					if [ $len -gt 0 ]; then
-						filepath=${filepath:0:len}
 					fi
 					mkdir -p $package_path$filepath
 					cd $package_path$filepath
@@ -239,8 +256,6 @@ symbolink_dir()
 {
 	line=$1
 	line_bak=$line
-	filename=${line##/*/}
-	filepath=${line%$filename}
 	readlink_f_path=`readlink -f $line`
 	parrot_actual_path=$package_path$readlink_f_path
 	echo "symbolic link dir: "$line", its linked dir is: "$readlink_f_path"  the next line is about the linked dir">>$log
@@ -249,6 +264,7 @@ symbolink_dir()
 		line=$line_bak
 		filename=${line##/*/}
 		filepath=${line%$filename}
+		delete_slash $filepath
 		readlink_f_path=`readlink -f $line`
 		parrot_actual_path=$package_path$readlink_f_path
 		parrot_symlink_path=$package_path$filepath
@@ -291,11 +307,6 @@ fullcopy_file()
 				echo $readlink_f_path metadata>>$package_path$actual_filepath/.__metadatafiles
 			fi
 			echo "metadata+data, symbolic link file: "$line", its linked file is: "$readlink_f_path". the next line is about the linked file">>$log
-			len=${#filepath}
-			len=`expr $len - 1`
-			if [ $len -gt 0 ]; then
-				filepath=${filepath:0:len}
-			fi
 			mkdir -p $package_path$filepath
 			cd $package_path$filepath
 			create_symbolink $line $filename $filepath $readlink_f_path
@@ -344,11 +355,6 @@ metadatacopy_file()
 				echo $readlink_f_path metadata>>$package_path$actual_filepath/.__metadatafiles
 			fi
 			echo "metadata only, symbolic link file: "$line", its linked file is: "$readlink_f_path". the next line is about the linked file">>$log
-			len=${#filepath}
-			len=`expr $len - 1`
-			if [ $len -gt 0 ]; then
-				filepath=${filepath:0:len}
-			fi
 			mkdir -p $package_path$filepath
 			cd $package_path$filepath
 			create_symbolink $line $filename $filepath $readlink_f_path
@@ -383,6 +389,8 @@ line_process()
 		caller=$2
 		filename=${line##/*/}
 		filepath=${line%$filename}
+		delete_slash $filepath
+	
 		if [[ X$caller == X"" ]]; then
 			fullcopy_file $line $filename $filepath
 		else
@@ -397,7 +405,7 @@ last_caller=""
 for whole_line in $(cat $listfile)
 do
 	n=`expr $n + 1`
-	echo "line" $n": "$whole_line >> $log
+	echo "line" $n": "$whole_line >>$log
 	IFS="|"     # Set the field separator
 	set $whole_line      # Breaks the string into $1, $2, ...
 	line=$1
@@ -436,12 +444,7 @@ do
 		continue
 	fi
 	#delete all slash '/' at the end of line.
-	last_ch=`echo "${line:${#line} - 1}"`
-	while [ $last_ch == "/" ]
-	do
-		line=${line%/}
-		last_ch=`echo "${line:${#line} - 1}"`
-	done
+	delete_slash $line
 	#judge the existence of the file
 	if [[ ! -e $line ]]; then
 		echo "this source file does not exist!" >> $log
@@ -451,7 +454,7 @@ do
 	fi
 done
 
-common_mountlist=$package_path/common_mountlist
+common_mountlist=$package_path/common-mountlist
 echo "/dev /dev">>$common_mountlist
 echo "/misc /misc">>$common_mountlist
 echo "/net /net">>$common_mountlist
@@ -460,7 +463,7 @@ echo "/sys /sys">>$common_mountlist
 echo "/var /var">>$common_mountlist
 echo "/selinux /selinux">>$common_mountlist
 
-cp $env_path $package_path$env_path
+cp $env_path $package_path/$env_path
 
 sizeinfo=`du -hs $package_path`
 IFS=" "

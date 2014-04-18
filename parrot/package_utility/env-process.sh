@@ -16,11 +16,11 @@ do
 			shift
 			shell_type=$1
 			;;
-		--path)
+		-p | --path)
 			shift
 			env_path=$1
 			;;
-		--help)
+		-h | --help)
 			show_help
 			;;
 		*)
@@ -29,6 +29,16 @@ do
 	esac
 	shift
 done
+
+if [[ X$shell_type == X"" ]]; then
+	echo "Please indicate the shell type!"
+	exit 1
+fi
+
+if [[ X$env_path == X"" ]]; then
+	echo "Please indicate the path of the environment variable!"
+	exit 1
+fi
 
 if [[ -e $env_path ]]; then
 	rm $env_path

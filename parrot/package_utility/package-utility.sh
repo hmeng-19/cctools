@@ -197,7 +197,7 @@ regular_dir()
 	if [[ -e $package_path$line ]]; then
 		#if yes, check if the .__complete file exist under the target directory.
 		if [[ -e $package_path$line/.__complete ]]; then
-			#if yes, nothing to do. 
+			#if yes, nothing to do.
 			echo "regular dir; the dir exists and complete!">>$log
 		else
 			#if no, begin to deal with type d, type f, type l.
@@ -218,7 +218,7 @@ regular_dir()
 		#begin to deal with type d, type f, type l.
 		#type d
 		subdir_process $line
-		#type f 
+		#type f
 		subfile_process $line
 		#type l
 		sublink_process $line
@@ -460,7 +460,7 @@ echo "the total number of symlink is: "$symlink_num >> $log
 echo "the path of pacakge is: "$package_path
 echo "the total size of package is: "$size
 echo "the total number of files is: "$file_num
-echo "the total number of directories is: "$dir_num 
+echo "the total number of directories is: "$dir_num
 echo "the total number of symlink is: "$symlink_num
 echo "the log file is: "$log
 date>>$log

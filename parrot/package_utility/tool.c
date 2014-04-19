@@ -3,7 +3,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#include "getopt.h"
+#include <getopt.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
+
+
 
 int LINE_MAX=1024;
 
@@ -11,6 +16,7 @@ const char *namelist;
 const char *packagepath;
 const char *envpath;
 char *sorted_namelist;
+int line_num;
 
 //files from these paths will be ignored.
 const char *special_path[] = {"var", "sys", "dev", "proc", "net", "misc", "selinux"};
@@ -62,14 +68,21 @@ int line_number(const char *filename)
 	return count;
 }
 
+void remove_final_slashes(char *newpath, const char *oldpath)
+{
+	int n;
+	n = strlen(oldpath);
+	while(oldpath[n-1] == '/') {
+		n--;
+	}
+	strncpy(newpath, oldpath, n+1);
+	newpath[n] = '\0';
+}
 
 
 //sort all the lines of the namelist file.
-int sort_namelist() {
-	int line_num;
+void sort_namelist(char *namelist_array[line_num]) {
 	int i;
-	line_num = line_number(namelist);
-	char *namelist_array[line_num];
 	FILE *namelist_file = fopen(namelist, "r");
 	char line[LINE_MAX];
 	i = 0;
@@ -77,12 +90,7 @@ int sort_namelist() {
 		namelist_array[i++] = strdup(line);
 	}
 	qsort(namelist_array, line_num, sizeof(const char *), compare);
-	for (i = 0; i < line_num; i++) {
-		printf ("%d: %s", i, namelist_array[i]);
-	}
-
-	fprintf(stdout, "i final value is: %d\n", i);
-
+	
 	if(namelist_file)
 		fclose(namelist_file);
 /*
@@ -93,7 +101,6 @@ int sort_namelist() {
 	else
 		fprintf(stdout, "sorted_namelist: %s, does not exist\n", sorted_namelist);
 */
-	return 0;
 }
 
 //preprocess: check whether the environment variable file exists; check whether the list namelist file exists; check whether the package path exists;
@@ -112,7 +119,6 @@ int prepare_work()
 		fprintf(stdout, "The package path (%s) has already existed, please delete it first or refer to another package path.\n", packagepath);
 		return -1;
 	}
-	sort_namelist();
 	return 0;
 }
 
@@ -160,7 +166,32 @@ int main(int argc, char *argv[])
 		show_help(argv[0]);
 		return -1;
 	}
+
+	line_num = line_number(namelist);
+	char *namelist_array[line_num];
+	sort_namelist(namelist_array);
+	int i;
+	for (i = 0; i < line_num; i++) {
+		printf ("%d --- %s", i, namelist_array[i]);
+	}
 	//obtain relative path of one absolute path;
 	//delete the final / of one path;
+	char testline[] = "abc/def////";	
+	char *newline;
+	remove_final_slashes(newline, testline);
+	fprintf(stdout, "final path is: %s\n", newline);
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

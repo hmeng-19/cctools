@@ -1,5 +1,19 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
 #include "getopt.h"
+
+const char *namelist;
+const char *packagepath;
+const char *envpath;
+//files from these paths will be ignored.
+const char *special_path[] = {"var", "sys", "dev", "proc", "net", "misc", "selinux"};
+#define special_path_len sizeof(special_path)/sizeof(const char *)
+
+//these system calls will result in the whole copy of one file item.
+const char *special_caller[] = {"lstat", "stat", "open_object", "bind32", "connect32", "bind64", "connect64", "truncate link1", "mkalloc", "lsalloc", "whoami", "md5", "copyfile1", "copyfile2", "follow_symlink", "link2", "symlink2", "readlink", "unlink"};
+#define special_caller_len sizeof(special_caller)/sizeof(const char *)
 
 enum {
 	LONG_OPT_NAMELIST = 1,
@@ -17,6 +31,25 @@ static void show_help(const char *cmd)
 	return;
 }
 
+//preprocess: check whether the environment variable file exists; check whether the list namelist file exists; check whether the package path exists;
+//sorting the listfile(single func); 
+int prepare_work()
+{
+	if(access(envpath, F_OK) == -1) {
+		fprintf(stdout, "The environment variable file (%s) does not exist.\n", envpath);
+		return -1;
+	}
+	if(access(namelist, F_OK) == -1) {
+		fprintf(stdout, "The namelist file (%s) does not exist.\n", namelist);
+		return -1;
+	}
+	if(access(packagepath, F_OK) != -1) {
+		fprintf(stdout, "The package path (%s) has already existed, please delete it first or refer to another package path.\n", packagepath);
+		return -1;
+	}
+	return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	int c;
@@ -29,10 +62,10 @@ int main(int argc, char *argv[])
 		{0,0,0,0}
 	};
 
-	const char *namelist;
 	while((c=getopt_long(argc, argv, "h", long_options, NULL)) > -1) {
 		switch(c) {
 		case LONG_OPT_ENVPATH:
+			envpath = optarg;
 			fprintf(stdout, "env-path: %s\n", optarg);
 			break;
 		case LONG_OPT_NAMELIST:
@@ -41,12 +74,27 @@ int main(int argc, char *argv[])
 			fprintf(stdout, "name-list: %s\n", namelist);
 			break;
 		case LONG_OPT_PACKAGEPATH:
+			packagepath = optarg;
 			fprintf(stdout, "package-path: %s\n", optarg);
 			break;
 		default:
 			show_help(argv[0]);
+			exit(0);
 			break;
 		}
 	}
+
+	//
+	fprintf(stdout, "special_path num: %d; special_caller num: %d \n", special_path_len, special_caller_len);
+	//preprocess: check whether the environment variable file exists; check whether the list namelist file exists; check whether the package path exists;
+	//sorting the listfile(single func); 
+	int result;
+	result = prepare_work();
+	if(result != 0) {
+		show_help(argv[0]);
+		return -1;
+	}
+	//obtain relative path of one absolute path;
+	//delete the final / of one path;
 	return 0;
 }

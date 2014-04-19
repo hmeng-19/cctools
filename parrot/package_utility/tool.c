@@ -25,15 +25,15 @@ int main(int argc, char *argv[])
 		switch(c) {
 		case LONG_OPT_ENVPATH:
 			fprintf(stdout, "env-path: %s\n", optarg);
-			break;	
+			break;
 		case LONG_OPT_NAMELIST:
 			namelist = optarg;
 			fprintf(stdout, "name-list: %s\n", optarg);
 			fprintf(stdout, "name-list: %s\n", namelist);
-			break;	
+			break;
 		case LONG_OPT_PACKAGEPATH:
 			fprintf(stdout, "package-path: %s\n", optarg);
-			break;	
+			break;
 		}
 	}
 	return 0;

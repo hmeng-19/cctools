@@ -14,7 +14,7 @@ static void show_help(const char *cmd)
 	fprintf(stdout, " %-34s The path of the environment variable file.\n", "   --env-path=<envpath>");
 	fprintf(stdout, " %-34s The path of the package.\n", "   --package-path=<packagepath>");
 	fprintf(stdout, " %-34s Show the help info.\n", "-h,--help");
-	return;	
+	return;
 }
 
 int main(int argc, char *argv[])

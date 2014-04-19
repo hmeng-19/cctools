@@ -1,12 +1,17 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include "getopt.h"
 
+int LINE_MAX=1024;
+
 const char *namelist;
 const char *packagepath;
 const char *envpath;
+char *sorted_namelist;
+
 //files from these paths will be ignored.
 const char *special_path[] = {"var", "sys", "dev", "proc", "net", "misc", "selinux"};
 #define special_path_len sizeof(special_path)/sizeof(const char *)
@@ -31,8 +36,68 @@ static void show_help(const char *cmd)
 	return;
 }
 
+/* Compare the strings. */
+static int compare (const void * a, const void * b)
+{
+	/* The pointers point to offsets into "namelist_array", so we need to dereference them to get at the strings. */
+	return strcmp (*(const char **) a, *(const char **) b);
+}
+
+/* obtain the line number of one file. */
+int line_number(const char *filename)
+{
+	FILE *namelist_file;
+	namelist_file = fopen(filename, "r");
+	if(!namelist_file)
+		fprintf(stdout, "Can not open namelist file: %s", filename);
+    int count;
+	count = 0;
+	char line[LINE_MAX];
+	while(fgets(line, LINE_MAX, namelist_file) != NULL) {
+		count ++;
+	}
+	fprintf(stdout, "line number: %d\n", count);
+	if(namelist_file)
+		fclose(namelist_file);
+	return count;
+}
+
+
+
+//sort all the lines of the namelist file.
+int sort_namelist() {
+	int line_num;
+	int i;
+	line_num = line_number(namelist);
+	char *namelist_array[line_num];
+	FILE *namelist_file = fopen(namelist, "r");
+	char line[LINE_MAX];
+	i = 0;
+	while (fgets(line, LINE_MAX, namelist_file) != NULL) {
+		namelist_array[i++] = strdup(line);
+	}
+	qsort(namelist_array, line_num, sizeof(const char *), compare);
+	for (i = 0; i < line_num; i++) {
+		printf ("%d: %s", i, namelist_array[i]);
+	}
+
+	fprintf(stdout, "i final value is: %d\n", i);
+
+	if(namelist_file)
+		fclose(namelist_file);
+/*
+	sorted_namelist = strdup(namelist);
+	strcat(sorted_namelist, ".sort");
+	if(access(sorted_namelist, F_OK) != -1)
+		remove(sorted_namelist);
+	else
+		fprintf(stdout, "sorted_namelist: %s, does not exist\n", sorted_namelist);
+*/
+	return 0;
+}
+
 //preprocess: check whether the environment variable file exists; check whether the list namelist file exists; check whether the package path exists;
-//sorting the listfile(single func); 
+//sorting the listfile(single func);
 int prepare_work()
 {
 	if(access(envpath, F_OK) == -1) {
@@ -47,6 +112,7 @@ int prepare_work()
 		fprintf(stdout, "The package path (%s) has already existed, please delete it first or refer to another package path.\n", packagepath);
 		return -1;
 	}
+	sort_namelist();
 	return 0;
 }
 
@@ -87,7 +153,7 @@ int main(int argc, char *argv[])
 	//
 	fprintf(stdout, "special_path num: %d; special_caller num: %d \n", special_path_len, special_caller_len);
 	//preprocess: check whether the environment variable file exists; check whether the list namelist file exists; check whether the package path exists;
-	//sorting the listfile(single func); 
+	//sorting the listfile(single func);
 	int result;
 	result = prepare_work();
 	if(result != 0) {

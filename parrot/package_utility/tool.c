@@ -82,15 +82,14 @@ void relative_path(char *newpath, const char *oldpath)
 	strcat(newpath, oldpath);
 }
 
-void remove_final_slashes(char *newpath, const char *oldpath)
+void remove_final_slashes(char *path)
 {
 	int n;
-	n = strlen(oldpath);
-	while(oldpath[n-1] == '/') {
+	n = strlen(path);
+	while(path[n-1] == '/') {
 		n--;
 	}
-	strncpy(newpath, oldpath, n+1);
-	newpath[n] = '\0';
+	path[n] = '\0';
 }
 
 
@@ -134,6 +133,11 @@ int prepare_work()
 		return -1;
 	}
 	return 0;
+}
+
+
+void line_process(path, caller)
+{
 }
 
 int main(int argc, char *argv[])
@@ -185,21 +189,34 @@ int main(int argc, char *argv[])
 	char *namelist_array[line_num];
 	sort_namelist(namelist_array);
 	int i;
-	for (i = 0; i < line_num; i++) {
+	int path_len;
+	for (i = 0; i < 10; i++) {
 		printf ("%d --- %s", i, namelist_array[i]);
+		char *caller;
+		caller = strchr(namelist_array[i], '|') + 1;
+		path_len = strlen(namelist_array[i]) - strlen(caller);
+		char *path;
+		strncpy(path, namelist_array[i], path_len - 1);
+		path[path_len - 1] = '\0';
+		remove_final_slashes(path);
+		printf("path: %s;  caller: %s\n", path, caller);
+		line_process(path, caller);
 	}
+
+
+
 	//obtain relative path of one absolute path;
-	char line1[LINE_MAX];
+/*	char line1[LINE_MAX];
 	strcpy(line1, "/dir/file/abc/soft");
 	char *line2;
 	relative_path(line2, line1);
 	printf("%s %s\n", line1, line2);
+*/
 	//delete the final / of one path;
 /*
 	char testline[LINE_MAX];
 	strcpy(testline,  "abc/def////");
 	char *newline;
-	remove_final_slashes(newline, testline);
 	fprintf(stdout, "final path is: %s\n", newline);
 */
 	return 0;

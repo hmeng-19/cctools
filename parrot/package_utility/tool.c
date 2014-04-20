@@ -7,8 +7,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
-
-
+#include <libgen.h>
+#include <fcntl.h>
+#include <sys/sendfile.h>
 
 int LINE_MAX=1024;
 
@@ -106,15 +107,45 @@ void sort_namelist(char *namelist_array[line_num]) {
 	
 	if(namelist_file)
 		fclose(namelist_file);
-/*
-	sorted_namelist = strdup(namelist);
-	strcat(sorted_namelist, ".sort");
-	if(access(sorted_namelist, F_OK) != -1)
-		remove(sorted_namelist);
-	else
-		fprintf(stdout, "sorted_namelist: %s, does not exist\n", sorted_namelist);
-*/
 }
+
+/* Function with behaviour like `mkdir -p'  */
+int mkpath(const char *s, mode_t mode) {
+        char *q, *r = NULL, *path = NULL, *up = NULL;
+        int rv;
+
+        rv = -1;
+        if (strcmp(s, ".") == 0 || strcmp(s, "/") == 0)
+                return (0);
+
+        if ((path = strdup(s)) == NULL)
+                exit(1);
+     
+        if ((q = strdup(s)) == NULL)
+                exit(1);
+
+        if ((r = dirname(q)) == NULL)
+                goto out;
+        
+        if ((up = strdup(r)) == NULL)
+                exit(1);
+
+        if ((mkpath(up, mode) == -1) && (errno != EEXIST))
+                goto out;
+
+        if ((mkdir(path, mode) == -1) && (errno != EEXIST))
+                rv = -1;
+        else
+                rv = 0;
+
+out:
+        if (up != NULL)
+                free(up);
+        free(q);
+        free(path);
+        return (rv);
+}
+
 
 //preprocess: check whether the environment variable file exists; check whether the list namelist file exists; check whether the package path exists;
 //sorting the listfile(single func);
@@ -132,12 +163,73 @@ int prepare_work()
 		fprintf(stdout, "The package path (%s) has already existed, please delete it first or refer to another package path.\n", packagepath);
 		return -1;
 	}
+	int status;
+	status = mkpath(packagepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	return 0;
 }
 
+int CopyFile(const char* source, const char* destination)
+{    
+    int input, output;    
+    if ((input = open(source, O_RDONLY)) == -1)
+    {
+        return -1;
+    }    
+    if ((output = open(destination, O_RDWR | O_CREAT)) == -1)
+    {
+        close(input);
+        return -1;
+    }
 
-void line_process(path, caller)
+    off_t bytesCopied = 0;
+    struct stat fileinfo = {0};
+    fstat(input, &fileinfo);
+        struct stat outputinfo ={0};
+    int result = sendfile(output, input, &bytesCopied, fileinfo.st_size);
+    close(input);
+    close(output);
+
+    return result;
+}
+
+int line_process(char *path, char *caller)
 {
+	struct stat source_stat;
+	lstat(path, &source_stat);
+	printf("%s\n", path);
+	char new_path[LINE_MAX];
+	strcpy(new_path, packagepath);
+	if(S_ISREG(source_stat.st_mode)) {
+		printf("regular file\n");
+		strcat(new_path, path);
+		printf("new_path:%s \n", new_path);
+		char pathcopy[LINE_MAX];
+		strcpy(pathcopy, new_path);
+		mkpath(dirname(pathcopy), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		printf("after dirname, new_path:%s \n", new_path);
+		CopyFile(path, new_path);
+		return 0;
+	}
+	if(S_ISDIR(source_stat.st_mode)) {
+		printf("regular dir\n");
+		strcat(new_path, path);
+		printf("newpath:%s \n", new_path);
+		return 0;
+	}
+	if(S_ISLNK(source_stat.st_mode)) {
+		char actualpath[LINE_MAX];
+		realpath(path, actualpath);
+		strcat(new_path, path);
+		printf("symbolink, the real path: %s\n", actualpath);
+		char buf[LINE_MAX];
+		int len;
+		if ((len = readlink(path, buf, sizeof(buf)-1)) != -1)
+			buf[len] = '\0';
+		printf("symbolink, the direct real path: %s\n", buf);
+		printf("newpath:%s \n", new_path);
+		return 0;
+	}
+
 }
 
 int main(int argc, char *argv[])
@@ -190,16 +282,17 @@ int main(int argc, char *argv[])
 	sort_namelist(namelist_array);
 	int i;
 	int path_len;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < line_num; i++) {
 		printf ("%d --- %s", i, namelist_array[i]);
 		char *caller;
 		caller = strchr(namelist_array[i], '|') + 1;
+		caller[strlen(caller) - 1] = '\0';
 		path_len = strlen(namelist_array[i]) - strlen(caller);
 		char *path;
-		strncpy(path, namelist_array[i], path_len - 1);
+		strncpy(path, namelist_array[i], path_len);
 		path[path_len - 1] = '\0';
 		remove_final_slashes(path);
-		printf("path: %s;  caller: %s\n", path, caller);
+		printf("path: %s;  (%d)  caller: %s  (%d)\n", path, strlen(path), caller, strlen(caller));
 		line_process(path, caller);
 	}
 

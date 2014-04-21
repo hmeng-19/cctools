@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <dirent.h>
+#include <utime.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -132,8 +134,8 @@ int mkpath(const char *s, mode_t mode) {
 
         if ((mkpath(up, mode) == -1) && (errno != EEXIST))
                 goto out;
-
-        if ((mkdir(path, mode) == -1) && (errno != EEXIST))
+	
+		if ((mkdir(path, mode) == -1) && (errno != EEXIST))
                 rv = -1;
         else
                 rv = 0;
@@ -192,6 +194,123 @@ int CopyFile(const char* source, const char* destination)
     return result;
 }
 
+int is_special_caller(char *caller)
+{
+	int i;
+	for(i = 0; i < special_caller_len; i++){
+		if(strcmp(special_caller[i], caller) == 0) {
+			return 1;
+		}
+	} 
+	return 0;
+}
+
+int is_special_path(char *path)
+{
+	int i;
+	char *pathcopy, *first_dir, *tmp_dir;
+	pathcopy = strdup(path);
+	first_dir = strchr(pathcopy, '/') + 1;
+	tmp_dir = strchr(first_dir, '/');
+	int size;
+	size = strlen(first_dir) - strlen(tmp_dir);
+	first_dir[size] = '\0';
+	printf("first_dir: %s\n", first_dir);
+	for(i = 0; i < special_path_len; i++){
+		if(strcmp(special_path[i], first_dir) == 0) {
+			return 1;
+		}
+	} 
+	return 0;
+}
+void print_permissions(char * dir_name)
+{
+	struct stat fileStat;
+	stat(dir_name, &fileStat);
+	printf("File Permissions: %s\t", dir_name);
+    printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
+    printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
+    printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
+    printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
+    printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
+    printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
+    printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
+    printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
+    printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
+    printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
+    printf("\n\n");
+}
+
+int file_type(const char* filename)
+{
+	struct stat st;
+	stat(filename, &st);
+	if(S_ISDIR(st.st_mode))
+	{
+	    puts("---dir");
+	    return 0;
+	}
+
+	if(S_ISCHR(st.st_mode))
+	{
+		puts("---character");
+		return 0;
+	}
+
+	if(S_ISBLK(st.st_mode))
+	{
+		puts("---block");
+		return 0;
+	}
+
+	if(S_ISREG(st.st_mode))
+	{
+		puts("---regular file");
+		return 0;
+	}
+
+	if(S_ISFIFO(st.st_mode))
+	{
+		puts("---fifo special file");
+		return 0;
+	}
+
+	if(S_ISLNK(st.st_mode))
+	{
+		puts("---link file");
+		return 0;
+	}
+
+	if(S_ISSOCK(st.st_mode))
+	{
+		puts("---socket file");
+		return 0;
+	}
+
+}
+
+
+int create_dir_subitems(char *path, char *new_path) {
+  DIR *dp;
+  struct dirent *ep;
+
+	printf("create_dir_subitems: %s\n", path);
+  dp = opendir (path);
+  if (dp != NULL)
+    {
+      while (ep = readdir (dp))
+    {
+    puts (ep->d_name);
+    file_type(ep->d_name);
+    }
+      (void) closedir (dp);
+    }
+  else
+    puts ("Couldn't open the directory.");
+
+  return 0;
+}
+
 int line_process(char *path, char *caller)
 {
 	struct stat source_stat;
@@ -199,21 +318,68 @@ int line_process(char *path, char *caller)
 	printf("%s\n", path);
 	char new_path[LINE_MAX];
 	strcpy(new_path, packagepath);
+	if(is_special_path(path)) {
+		fprintf(stdout, "Special path, ignore!\n");
+		return 0;
+	}
 	if(S_ISREG(source_stat.st_mode)) {
 		printf("regular file\n");
 		strcat(new_path, path);
 		printf("new_path:%s \n", new_path);
 		char pathcopy[LINE_MAX];
 		strcpy(pathcopy, new_path);
-		mkpath(dirname(pathcopy), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		printf("after dirname, new_path:%s \n", new_path);
-		CopyFile(path, new_path);
+		char *dir_name;
+		dir_name = dirname(pathcopy);
+		struct stat dir_stat;
+		char *tmppath;
+		tmppath = strdup(path);
+		stat(dirname(tmppath), &dir_stat);
+		printf("dir_name: %s\n", dir_name);
+		mkpath(dir_name, dir_stat.st_mode);
+		print_permissions(dir_name);
+		print_permissions(tmppath);
+		chmod(dir_name, dir_stat.st_mode);
+
+		if(is_special_caller(caller)) {
+			if(access(new_path, F_OK) == -1) {
+				printf("special caller full copy, not exist\n");
+				CopyFile(path, new_path);
+			}
+			else {
+				struct stat target_stat;
+				stat(new_path, &target_stat);
+				if(target_stat.st_blocks)
+					printf("special caller full copy, exist content\n");
+				else {
+					printf("special caller full copy, exist only metadata\n");
+					CopyFile(path, new_path);
+				}
+			}
+		}
+		else {
+			if(access(new_path, F_OK) != -1) {
+				fprintf(stdout, "not full copy, and already exist\n");
+				return 0;
+			}
+			printf("not full copy, does not exist\n");
+			FILE *fp = fopen(new_path, "w");
+			fclose(fp);
+			truncate(new_path, source_stat.st_size);
+		}
+		struct utimbuf time_buf;
+		time_buf.modtime = source_stat.st_mtime;
+		time_buf.actime = source_stat.st_atime;
+		utime(new_path, &time_buf);
+		chmod(new_path, source_stat.st_mode);
 		return 0;
 	}
 	if(S_ISDIR(source_stat.st_mode)) {
 		printf("regular dir\n");
 		strcat(new_path, path);
 		printf("newpath:%s \n", new_path);
+		struct stat path_stat;
+		mkpath(new_path, path_stat.st_mode);
+		create_dir_subitems(path, new_path);
 		return 0;
 	}
 	if(S_ISLNK(source_stat.st_mode)) {

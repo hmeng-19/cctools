@@ -1,7 +1,5 @@
 #!/bin/sh
-#in this version, the structure of namelist has been changed: <filepath, the fork info of resolve_name>.
-#the idea here is: once we need the whole content of a file, there will be one line containing only the file name, and with the help of sort command,we must first meet this line. 
-#otherwise, the filepath will be followed by the fork info of resolve_name. In this case, when we first meet one filepath, it will be followed by sth.
+#The script is used to generate one pacakge according to the namelist file.
 
 show_help()
 {

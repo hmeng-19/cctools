@@ -1,4 +1,5 @@
 #!/bin/sh
+#The script is used to obtain and preserve the environment variables.
 show_help()
 {
 	echo "Options:"

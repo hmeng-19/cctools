@@ -1,4 +1,5 @@
 #!/bin/sh
+#This script can be used to create the mountlist file for executing one pacakge under Parrot.
 package_path=""
 mountlist=""
 show_help()

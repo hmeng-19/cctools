@@ -194,13 +194,17 @@ int is_special_caller(char *caller)
 
 int is_special_path(const char *path)
 {
+	fprintf(stdout, "is_special_path: %s\n", path);
 	int i;
 	char *pathcopy, *first_dir, *tmp_dir;
 	pathcopy = strdup(path);
 	first_dir = strchr(pathcopy, '/') + 1;
 	tmp_dir = strchr(first_dir, '/');
 	int size;
-	size = strlen(first_dir) - strlen(tmp_dir);
+	if(tmp_dir == NULL)
+		size = strlen(first_dir);
+	else
+		size = strlen(first_dir) - strlen(tmp_dir);
 	first_dir[size] = '\0';
 	printf("first_dir: %s\n", first_dir);
 	for(i = 0; i < special_path_len; i++){
@@ -208,15 +212,12 @@ int is_special_path(const char *path)
 			return 1;
 		}
 	} 
-	//free(pathcopy);
-	//free(first_dir);
-	//free(tmp_dir);
 	return 0;
 }
 void print_permissions(char * dir_name)
 {
 	struct stat fileStat;
-	stat(dir_name, &fileStat);
+	lstat(dir_name, &fileStat);
 	printf("File Permissions: %s\t", dir_name);
 	printf((S_ISDIR(fileStat.st_mode)) ? "d" : "-");
 	printf((fileStat.st_mode & S_IRUSR) ? "r" : "-");
@@ -233,21 +234,40 @@ void print_permissions(char * dir_name)
 
 int dir_entry(const char* filename)
 {
-	struct stat st;
-	if (stat(filename, &st) == 0) {
-		if(S_ISDIR(st.st_mode)) {
+	struct stat source_stat;
+	char new_path[LINE_MAX];
+	strcpy(new_path, packagepath);
+	strcat(new_path, filename);
+	if(access(new_path, F_OK) == 0) {
+		fprintf(stdout, "%s already exists", new_path);
+		return 0;	
+	}
+	if(lstat(filename, &source_stat) == 0) {
+		if(S_ISDIR(source_stat.st_mode)) {
+			mkdir(filename, source_stat.st_mode);
 			printf("%s, ---dir\n", filename);
-		} else if (S_ISCHR(st.st_mode)) {
+		} else if (S_ISCHR(source_stat.st_mode)) {
 			printf("%s, ---character\n", filename);
-		} else if(S_ISBLK(st.st_mode)) {
+		} else if(S_ISBLK(source_stat.st_mode)) {
 			printf("%s, ---block\n", filename);
-		} else if(S_ISREG(st.st_mode)) {
+		} else if(S_ISREG(source_stat.st_mode)) {
+			FILE *fp = fopen(new_path, "w");
+			fclose(fp);
+			truncate(new_path, source_stat.st_size);
+			struct utimbuf time_buf;
+			time_buf.modtime = source_stat.st_mtime;
+			time_buf.actime = source_stat.st_atime;
+			utime(new_path, &time_buf);
+			chmod(new_path, source_stat.st_mode);
 			printf("%s, ---regular file\n", filename);
-		} else if(S_ISFIFO(st.st_mode)) {
+		} else if(S_ISFIFO(source_stat.st_mode)) {
 			printf("%s, ---fifo special file\n", filename);
-		} else if(S_ISLNK(st.st_mode)) {
+		} else if(S_ISLNK(source_stat.st_mode)) {
+			//here recursively call dir_entry function
+			
+
 			printf("%s, ---link file\n", filename);
-		} else if(S_ISSOCK(st.st_mode)) {
+		} else if(S_ISSOCK(source_stat.st_mode)) {
 			printf("%s, ---socket file\n", filename);
 		}
 	} else {
@@ -269,7 +289,6 @@ int create_dir_subitems(const char *path, char *new_path) {
 	}
 	dir_name = realloc(dir_name, strlen(path) + 2);
 	strcat(dir_name, "/");
-	//printf("dir_name: %s, path: %s\n", dir_name, path);
 	dir = opendir(path);
 	printf("create_dir_subitems: %s\n", path);
 	if (dir != NULL)
@@ -281,8 +300,6 @@ int create_dir_subitems(const char *path, char *new_path) {
 			full_entrypath = realloc(full_entrypath, strlen(full_entrypath) + strlen(entry->d_name) + 1);
 			strcat(full_entrypath, entry->d_name);
 			dir_entry(full_entrypath);
-			//dir_entry(entry->d_name);
-			//printf("subentry : %s\n", entry->d_name);
 		}
 		closedir(dir);
 	}
@@ -291,96 +308,99 @@ int create_dir_subitems(const char *path, char *new_path) {
 	return 0;
 }
 
-int line_process(const char *path, char *caller)
+int line_process(const char *path, char *caller, int ignore_direntry)
 {
-	struct stat source_stat;
-	lstat(path, &source_stat);
 	printf("%s\n", path);
-	char new_path[LINE_MAX];
-	strcpy(new_path, packagepath);
 	if(is_special_path(path)) {
 		fprintf(stdout, "Special path, ignore!\n");
+		return 1;
+	}
+	int fullcopy = 0;
+	if(strcmp(caller,"metadatacopy") == 0)
+		fullcopy = 0;
+	else if(strcmp(caller,"fullcopy") == 0 || is_special_caller(caller))
+		fullcopy = 1;
+
+	char new_path[LINE_MAX];
+	strcpy(new_path, packagepath);
+	strcat(new_path, path);
+	printf("new_path:%s \n", new_path);
+	int existance = 0;
+	if(access(new_path, F_OK) == 0) {
+		existance = 1;
+	}
+		
+	struct stat source_stat;
+	if(lstat(path, &source_stat) == -1) {
+		fprintf(stdout, "lstat execution fail. %s\n", strerror(errno));
 		return 0;
 	}
-	printf("finish is_special_path, path is: %s\n", path);
+
 	if(S_ISREG(source_stat.st_mode)) {
 		printf("regular file\n");
-		strcat(new_path, path);
-		printf("new_path:%s \n", new_path);
-		char pathcopy[LINE_MAX];
-		strcpy(pathcopy, new_path);
-		char *dir_name;
-		dir_name = dirname(pathcopy);
-		struct stat dir_stat;
-		char *tmppath;
-		tmppath = strdup(path);
-		stat(dirname(tmppath), &dir_stat);
-		printf("dir_name: %s\n", dir_name);
-		mkpath(dir_name, dir_stat.st_mode);
-		print_permissions(dir_name);
-		print_permissions(tmppath);
-		chmod(dir_name, dir_stat.st_mode);
-
-		if(is_special_caller(caller)) {
-			if(access(new_path, F_OK) == -1) {
-				printf("special caller full copy, not exist\n");
-				copy_file(path, new_path);
-			}
-			else {
+		if(existance) {
+			if(fullcopy == 0) {
+				printf("metadatacopy exist! pass!\n");
+				goto regfiledone;
+			} else {
 				struct stat target_stat;
 				stat(new_path, &target_stat);
-				if(target_stat.st_blocks)
-					printf("special caller full copy, exist content\n");
-				else {
-					printf("special caller full copy, exist only metadata\n");
+				if(target_stat.st_blocks) {
+					printf("fullcopy exist! pass!\n");
+					goto regfiledone;
+				} else {
+					printf("fullcopy not exist, metadatacopy exist! create fullcopy ...\n");
 					copy_file(path, new_path);
 				}
 			}
-		}
-		else {
-			if(access(new_path, F_OK) != -1) {
-				fprintf(stdout, "not full copy, and already exist\n");
-				return 0;
+		} else {
+        	char tmppath[LINE_MAX], dir_name[LINE_MAX];
+	        strcpy(tmppath, path);
+			strcpy(dir_name, dirname(tmppath));
+			line_process(dir_name, "metadatacopy", 1);
+			if(fullcopy) {
+				printf("fullcopy not exist, metadatacopy not exist! create fullcopy ...\n");
+				copy_file(path, new_path);
 			}
-			printf("not full copy, does not exist\n");
-			FILE *fp = fopen(new_path, "w");
-			fclose(fp);
-			truncate(new_path, source_stat.st_size);
+			else {
+				printf("metadatacopy not exist! create metadatacopy ...\n");
+				FILE *fp = fopen(new_path, "w");
+				fclose(fp);
+				truncate(new_path, source_stat.st_size);
+			}
 		}
+
 		struct utimbuf time_buf;
-		time_buf.modtime = source_stat.st_mtime;
-		time_buf.actime = source_stat.st_atime;
-		utime(new_path, &time_buf);
-		chmod(new_path, source_stat.st_mode);
+        time_buf.modtime = source_stat.st_mtime;
+        time_buf.actime = source_stat.st_atime;
+        utime(new_path, &time_buf);
+        chmod(new_path, source_stat.st_mode);
+regfiledone:
 		return 0;
 	}
 	if(S_ISDIR(source_stat.st_mode)) {
 		printf("regular dir\n");
-		strcat(new_path, path);
-		printf("newpath:%s \n", new_path);
-		struct stat path_stat;
-		//mkpath(new_path, path_stat.st_mode);
-		mkpath(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		printf("make path success\n");
-		create_dir_subitems(path, new_path);
+		mkpath(new_path, source_stat.st_mode);
+		if(ignore_direntry == 0)
+			create_dir_subitems(path, new_path);
 		return 0;
 	}
 	if(S_ISLNK(source_stat.st_mode)) {
 		char actualpath[LINE_MAX];
 		realpath(path, actualpath);
-		strcat(new_path, path);
-		printf("symbolink, the real path: %s\n", actualpath);
 		char buf[LINE_MAX];
 		int len;
 		if ((len = readlink(path, buf, sizeof(buf)-1)) != -1)
 			buf[len] = '\0';
+		printf("symbolink, the real path: %s\n", actualpath);
 		printf("symbolink, the direct real path: %s\n", buf);
-		printf("newpath:%s \n", new_path);
-		//free(actualpath);
-		//free(buf);
+		char linked_path[LINE_MAX];
+		realpath(buf, linked_path);
+		line_process(linked_path, "fullcopy", 0);
+		if(symlink(buf, new_path) == -1)
+			fprintf(stdout, "symlink create fail, %s\n", strerror(errno));
 		return 0;
 	}
-	//free(new_path);
 }
 
 int main(int argc, char *argv[])
@@ -443,7 +463,7 @@ int main(int argc, char *argv[])
 		path[path_len] = '\0';
 		remove_final_slashes(path);
 		printf("path: %s;  (%d)  caller: %s  (%d)\n", path, strlen(path), caller, strlen(caller));
-		line_process(path, caller);
+		line_process(path, caller, 0);
 	}
 	//obtain relative path of one absolute path;
 /*	char line1[LINE_MAX];

@@ -395,20 +395,20 @@ regfiledone:
 		printf("symbolink, the real path: %s\n", actualpath);
 		printf("symbolink, the direct real path: %s\n", buf);
 		char linked_path[LINE_MAX];
-			char dir_name[LINE_MAX];
-			char pathcopy[LINE_MAX];
-			strcpy(pathcopy, path);
-			strcpy(dir_name, dirname(pathcopy));
+		char dir_name[LINE_MAX];
+		char pathcopy[LINE_MAX];
+		strcpy(pathcopy, path);
+		strcpy(dir_name, dirname(pathcopy));
 		//realpath(buf, linked_path);
 		if(buf[0] == '/')
 			strcpy(linked_path, buf);
 		else {
 			//remove the duplicated / and .
 			chdir(dir_name);
-				strcpy(linked_path, dir_name);
-			//here need to be modified, how to deal with the multiple ./../../../cctools.tar
+			strcpy(linked_path, dir_name);
+			if(linked_path[strlen(linked_path) - 1] != '/')
 				strcat(linked_path, "/");
-				strcat(linked_path, buf);
+			strcat(linked_path, buf);
 			}
 		fprintf(stdout, "the realpath of direct real path is: %s\n", linked_path);
 		line_process(linked_path, "fullcopy", 0);
@@ -426,6 +426,11 @@ regfiledone:
 			return 0;
 		}
 		fprintf(stdout, "current dir: %s\n", getcwd(0, 0));
+		char newbuf[LINE_MAX];
+		if(buf[0] == '/') {
+			relative_path(newbuf, buf);
+			strcpy(buf, newbuf);
+		}
 		if(symlink(buf, new_path) == -1)
 			fprintf(stdout, "symlink create fail, %s\n", strerror(errno));
 		return 0;
@@ -498,7 +503,7 @@ int main(int argc, char *argv[])
 /*	char line1[LINE_MAX];
 	strcpy(line1, "/dir/file/abc/soft");
 	char *line2;
-	relative_path(line2, line1);
+	//relative_path(line2, line1);
 	printf("%s %s\n", line1, line2);
 */
 	//delete the final / of one path;

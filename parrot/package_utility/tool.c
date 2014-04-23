@@ -59,11 +59,11 @@ int line_number(const char *filename)
 	namelist_file = fopen(filename, "r");
 	if(!namelist_file)
 		fprintf(stdout, "Can not open namelist file: %s", filename);
-    int count;
+	int count;
 	count = 0;
 	char line[LINE_MAX];
 	while(fgets(line, LINE_MAX, namelist_file) != NULL) {
-		count ++;
+		count++;
 	}
 	fprintf(stdout, "line number: %d\n", count);
 	if(namelist_file)
@@ -104,7 +104,6 @@ void sort_namelist(char *namelist_array[line_num]) {
 		namelist_array[i] = strdup(line);
 	}
 	qsort(namelist_array, line_num, sizeof(const char *), compare);
-
 	if(namelist_file)
 		fclose(namelist_file);
 }
@@ -114,7 +113,6 @@ void sort_namelist(char *namelist_array[line_num]) {
 int mkpath(const char *path, mode_t mode) {
 	char *pathcopy, *parent_dir;
 	int rv;
-
 	rv = -1;
 	if(strcmp(path, ".") == 0 || strcmp(path, "/") == 0)
 		return 0;
@@ -159,12 +157,12 @@ int prepare_work()
 }
 
 int copy_file(const char* source, const char* target)
-{    
-	int input, output;    
+{
+	int input, output;
 	if((input = open(source, O_RDONLY)) == -1)
 	{
 		return -1;
-	}    
+	}
 	if((output = open(target, O_RDWR | O_CREAT)) == -1)
 	{
 		close(input);
@@ -188,7 +186,7 @@ int is_special_caller(char *caller)
 		if(strcmp(special_caller[i], caller) == 0) {
 			return 1;
 		}
-	} 
+	}
 	return 0;
 }
 
@@ -211,7 +209,7 @@ int is_special_path(const char *path)
 		if(strcmp(special_path[i], first_dir) == 0) {
 			return 1;
 		}
-	} 
+	}
 	return 0;
 }
 void print_permissions(char * dir_name)
@@ -240,7 +238,7 @@ int dir_entry(const char* filename)
 	strcat(new_path, filename);
 	if(access(new_path, F_OK) == 0) {
 		fprintf(stdout, "%s already exists", new_path);
-		return 0;	
+		return 0;
 	}
 	if(lstat(filename, &source_stat) == 0) {
 		if(S_ISDIR(source_stat.st_mode)) {
@@ -264,8 +262,6 @@ int dir_entry(const char* filename)
 			printf("%s, ---fifo special file\n", filename);
 		} else if(S_ISLNK(source_stat.st_mode)) {
 			//here recursively call dir_entry function
-			
-
 			printf("%s, ---link file\n", filename);
 		} else if(S_ISSOCK(source_stat.st_mode)) {
 			printf("%s, ---socket file\n", filename);
@@ -281,7 +277,7 @@ int create_dir_subitems(const char *path, char *new_path) {
 	DIR *dir;
 	struct dirent *entry;
 	printf("enter into create_dir_subitems, path: %s\n", path);
-	char *full_entrypath, *dir_name; 
+	char *full_entrypath, *dir_name;
 	dir_name = strdup(path);
 	if(dir_name == NULL) {
 		printf("error:%s\n", strerror(errno));
@@ -329,7 +325,6 @@ int line_process(const char *path, char *caller, int ignore_direntry)
 	if(access(new_path, F_OK) == 0) {
 		existance = 1;
 	}
-		
 	struct stat source_stat;
 	if(lstat(path, &source_stat) == -1) {
 		fprintf(stdout, "lstat execution fail. %s\n", strerror(errno));
@@ -354,8 +349,8 @@ int line_process(const char *path, char *caller, int ignore_direntry)
 				}
 			}
 		} else {
-        	char tmppath[LINE_MAX], dir_name[LINE_MAX];
-	        strcpy(tmppath, path);
+			char tmppath[LINE_MAX], dir_name[LINE_MAX];
+			strcpy(tmppath, path);
 			strcpy(dir_name, dirname(tmppath));
 			line_process(dir_name, "metadatacopy", 1);
 			if(fullcopy) {
@@ -369,12 +364,11 @@ int line_process(const char *path, char *caller, int ignore_direntry)
 				truncate(new_path, source_stat.st_size);
 			}
 		}
-
 		struct utimbuf time_buf;
-        time_buf.modtime = source_stat.st_mtime;
-        time_buf.actime = source_stat.st_atime;
-        utime(new_path, &time_buf);
-        chmod(new_path, source_stat.st_mode);
+		time_buf.modtime = source_stat.st_mtime;
+		time_buf.actime = source_stat.st_atime;
+		utime(new_path, &time_buf);
+		chmod(new_path, source_stat.st_mode);
 regfiledone:
 		return 0;
 	}
@@ -415,7 +409,6 @@ regfiledone:
 		char new_dir[LINE_MAX];
 		strcpy(new_dir, packagepath);
 		strcat(new_dir, dir_name);
-		
 		//fprintf(stdout, "new_dir: %s,  current dir: %s\n",new_dir, getcwd(0, 0));
 		if(access(new_dir, F_OK) == -1) {
 			fprintf(stdout, "new_dir %s  does not exist, need to be created firstly", dir_name);

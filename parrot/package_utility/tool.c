@@ -395,8 +395,37 @@ regfiledone:
 		printf("symbolink, the real path: %s\n", actualpath);
 		printf("symbolink, the direct real path: %s\n", buf);
 		char linked_path[LINE_MAX];
-		realpath(buf, linked_path);
+			char dir_name[LINE_MAX];
+			char pathcopy[LINE_MAX];
+			strcpy(pathcopy, path);
+			strcpy(dir_name, dirname(pathcopy));
+		//realpath(buf, linked_path);
+		if(buf[0] == '/')
+			strcpy(linked_path, buf);
+		else {
+			//remove the duplicated / and .
+			chdir(dir_name);
+				strcpy(linked_path, dir_name);
+			//here need to be modified, how to deal with the multiple ./../../../cctools.tar
+				strcat(linked_path, "/");
+				strcat(linked_path, buf);
+			}
+		fprintf(stdout, "the realpath of direct real path is: %s\n", linked_path);
 		line_process(linked_path, "fullcopy", 0);
+		char new_dir[LINE_MAX];
+		strcpy(new_dir, packagepath);
+		strcat(new_dir, dir_name);
+		
+		//fprintf(stdout, "new_dir: %s,  current dir: %s\n",new_dir, getcwd(0, 0));
+		if(access(new_dir, F_OK) == -1) {
+			fprintf(stdout, "new_dir %s  does not exist, need to be created firstly", dir_name);
+			line_process(dir_name, "metadatacopy", 1);
+		}
+		if(chdir(new_dir) == -1) {
+			fprintf(stdout, "chdir fails\n");
+			return 0;
+		}
+		fprintf(stdout, "current dir: %s\n", getcwd(0, 0));
 		if(symlink(buf, new_path) == -1)
 			fprintf(stdout, "symlink create fail, %s\n", strerror(errno));
 		return 0;

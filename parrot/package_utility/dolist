@@ -1,0 +1,8 @@
+analyze the system call of file or directory, to ensure the semantics is right.
+to deal with rm negative direction command
+
+
+add overall documentation for these three shell scripts
+add open problem for these shell:
+	env-process: add other shell/bash csh
+	package-utility: recursive symbolic path; metadata;

@@ -12,6 +12,9 @@
 #include <libgen.h>
 #include <fcntl.h>
 #include <sys/sendfile.h>
+#include <time.h>
+
+#define SIZE 256
 
 int LINE_MAX=1024;
 
@@ -45,6 +48,15 @@ static void show_help(const char *cmd)
 	return;
 }
 
+void print_time()
+{
+	time_t curtime;
+	struct tm *loctime;
+	curtime = time(NULL);
+	loctime = localtime(&curtime);
+	fputs(asctime(loctime), stdout);
+}
+
 /* Compare the strings. */
 static int compare(const void * a, const void * b)
 {
@@ -71,18 +83,19 @@ int line_number(const char *filename)
 	return count;
 }
 
-void relative_path(char *newpath, const char *oldpath)
+void relative_path(char *newpath, const char *oldpath, const char *path)
 {
 	char *s;
 	strcpy(newpath, "");
-	s = strchr(oldpath, '/');
+	s = strchr(path, '/');
 	while(s != NULL) {
 		s++;
 		strcat(newpath, "../");
 		s = strchr(s, '/');
 	}
-	newpath[strlen(newpath) - 1] = '\0';
+	newpath[strlen(newpath) - 4] = '\0';
 	strcat(newpath, oldpath);
+	fprintf(stdout, "relative_path: origin path: %s, oldpath: %s, newpath: %s\n", path, oldpath, newpath);
 }
 
 void remove_final_slashes(char *path)
@@ -242,13 +255,16 @@ int dir_entry(const char* filename)
 	}
 	if(lstat(filename, &source_stat) == 0) {
 		if(S_ISDIR(source_stat.st_mode)) {
-			mkdir(filename, source_stat.st_mode);
 			printf("%s, ---dir\n", filename);
+			line_process(filename, "metadatacopy", 1);
 		} else if (S_ISCHR(source_stat.st_mode)) {
 			printf("%s, ---character\n", filename);
 		} else if(S_ISBLK(source_stat.st_mode)) {
 			printf("%s, ---block\n", filename);
 		} else if(S_ISREG(source_stat.st_mode)) {
+			printf("%s, ---regular file\n", filename);
+			line_process(filename, "metadatacopy", 1);
+/*
 			FILE *fp = fopen(new_path, "w");
 			fclose(fp);
 			truncate(new_path, source_stat.st_size);
@@ -257,12 +273,13 @@ int dir_entry(const char* filename)
 			time_buf.actime = source_stat.st_atime;
 			utime(new_path, &time_buf);
 			chmod(new_path, source_stat.st_mode);
-			printf("%s, ---regular file\n", filename);
+*/
 		} else if(S_ISFIFO(source_stat.st_mode)) {
 			printf("%s, ---fifo special file\n", filename);
 		} else if(S_ISLNK(source_stat.st_mode)) {
 			//here recursively call dir_entry function
 			printf("%s, ---link file\n", filename);
+			line_process(filename, "metadatacopy", 1);
 		} else if(S_ISSOCK(source_stat.st_mode)) {
 			printf("%s, ---socket file\n", filename);
 		}
@@ -312,11 +329,13 @@ int line_process(const char *path, char *caller, int ignore_direntry)
 		return 1;
 	}
 	int fullcopy = 0;
-	if(strcmp(caller,"metadatacopy") == 0)
+	ignore_direntry = 1;
+	if(strcmp(caller,"metadatacopy") == 0) {
 		fullcopy = 0;
-	else if(strcmp(caller,"fullcopy") == 0 || is_special_caller(caller))
+	} else if(strcmp(caller,"fullcopy") == 0 || is_special_caller(caller)) {
+		ignore_direntry = 0;
 		fullcopy = 1;
-
+	}
 	char new_path[LINE_MAX];
 	strcpy(new_path, packagepath);
 	strcat(new_path, path);
@@ -398,30 +417,34 @@ regfiledone:
 			strcpy(linked_path, buf);
 		else {
 			//remove the duplicated / and .
-			chdir(dir_name);
+			//chdir(dir_name);
 			strcpy(linked_path, dir_name);
 			if(linked_path[strlen(linked_path) - 1] != '/')
 				strcat(linked_path, "/");
 			strcat(linked_path, buf);
 			}
 		fprintf(stdout, "the realpath of direct real path is: %s\n", linked_path);
-		line_process(linked_path, "fullcopy", 0);
+		if(fullcopy)
+			line_process(linked_path, "fullcopy", 0);
+		else
+			line_process(linked_path, "metadatacopy", 1);
 		char new_dir[LINE_MAX];
 		strcpy(new_dir, packagepath);
 		strcat(new_dir, dir_name);
-		//fprintf(stdout, "new_dir: %s,  current dir: %s\n",new_dir, getcwd(0, 0));
 		if(access(new_dir, F_OK) == -1) {
 			fprintf(stdout, "new_dir %s  does not exist, need to be created firstly", dir_name);
 			line_process(dir_name, "metadatacopy", 1);
 		}
+/*
 		if(chdir(new_dir) == -1) {
 			fprintf(stdout, "chdir fails\n");
 			return 0;
 		}
 		fprintf(stdout, "current dir: %s\n", getcwd(0, 0));
+*/
 		char newbuf[LINE_MAX];
 		if(buf[0] == '/') {
-			relative_path(newbuf, buf);
+			relative_path(newbuf, buf, path);
 			strcpy(buf, newbuf);
 		}
 		if(symlink(buf, new_path) == -1)
@@ -432,6 +455,7 @@ regfiledone:
 
 int main(int argc, char *argv[])
 {
+	print_time();
 	int c;
 
 	struct option long_options[] = {
@@ -506,6 +530,7 @@ int main(int argc, char *argv[])
 	char *newline;
 	fprintf(stdout, "final path is: %s\n", newline);
 */
+	print_time();
 	return 0;
 }
 

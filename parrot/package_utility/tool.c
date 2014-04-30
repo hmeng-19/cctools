@@ -178,7 +178,7 @@ int copy_file(const char* source, const char* target)
 		return -1;
 	}
 
-	if(remove(target) == -1) {
+	if(access(target, F_OK) == 0 && remove(target) == -1) {
 		fprintf(stdout, "copy_file target remove(`%s`) fails: %s", target, strerror(errno));
 		return -1;
 	}	

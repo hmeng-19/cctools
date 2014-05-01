@@ -121,9 +121,32 @@ void sort_namelist(char *namelist_array[line_num]) {
 		fclose(namelist_file);
 }
 
-/* Function with behaviour like `mkdir -p'  */
-//replace this func with the func under dttools
-int mkpath(const char *path, mode_t mode) {
+/* 
+Function with behaviour like `mkdir -p'.  
+Correctly copying the file permissions from AFS items into the package, 
+which is stored on the local filesystem, is inefficient, because AFS has
+its own ACLs, which is different UNIX file permission mechanism.
+*/
+int mkpath(const char *path, mode_t mode, int fixed_mode) {
+    printf("mkpath: %s\n", path);
+    if(access(path, F_OK) == 0) {
+        printf("%s already exists, mkpath exist!\n", path);
+        return 0;
+    }
+
+    if(fixed_mode == 0) {
+        const char *old_path;
+        old_path = path + strlen(packagepath);
+        struct stat st;
+        if(stat(old_path, &st) == 0 )
+            mode = st.st_mode;
+        else {
+            fprintf(stdout, "stat(`%s`) fails: %s\n", old_path, strerror(errno));
+            //set default fixed_mode
+        }
+    }
+
+
 	char *pathcopy, *parent_dir;
 	int rv;
 	rv = -1;
@@ -136,10 +159,10 @@ int mkpath(const char *path, mode_t mode) {
 	if((parent_dir = dirname(pathcopy)) == NULL)
 		goto out;
 
-	if((mkpath(parent_dir, mode) == -1) && (errno != EEXIST))
+	if((mkpath(parent_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1) == -1) && (errno != EEXIST))
 		goto out;
 
-	if((mkdir(path, mode) == -1) && (errno != EEXIST))
+	if((mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) && (errno != EEXIST))
 		rv = -1;
 	else
 		rv = 0;
@@ -165,7 +188,7 @@ int prepare_work()
 		return -1;
 	}
 	int status;
-	status = mkpath(packagepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	status = mkpath(packagepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1);
 	return 0;
 }
 
@@ -389,7 +412,10 @@ int line_process(const char *path, char *caller, int ignore_direntry)
 			else {
 				printf("`%s`: metadatacopy not exist! create metadatacopy ...\n", path);
 				FILE *fp = fopen(new_path, "w");
-				fclose(fp);
+				 if(fp != NULL)
+                    fclose(fp);
+                else
+                    fprintf(stdout, "fopen(`%s`) fails: %s\n", new_path, strerror(errno));
 				truncate(new_path, source_stat.st_size);
 			}
 		}
@@ -403,7 +429,8 @@ regfiledone:
 	}
 	if(S_ISDIR(source_stat.st_mode)) {
 		printf("`%s`: regular dir\n", path);
-		mkpath(new_path, source_stat.st_mode);
+		//mkpath(new_path, source_stat.st_mode, 1);
+		mkpath(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1);
 		if(ignore_direntry == 0)
 			create_dir_subitems(path, new_path);
 		return 0;

@@ -194,6 +194,7 @@ int prepare_work()
 
 int copy_file(const char* source, const char* target)
 {
+	fprintf(stdout, "enter into copy_file func\n");
 	int input, output;
 	if((input = open(source, O_RDONLY)) == -1)
 	{
@@ -216,7 +217,17 @@ int copy_file(const char* source, const char* target)
 	off_t source_size = 0;
 	struct stat input_stat;
 	fstat(input, &input_stat);
+	/*
+	In Linux kernels before 2.6.33, out_fd must refer to a socket. Since Linux 2.6.33 it can be any file.
+	If it is a regular file, then sendfile() changes the file offset appropriately.
+	*/
 	int result = sendfile(output, input, &source_size, input_stat.st_size);
+	if(result == -1)
+		fprintf(stdout, "sendfile fails: %s\n", strerror(errno));
+
+//	while((ch = fgetc(input)) != EOF)
+//		fputc(ch, output);
+
 	close(input);
 	close(output);
 

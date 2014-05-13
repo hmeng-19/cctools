@@ -278,7 +278,7 @@ int dir_entry(const char* filename)
 			printf("dir_entry: `%s`, ---socket file, do nothing!\n", filename);
 		}
 	} else {
-		fprintf(stderr, "lstat(`%s`): %s\n", filename, strerror(errno));
+		fprintf(stdout, "lstat(`%s`): %s\n", filename, strerror(errno));
 	}
 	return 0;
 }

@@ -113,9 +113,9 @@ void sort_namelist(char *namelist_array[line_num]) {
 	int i;
 	FILE *namelist_file = fopen(namelist, "r");
 	if(!namelist_file) {
-        fprintf(stdout, "Can not open namelist file: `%s`", namelist);
-        exit(1);
-    }
+		fprintf(stdout, "Can not open namelist file: `%s`", namelist);
+		exit(1);
+	}
 	char line[LINE_MAX];
 	for (i = 0; fgets(line, LINE_MAX, namelist_file); i++) {
 		namelist_array[i] = strdup(line);
@@ -132,23 +132,23 @@ which is stored on the local filesystem, is inefficient, because AFS has
 its own ACLs, which is different UNIX file permission mechanism.
 */
 int mkpath(const char *path, mode_t mode, int fixed_mode) {
-    printf("mkpath: %s\n", path);
-    if(access(path, F_OK) == 0) {
-        printf("%s already exists, mkpath exist!\n", path);
-        return 0;
-    }
+	printf("mkpath: %s\n", path);
+	if(access(path, F_OK) == 0) {
+		printf("%s already exists, mkpath exist!\n", path);
+		return 0;
+	}
 
-    if(fixed_mode == 0) {
-        const char *old_path;
-        old_path = path + strlen(packagepath);
-        struct stat st;
-        if(stat(old_path, &st) == 0) {
-            mode = st.st_mode;
-        } else {
-            fprintf(stdout, "stat(`%s`) fails: %s\n", old_path, strerror(errno));
+	if(fixed_mode == 0) {
+		const char *old_path;
+		old_path = path + strlen(packagepath);
+		struct stat st;
+		if(stat(old_path, &st) == 0) {
+			mode = st.st_mode;
+		} else {
+			fprintf(stdout, "stat(`%s`) fails: %s\n", old_path, strerror(errno));
 			return -1;
-        }
-    }
+		}
+	}
 
 	char *pathcopy, *parent_dir;
 	int rv;
@@ -375,9 +375,9 @@ int line_process(const char *path, char *caller, int ignore_direntry)
 			} else {
 				FILE *fp = fopen(new_path, "w");
 				if(fp != NULL)
-                    fclose(fp);
-                else
-                    fprintf(stdout, "fopen(`%s`) fails: %s\n", new_path, strerror(errno));
+					fclose(fp);
+				else
+					fprintf(stdout, "fopen(`%s`) fails: %s\n", new_path, strerror(errno));
 				truncate(new_path, source_stat.st_size);
 				printf("`%s`: metadatacopy not exist! create metadatacopy ...\n", path);
 			}

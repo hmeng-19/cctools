@@ -329,10 +329,19 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 		fullcopy = 1;
 		ignore_direntry = 0;
 	}
+
+	struct stat source_stat;
+	if(lstat(path, &source_stat) == -1) {
+		fprintf(stdout, "lstat(`%s`): %s\n", path, strerror(errno));
+		return -1;
+	}
+
 	char new_path[LINE_MAX];
 	strcpy(new_path, packagepath);
 	strcat(new_path, path);
+	/* existance: whether this item has existed in the target package. */
 	int existance = 0;
+	/* if the item has existed in the target package and the copy degree is `metadatacopy`, it is done! */
 	if(access(new_path, F_OK) == 0) {
 		existance = 1;
 		if(fullcopy == 0) {
@@ -340,32 +349,25 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			return 0;
 		}
 	}
-	struct stat source_stat;
-	if(lstat(path, &source_stat) == -1) {
-		fprintf(stdout, "lstat(`%s`): %s\n", path, strerror(errno));
-		return -1;
-	}
 
 	if(S_ISREG(source_stat.st_mode)) {
 		printf("`%s`: regular file\n", path);
 		if(existance) {
-			if(fullcopy == 0) {
-				printf("`%s`: metadatacopy exist! pass!\n", path);
+			/* here, the copy degree must be fullcopy. */
+			struct stat target_stat;
+			if(stat(new_path, &target_stat) == -1) {
+				fprintf(stdout, "stat(%s) fails: %s\n", new_path, strerror(errno));
+				return -1;
+			}
+			/* Here is the tricky point: we use `truncate` system call to change the size of one empty file (`st_size`), but its `st_blocks` is still 0. */
+			if(target_stat.st_blocks) {
+				printf("`%s`: fullcopy exist! pass!\n", path);
 			} else {
-				struct stat target_stat;
-				if(stat(new_path, &target_stat) == -1) {
-					fprintf(stdout, "stat(%s) fails: %s\n", new_path, strerror(errno));
-					return -1;
-				}
-				if(target_stat.st_blocks) {
-					printf("`%s`: fullcopy exist! pass!\n", path);
-				} else {
-					remove(new_path);
-					if(copy_file_to_file(path, new_path) < 0)
-						fprintf(stdout, "copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
-					else
-						printf("`%s`: fullcopy not exist, metadatacopy exist! create fullcopy ...\n", path);
-				}
+				remove(new_path);
+				if(copy_file_to_file(path, new_path) < 0)
+					fprintf(stdout, "copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
+				else
+					printf("`%s`: fullcopy not exist, metadatacopy exist! create fullcopy ...\n", path);
 			}
 		} else {
 			if(is_direntry == 0) {
@@ -389,6 +391,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 				printf("`%s`: metadatacopy not exist! create metadatacopy ...\n", path);
 			}
 		}
+		/* copy the metadata info of the file */
 		struct utimbuf time_buf;
 		time_buf.modtime = source_stat.st_mtime;
 		time_buf.actime = source_stat.st_atime;
@@ -404,6 +407,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			mkdir(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		}
 	} else if(S_ISLNK(source_stat.st_mode)) {
+		/* first use `readlink` to obtain the target of the symlink. */
 		char buf[LINE_MAX];
 		int len;
 		if ((len = readlink(path, buf, sizeof(buf)-1)) != -1) {
@@ -413,7 +417,9 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			return -1;
 		}
 		printf("`%s`: symbolink, the direct real path: `%s`\n", path, buf);
-		char linked_path[LINE_MAX], pathcopy[LINE_MAX], dir_name[LINE_MAX], new_dir[LINE_MAX], newbuf[LINE_MAX];
+
+		/* then obtain the complete path of the target of the symlink. */
+		char linked_path[LINE_MAX], pathcopy[LINE_MAX], dir_name[LINE_MAX], newbuf[LINE_MAX];
 		strcpy(pathcopy, path);
 		strcpy(dir_name, dirname(pathcopy));
 		if(buf[0] == '/') {
@@ -425,24 +431,31 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			strcat(linked_path, buf);
 		}
 		fprintf(stdout, "the relative version of direct real path `%s` is: `%s`\n", path, linked_path);
+
+		/* process the target of the symlink recursively. */
 		if(fullcopy) {
 			line_process(linked_path, "fullcopy", 0, 0);
 		} else {
 			line_process(linked_path, "metadatacopy", 1, 0);
 		}
-		strcpy(new_dir, packagepath);
-		strcat(new_dir, dir_name);
+
+		/* ensure the directory of the symlink has been created in the target package. */
 		if(is_direntry == 0) {
+			char new_dir[LINE_MAX];
+			strcpy(new_dir, packagepath);
+			strcat(new_dir, dir_name);
 			if(access(new_dir, F_OK) == -1) {
 				fprintf(stdout, "the dir `%s` of the target of symbolink file `%s` does not exist, need to be created firstly", dir_name, path);
 				line_process(dir_name, "metadatacopy", 1, 0);
 			}
 		}
+
 		/* Transform absolute symlink into relative symlink. */
 		if(buf[0] == '/') {
 			relative_path(newbuf, buf, path);
 			strcpy(buf, newbuf);
 		}
+		/* Create the symlink relationship */
 		if(symlink(buf, new_path) == -1) {
 			fprintf(stdout, "symlink from `%s` to `%s` create fail, %s\n", new_path, buf, strerror(errno));
 		} else {

@@ -330,12 +330,6 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 		ignore_direntry = 0;
 	}
 
-	struct stat source_stat;
-	if(lstat(path, &source_stat) == -1) {
-		fprintf(stdout, "lstat(`%s`): %s\n", path, strerror(errno));
-		return -1;
-	}
-
 	char new_path[LINE_MAX];
 	strcpy(new_path, packagepath);
 	strcat(new_path, path);
@@ -348,6 +342,12 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			fprintf(stdout, "`%s`: metadata copy, already exist!\n", path);
 			return 0;
 		}
+	}
+
+	struct stat source_stat;
+	if(lstat(path, &source_stat) == -1) {
+		fprintf(stdout, "lstat(`%s`): %s\n", path, strerror(errno));
+		return -1;
 	}
 
 	if(S_ISREG(source_stat.st_mode)) {

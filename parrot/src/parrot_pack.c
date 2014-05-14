@@ -73,7 +73,7 @@ int line_number(const char *filename)
 	char line[LINE_MAX];
 	namelist_file = fopen(filename, "r");
 	if(!namelist_file) {
-		fprintf(stdout, "Can not open namelist file: `%s`", filename);
+		fprintf(stdout, "line_number Can not open sorted namelist file: `%s`", filename);
 		exit(1);
 	}
 	count = 0;
@@ -83,6 +83,14 @@ int line_number(const char *filename)
 	if(namelist_file)
 		fclose(namelist_file);
 	return count;
+}
+
+int sort_uniq_namelist(const char *filename, char sorted_filename[LINE_MAX]) {
+	sprintf(sorted_filename, "%s.sort", filename);
+	char command[LINE_MAX*3];
+	sprintf(command, "sort -u %s > %s", filename, sorted_filename);
+	system(command);
+	return 0;
 }
 
 void relative_path(char *newpath, const char *oldpath, const char *path)
@@ -107,6 +115,22 @@ void remove_final_slashes(char *path)
 		n--;
 	}
 	path[n] = '\0';
+}
+
+int initialize_namelist_array(char *namelist_array[line_num], char *filename) {
+	int i;
+	FILE *namelist_file = fopen(filename, "r");
+	if(!namelist_file) {
+		fprintf(stdout, "initialize_namelist_array Can not open sorted namelist file: `%s`", filename);
+		exit(1);
+	}
+	char line[LINE_MAX];
+	for (i = 0; fgets(line, LINE_MAX, namelist_file); i++) {
+		namelist_array[i] = strdup(line);
+	}
+	if(namelist_file)
+		fclose(namelist_file);
+	return 0;
 }
 
 //sort all the lines of the namelist file.
@@ -398,7 +422,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 		utime(new_path, &time_buf);
 		chmod(new_path, source_stat.st_mode);
 	} else if(S_ISDIR(source_stat.st_mode)) {
-		printf("`%s`: regular dir\n", path);
+		fprintf(stdout, "`%s`: regular dir\n", path);
 		if(is_direntry == 0) {
 			mkpath(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1);
 			if(ignore_direntry == 0)
@@ -501,14 +525,16 @@ int main(int argc, char *argv[])
 		show_help(argv[0]);
 		return -1;
 	}
-
-	line_num = line_number(namelist);
+	char sorted_filename[LINE_MAX];
+	sort_uniq_namelist(namelist, sorted_filename);
+	line_num = line_number(sorted_filename);
 	if(line_num <= 0) {
-		fprintf(stdout, "The namelist file is empty or can not be opened.\n");
+		fprintf(stdout, "The sorted namelist file is empty or can not be opened.\n");
 		return -1;
 	}
 	char *namelist_array[line_num];
-	sort_namelist(namelist_array);
+	initialize_namelist_array(namelist_array, sorted_filename);
+	//sort_namelist(namelist_array);
 	int i, path_len;
 	char path[LINE_MAX], *caller;
 	for (i = 0; i < line_num; i++) {

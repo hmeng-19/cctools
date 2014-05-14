@@ -21,8 +21,9 @@ int LINE_MAX=1024;
 const char *namelist;
 const char *packagepath;
 const char *envpath;
-char *sorted_namelist;
 int line_num;
+
+int line_process(const char *path, char *caller, int ignore_direntry, int is_direntry);
 
 //files from these paths will be ignored.
 const char *special_path[] = {"var", "sys", "dev", "proc", "net", "misc", "selinux"};
@@ -200,7 +201,7 @@ int prepare_work()
 int is_special_caller(char *caller)
 {
 	int i;
-	for(i = 0; i < special_caller_len; i++){
+	for(i = 0; i < (int) special_caller_len; i++){
 		if(strcmp(special_caller[i], caller) == 0) {
 			return 1;
 		}
@@ -221,7 +222,7 @@ int is_special_path(const char *path)
 		size = strlen(first_dir) - strlen(tmp_dir);
 	}
 	first_dir[size] = '\0';
-	for(i = 0; i < special_path_len; i++){
+	for(i = 0; i < (int) special_path_len; i++){
 		if(strcmp(special_path[i], first_dir) == 0) {
 			return 1;
 		}
@@ -261,19 +262,19 @@ int dir_entry(const char* filename)
 	} else if(lstat(filename, &source_stat) == 0) {
 		if(S_ISDIR(source_stat.st_mode)) {
 			printf("dir_entry: `%s`, ---dir\n", filename);
-			line_process(filename, "metadatacopy", 1);
+			line_process(filename, "metadatacopy", 1, 1);
 		} else if(S_ISCHR(source_stat.st_mode)) {
 			printf("dir_entry: `%s`, ---character, do nothing!\n", filename);
 		} else if(S_ISBLK(source_stat.st_mode)) {
 			printf("dir_entry: `%s`, ---block, do nothing!\n", filename);
 		} else if(S_ISREG(source_stat.st_mode)) {
 			printf("dir_entry: `%s`, ---regular file\n", filename);
-			line_process(filename, "metadatacopy", 1);
+			line_process(filename, "metadatacopy", 1, 1);
 		} else if(S_ISFIFO(source_stat.st_mode)) {
 			printf("dir_entry: `%s`, ---fifo special file, do nothing!\n", filename);
 		} else if(S_ISLNK(source_stat.st_mode)) {
 			printf("dir_entry: `%s`, ---link file, do nothing!\n", filename);
-			line_process(filename, "metadatacopy", 1);
+			line_process(filename, "metadatacopy", 1, 1);
 		} else if(S_ISSOCK(source_stat.st_mode)) {
 			printf("dir_entry: `%s`, ---socket file, do nothing!\n", filename);
 		}
@@ -296,7 +297,7 @@ int create_dir_subitems(const char *path, char *new_path) {
 	dir = opendir(path);
 	if (dir != NULL)
 	{
-		while (entry = readdir(dir))
+		while ((entry = readdir(dir)))
 		{
 			strcpy(full_entrypath, dir_name);
 			strcat(full_entrypath, entry->d_name);
@@ -309,7 +310,11 @@ int create_dir_subitems(const char *path, char *new_path) {
 	return 0;
 }
 
-int line_process(const char *path, char *caller, int ignore_direntry)
+/*
+ignore_direntry is to tell whether the directory struture of one directory needs to be maintained. The directory structure here means: create each subitems but not copy their contents.
+if is_direntry is 1, ignore the process to check whether its parent dir has been created in the target package, which can greatly reduce the amount of `access` syscall.
+*/
+int line_process(const char *path, char *caller, int ignore_direntry, int is_direntry)
 {
 	printf("`%s`\n", path);
 	if(is_special_path(path)) {
@@ -357,19 +362,21 @@ int line_process(const char *path, char *caller, int ignore_direntry)
 				} else {
 					remove(new_path);
 					if(copy_file_to_file(path, new_path) < 0)
-						fprintf("copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
+						fprintf(stdout, "copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
 					else
 						printf("`%s`: fullcopy not exist, metadatacopy exist! create fullcopy ...\n", path);
 				}
 			}
 		} else {
-			char tmppath[LINE_MAX], dir_name[LINE_MAX];
-			strcpy(tmppath, path);
-			strcpy(dir_name, dirname(tmppath));
-			line_process(dir_name, "metadatacopy", 1);
+			if(is_direntry == 0) {
+				char tmppath[LINE_MAX], dir_name[LINE_MAX];
+				strcpy(tmppath, path);
+				strcpy(dir_name, dirname(tmppath));
+				line_process(dir_name, "metadatacopy", 1, 0);
+			}
 			if(fullcopy) {
 				if(copy_file_to_file(path, new_path) < 0)
-					fprintf("copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
+					fprintf(stdout, "copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
 				else
 					printf("`%s`: fullcopy not exist, metadatacopy not exist! create fullcopy ...\n", path);
 			} else {
@@ -389,9 +396,13 @@ int line_process(const char *path, char *caller, int ignore_direntry)
 		chmod(new_path, source_stat.st_mode);
 	} else if(S_ISDIR(source_stat.st_mode)) {
 		printf("`%s`: regular dir\n", path);
-		mkpath(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1);
-		if(ignore_direntry == 0)
-			create_dir_subitems(path, new_path);
+		if(is_direntry == 0) {
+			mkpath(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1);
+			if(ignore_direntry == 0)
+				create_dir_subitems(path, new_path);
+		} else {
+			mkdir(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		}
 	} else if(S_ISLNK(source_stat.st_mode)) {
 		char buf[LINE_MAX];
 		int len;
@@ -415,15 +426,17 @@ int line_process(const char *path, char *caller, int ignore_direntry)
 		}
 		fprintf(stdout, "the relative version of direct real path `%s` is: `%s`\n", path, linked_path);
 		if(fullcopy) {
-			line_process(linked_path, "fullcopy", 0);
+			line_process(linked_path, "fullcopy", 0, 0);
 		} else {
-			line_process(linked_path, "metadatacopy", 1);
+			line_process(linked_path, "metadatacopy", 1, 0);
 		}
 		strcpy(new_dir, packagepath);
 		strcat(new_dir, dir_name);
-		if(access(new_dir, F_OK) == -1) {
-			fprintf(stdout, "the dir `%s` of the target of symbolink file `%s` does not exist, need to be created firstly", dir_name, path);
-			line_process(dir_name, "metadatacopy", 1);
+		if(is_direntry == 0) {
+			if(access(new_dir, F_OK) == -1) {
+				fprintf(stdout, "the dir `%s` of the target of symbolink file `%s` does not exist, need to be created firstly", dir_name, path);
+				line_process(dir_name, "metadatacopy", 1, 0);
+			}
 		}
 		/* Transform absolute symlink into relative symlink. */
 		if(buf[0] == '/') {
@@ -493,7 +506,7 @@ int main(int argc, char *argv[])
 		strcpy(path, namelist_array[i]);
 		path[path_len] = '\0';
 		remove_final_slashes(path);
-		line_process(path, caller, 0);
+		line_process(path, caller, 0, 0);
 	}
 	print_time();
 	return 0;

@@ -21,7 +21,6 @@ int LINE_MAX=1024;
 const char *namelist;
 const char *packagepath;
 const char *envpath;
-int line_num;
 
 int line_process(const char *path, char *caller, int ignore_direntry, int is_direntry);
 
@@ -58,33 +57,6 @@ void print_time()
 	fputs(asctime(loctime), stdout);
 }
 
-/* Compare the strings. */
-static int compare(const void * a, const void * b)
-{
-	/* The pointers point to offsets into "namelist_array", so we need to dereference them to get at the strings. */
-	return strcmp(*(const char **) a, *(const char **) b);
-}
-
-/* obtain the line number of one file. */
-int line_number(const char *filename)
-{
-	FILE *namelist_file;
-	int count;
-	char line[LINE_MAX];
-	namelist_file = fopen(filename, "r");
-	if(!namelist_file) {
-		fprintf(stdout, "line_number Can not open sorted namelist file: `%s`", filename);
-		exit(1);
-	}
-	count = 0;
-	while(fgets(line, LINE_MAX, namelist_file) != NULL) {
-		count++;
-	}
-	if(namelist_file)
-		fclose(namelist_file);
-	return count;
-}
-
 int sort_uniq_namelist(const char *filename, char sorted_filename[LINE_MAX]) {
 	sprintf(sorted_filename, "%s.sort", filename);
 	char command[LINE_MAX*3];
@@ -115,39 +87,6 @@ void remove_final_slashes(char *path)
 		n--;
 	}
 	path[n] = '\0';
-}
-
-int initialize_namelist_array(char namelist_array[line_num][LINE_MAX], char *filename) {
-	int i;
-	FILE *namelist_file = fopen(filename, "r");
-	if(!namelist_file) {
-		fprintf(stdout, "initialize_namelist_array Can not open sorted namelist file: `%s`", filename);
-		exit(1);
-	}
-	char line[LINE_MAX];
-	for (i = 0; fgets(line, LINE_MAX, namelist_file); i++) {
-		strcpy(namelist_array[i], line);
-	}
-	if(namelist_file)
-		fclose(namelist_file);
-	return 0;
-}
-
-//sort all the lines of the namelist file.
-void sort_namelist(char namelist_array[line_num][LINE_MAX]) {
-	int i;
-	FILE *namelist_file = fopen(namelist, "r");
-	if(!namelist_file) {
-		fprintf(stdout, "Can not open namelist file: `%s`", namelist);
-		exit(1);
-	}
-	char line[LINE_MAX];
-	for (i = 0; fgets(line, LINE_MAX, namelist_file); i++) {
-		strcpy(namelist_array[i], line);
-	}
-	qsort(namelist_array, line_num, sizeof(const char *), compare);
-	if(namelist_file)
-		fclose(namelist_file);
 }
 
 /* 
@@ -490,7 +429,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 }
 
 /* copy the environment variable file into the package; create common-mountlist file. */
-int post_process(char namelist_array[line_num][LINE_MAX]) {
+int post_process( ) {
 	char new_envpath[LINE_MAX], common_mountlist[LINE_MAX];
 
 	sprintf(new_envpath, "%s/%s", packagepath, envpath);
@@ -553,27 +492,31 @@ int main(int argc, char *argv[])
 	}
 	char sorted_filename[LINE_MAX];
 	sort_uniq_namelist(namelist, sorted_filename);
-	line_num = line_number(sorted_filename);
-	if(line_num <= 0) {
-		fprintf(stdout, "The sorted namelist file is empty or can not be opened.\n");
-		return -1;
+
+	FILE *namelist_file;
+	int count, path_len;
+    char line[LINE_MAX], path[LINE_MAX], *caller;
+	namelist_file = fopen(sorted_filename, "r");
+	if(!namelist_file) {
+		fprintf(stdout, "Main func not open sorted namelist file: `%s`", sorted_filename);
+		exit(1);
 	}
-	char namelist_array[line_num][LINE_MAX];
-	initialize_namelist_array(namelist_array, sorted_filename);
-	//sort_namelist(namelist_array);
-	int i, path_len;
-	char path[LINE_MAX], *caller;
-	for (i = 0; i < line_num; i++) {
-		caller = strchr(namelist_array[i], '|') + 1;
-		caller[strlen(caller) - 1] = '\0';
-		path_len = strlen(namelist_array[i]) - strlen(caller) - 1;
-		printf("%d --- namelist_array: %s; path_len: %d\n", i, namelist_array[i], path_len);
-		strcpy(path, namelist_array[i]);
-		path[path_len] = '\0';
-		remove_final_slashes(path);
-		line_process(path, caller, 0, 0);
+	count = 0;
+	while(fgets(line, LINE_MAX, namelist_file) != NULL) {
+		count++;
+        caller = strchr(line, '|') + 1;
+        caller[strlen(caller) - 1] = '\0';
+        path_len = strlen(line) - strlen(caller) - 1;
+        printf("%d --- line: %s; path_len: %d\n", count, line, path_len);
+        strcpy(path, line);
+        path[path_len] = '\0';
+        remove_final_slashes(path);
+        line_process(path, caller, 0, 0);
 	}
-	post_process(namelist_array);
+	if(namelist_file)
+		fclose(namelist_file);
+
+	post_process( );
 	print_time();
 	return 0;
 }

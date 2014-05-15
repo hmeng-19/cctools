@@ -117,7 +117,7 @@ void remove_final_slashes(char *path)
 	path[n] = '\0';
 }
 
-int initialize_namelist_array(char *namelist_array[line_num], char *filename) {
+int initialize_namelist_array(char namelist_array[line_num][LINE_MAX], char *filename) {
 	int i;
 	FILE *namelist_file = fopen(filename, "r");
 	if(!namelist_file) {
@@ -126,7 +126,7 @@ int initialize_namelist_array(char *namelist_array[line_num], char *filename) {
 	}
 	char line[LINE_MAX];
 	for (i = 0; fgets(line, LINE_MAX, namelist_file); i++) {
-		namelist_array[i] = strdup(line);
+		strcpy(namelist_array[i], line);
 	}
 	if(namelist_file)
 		fclose(namelist_file);
@@ -134,7 +134,7 @@ int initialize_namelist_array(char *namelist_array[line_num], char *filename) {
 }
 
 //sort all the lines of the namelist file.
-void sort_namelist(char *namelist_array[line_num]) {
+void sort_namelist(char namelist_array[line_num][LINE_MAX]) {
 	int i;
 	FILE *namelist_file = fopen(namelist, "r");
 	if(!namelist_file) {
@@ -143,7 +143,7 @@ void sort_namelist(char *namelist_array[line_num]) {
 	}
 	char line[LINE_MAX];
 	for (i = 0; fgets(line, LINE_MAX, namelist_file); i++) {
-		namelist_array[i] = strdup(line);
+		strcpy(namelist_array[i], line);
 	}
 	qsort(namelist_array, line_num, sizeof(const char *), compare);
 	if(namelist_file)
@@ -175,13 +175,13 @@ int mkpath(const char *path, mode_t mode, int fixed_mode) {
 		}
 	}
 
-	char *pathcopy, *parent_dir;
+	char pathcopy[LINE_MAX], *parent_dir;
 	int rv;
 	rv = -1;
 	if(strcmp(path, ".") == 0 || strcmp(path, "/") == 0)
 		return 0;
 
-	if((pathcopy = strdup(path)) == NULL)
+	if(strcpy(pathcopy, path) == NULL)
 		exit(1);
 
 	if((parent_dir = dirname(pathcopy)) == NULL)
@@ -236,8 +236,8 @@ int is_special_caller(char *caller)
 int is_special_path(const char *path)
 {
 	int i, size;
-	char *pathcopy, *first_dir, *tmp_dir;
-	pathcopy = strdup(path);
+	char pathcopy[LINE_MAX], *first_dir, *tmp_dir;
+	strcpy(pathcopy, path);
 	first_dir = strchr(pathcopy, '/') + 1;
 	tmp_dir = strchr(first_dir, '/');
 	if(tmp_dir == NULL) {
@@ -489,6 +489,32 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 	return 0;
 }
 
+/* copy the environment variable file into the package; create common-mountlist file. */
+int post_process(char namelist_array[line_num][LINE_MAX]) {
+	char new_envpath[LINE_MAX], common_mountlist[LINE_MAX];
+
+	sprintf(new_envpath, "%s/%s", packagepath, envpath);
+	copy_file_to_file(envpath, new_envpath);
+	
+	sprintf(common_mountlist, "%s/%s", packagepath, "common-mountlist");
+	FILE *file;
+	file = fopen(common_mountlist, "w");
+	if(!file) {
+		fprintf(stdout, "common-mountlist file `%s` can not be opened.", common_mountlist);
+		exit(1);
+	}
+	fputs("/dev /dev\n", file);
+	fputs("/misc /misc\n", file);
+	fputs("/net /net\n", file);
+	fputs("/proc /proc\n", file);
+	fputs("/sys /sys\n", file);
+	fputs("/var /var\n", file);
+	fputs("/selinux /selinux\n", file);
+	if(file)
+		fclose(file);
+	return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	print_time();
@@ -532,7 +558,7 @@ int main(int argc, char *argv[])
 		fprintf(stdout, "The sorted namelist file is empty or can not be opened.\n");
 		return -1;
 	}
-	char *namelist_array[line_num];
+	char namelist_array[line_num][LINE_MAX];
 	initialize_namelist_array(namelist_array, sorted_filename);
 	//sort_namelist(namelist_array);
 	int i, path_len;
@@ -547,6 +573,7 @@ int main(int argc, char *argv[])
 		remove_final_slashes(path);
 		line_process(path, caller, 0, 0);
 	}
+	post_process(namelist_array);
 	print_time();
 	return 0;
 }

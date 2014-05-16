@@ -57,11 +57,23 @@ void print_time()
 	fputs(asctime(loctime), stdout);
 }
 
-int sort_uniq_namelist(const char *filename, char sorted_filename[LINE_MAX]) {
-	sprintf(sorted_filename, "%s.sort", filename);
-	char command[LINE_MAX*3];
-	sprintf(command, "sort -u %s > %s", filename, sorted_filename);
-	system(command);
+int sort_uniq_namelist(const char *filename, int *fd) {
+	int fds[2];
+	pipe(fds);
+	pid_t pid = fork();
+	if (pid == 0) {
+		int input = open(filename, O_RDONLY);
+		dup2(input, STDIN_FILENO);
+		close(input);
+		close(fds[0]);
+		dup2(fds[1], STDOUT_FILENO);
+		close(fds[1]);
+		execlp("sort", "sort", "-u", NULL);
+	} else if (pid > 0) {
+		close(fds[1]);
+		*fd = fds[0];
+/* FIXME call wait on SIGCHLD */
+	}
 	return 0;
 }
 
@@ -490,15 +502,15 @@ int main(int argc, char *argv[])
 		show_help(argv[0]);
 		return -1;
 	}
-	char sorted_filename[LINE_MAX];
-	sort_uniq_namelist(namelist, sorted_filename);
+	int fd;
+	sort_uniq_namelist(namelist, &fd);
 
 	FILE *namelist_file;
 	int count, path_len;
     char line[LINE_MAX], path[LINE_MAX], *caller;
-	namelist_file = fopen(sorted_filename, "r");
+	namelist_file = fdopen(fd, "r");
 	if(!namelist_file) {
-		fprintf(stdout, "Main func not open sorted namelist file: `%s`", sorted_filename);
+		//fprintf(stdout, "Main func not open sorted namelist file: `%s`", sorted_filename);
 		exit(1);
 	}
 	count = 0;

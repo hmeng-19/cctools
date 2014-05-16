@@ -60,7 +60,9 @@ void print_time()
 	struct tm *loctime;
 	curtime = time(NULL);
 	loctime = localtime(&curtime);
-	fputs(asctime(loctime), stdout);
+	if(fputs(asctime(loctime), stdout) == EOF) {
+		debug(D_DEBUG, "fputs fails: %s\n", strerror(errno));
+	}
 }
 
 /* Use `sort -u` shell command to sort the namelist and remove the duplicate items. */
@@ -69,23 +71,37 @@ int sort_uniq_namelist(const char *filename, int *fd) {
 	pid_t pid;
 	if(pipe(fds)) {
 		debug(D_DEBUG, "pipe fails: %s\n", strerror(errno));
-		exit(1);
+		return -1;
 	}
 	pid = fork();
 	if (pid == 0) {
 		int input = open(filename, O_RDONLY);
-		dup2(input, STDIN_FILENO);
-		close(input);
+		if(input == -1) {
+			debug(D_DEBUG, "sort_uniq_namelist: open(`%s`) func fails: %s\n", filename, strerror(errno));
+			return -1;
+		}
+		if(dup2(input, STDIN_FILENO) == -1) {
+			debug(D_DEBUG, "sort_uniq_namelist: dup2 fails: %s\n", strerror(errno));
+			return -1;
+		}
+		if(input)
+			close(input);
 		close(fds[0]);
-		dup2(fds[1], STDOUT_FILENO);
+		if(dup2(fds[1], STDOUT_FILENO) == -1) {
+			debug(D_DEBUG, "sort_uniq_namelist: dup2 fails: %s\n", strerror(errno));
+			return -1;
+		}
 		close(fds[1]);
-		execlp("sort", "sort", "-u", NULL);
+		if(execlp("sort", "sort", "-u", NULL) == -1) {
+			debug(D_DEBUG, "sort_uniq_namelist: execlp fails: %s\n", strerror(errno));
+			return -1;
+		}
 	} else if (pid > 0) {
 		close(fds[1]);
 		*fd = fds[0];
 	} else {
 		debug(D_DEBUG, "fork fails: %s\n", strerror(errno));
-		exit(1);
+		return -1;
 	}
 	return 0;
 }
@@ -149,7 +165,7 @@ int mkpath(const char *path, mode_t mode, int fixed_mode) {
 		return 0;
 
 	if(strcpy(pathcopy, path) == NULL)
-		exit(1);
+		return -1;
 
 	if((parent_dir = dirname(pathcopy)) == NULL)
 		goto out;
@@ -215,8 +231,7 @@ int is_special_path(const char *path)
 	char pathcopy[LINE_MAX], *first_dir, *tmp_dir;
 	strcpy(pathcopy, path);
 	first_dir = strchr(pathcopy, '/') + 1;
-	tmp_dir = strchr(first_dir, '/');
-	if(tmp_dir == NULL) {
+	if((tmp_dir = strchr(first_dir, '/')) == NULL) {
 		size = strlen(first_dir);
 	} else {
 		size = strlen(first_dir) - strlen(tmp_dir);
@@ -278,8 +293,7 @@ int create_dir_subitems(const char *path, char *new_path) {
 	}
 	debug(D_DEBUG, "create_dir_subitems(`%s`) func\n", path);
 	strcat(dir_name, "/");
-	dir = opendir(path);
-	if (dir != NULL)
+	if ((dir = opendir(path)) != NULL)
 	{
 		while ((entry = readdir(dir)))
 		{
@@ -349,9 +363,14 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			if(target_stat.st_blocks) {
 				debug(D_DEBUG, "`%s`: fullcopy exist! pass!\n", path);
 			} else {
-				remove(new_path);
-				if(copy_file_to_file(path, new_path) < 0)
-					debug(D_DEBUG, "copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
+				if(remove(new_path) == -1) {
+					debug(D_DEBUG, "remove(`%s`) fails: %s\n", new_path, strerror(errno));
+					return -1;
+				}
+				if(copy_file_to_file(path, new_path) < 0) {
+					debug(D_DEBUG, "copy_file_to_file from %s to %s fails.\n", path, new_path);
+					return -1;
+				}
 				else
 					debug(D_DEBUG, "`%s`: fullcopy not exist, metadatacopy exist! create fullcopy ...\n", path);
 			}
@@ -363,17 +382,24 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 				line_process(dir_name, "metadatacopy", 1, 0);
 			}
 			if(fullcopy) {
-				if(copy_file_to_file(path, new_path) < 0)
-					debug(D_DEBUG, "copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
+				if(copy_file_to_file(path, new_path) < 0) {
+					debug(D_DEBUG, "copy_file_to_file from %s to %s fails.\n", path, new_path);
+					return -1;
+				}
 				else
 					debug(D_DEBUG, "`%s`: fullcopy not exist, metadatacopy not exist! create fullcopy ...\n", path);
 			} else {
 				FILE *fp = fopen(new_path, "w");
 				if(fp != NULL)
 					fclose(fp);
-				else
+				else {
 					debug(D_DEBUG, "fopen(`%s`) fails: %s\n", new_path, strerror(errno));
-				truncate(new_path, source_stat.st_size);
+					return -1;
+				}
+				if(truncate(new_path, source_stat.st_size) == -1) {
+					debug(D_DEBUG, "truncate(`%s`) fails: %s\n", new_path, strerror(errno));
+					return -1;
+				}
 				debug(D_DEBUG, "`%s`: metadatacopy not exist! create metadatacopy ...\n", path);
 			}
 		}
@@ -381,16 +407,30 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 		struct utimbuf time_buf;
 		time_buf.modtime = source_stat.st_mtime;
 		time_buf.actime = source_stat.st_atime;
-		utime(new_path, &time_buf);
-		chmod(new_path, source_stat.st_mode);
+		if(utime(new_path, &time_buf) == -1) {
+			debug(D_DEBUG, "utime(`%s`) fails: %s\n", new_path, strerror(errno));
+			return -1;
+		}
+		if(chmod(new_path, source_stat.st_mode) == -1) {
+			debug(D_DEBUG, "chmod(`%s`) fails: %s\n", new_path, strerror(errno));
+			return -1;
+		}
 	} else if(S_ISDIR(source_stat.st_mode)) {
 		debug(D_DEBUG, "`%s`: regular dir\n", path);
 		if(is_direntry == 0) {
-			mkpath(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1);
-			if(ignore_direntry == 0)
-				create_dir_subitems(path, new_path);
+			if(mkpath(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1) == -1) {
+				debug(D_DEBUG, "mkpath(`%s`) fails.\n", new_path);
+				return -1;
+			}
+			if((ignore_direntry == 0) && (create_dir_subitems(path, new_path) == -1)) {
+				debug(D_DEBUG, "create_dir_subitems(`%s`) fails.", path);
+				return -1;
+			}
 		} else {
-			mkdir(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+			if(mkdir(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) {
+				debug(D_DEBUG, "mkdir(`%s`) fails: %s\n", new_path, strerror(errno));
+				return -1;
+			}
 		}
 	} else if(S_ISLNK(source_stat.st_mode)) {
 		char buf[LINE_MAX], linked_path[LINE_MAX], pathcopy[LINE_MAX], dir_name[LINE_MAX], newbuf[LINE_MAX];
@@ -443,11 +483,13 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 		/* Create the symlink relationship */
 		if(symlink(buf, new_path) == -1) {
 			debug(D_DEBUG, "symlink from `%s` to `%s` create fail, %s\n", new_path, buf, strerror(errno));
+			return -1;
 		} else {
 			debug(D_DEBUG, "create symlink from `%s` to `%s`.\n", new_path, buf);
 		}
 	} else {
 		debug(D_DEBUG, "The file type is not DIR or REG or LINK, ignore it!\n");
+		return -1;
 	}
 	return 0;
 }
@@ -458,21 +500,27 @@ int post_process( ) {
 	FILE *file, *cmd_fp;
 
 	sprintf(new_envpath, "%s/%s", packagepath, envpath);
-	copy_file_to_file(envpath, new_envpath);
+	if(copy_file_to_file(envpath, new_envpath) == -1) {
+		debug(D_DEBUG, "copy_file_to_file(`%s`) fails.\n", envpath);
+		return -1;
+	}
 	
 	sprintf(common_mountlist, "%s/%s", packagepath, "common-mountlist");
 	file = fopen(common_mountlist, "w");
 	if(!file) {
 		debug(D_DEBUG, "common-mountlist file `%s` can not be opened.", common_mountlist);
-		exit(1);
+		return -1;
 	}
-	fputs("/dev /dev\n", file);
-	fputs("/misc /misc\n", file);
-	fputs("/net /net\n", file);
-	fputs("/proc /proc\n", file);
-	fputs("/sys /sys\n", file);
-	fputs("/var /var\n", file);
-	fputs("/selinux /selinux\n", file);
+	if((fputs("/dev /dev\n", file) == EOF) || 
+		(fputs("/misc /misc\n", file) == EOF) ||  
+		(fputs("/net /net\n", file) == EOF) || 
+		(fputs("/proc /proc\n", file) == EOF) || 
+		(fputs("/sys /sys\n", file) == EOF) || 
+		(fputs("/var /var\n", file) == EOF) || 
+		(fputs("/selinux /selinux\n", file) == EOF)) {
+			debug(D_DEBUG, "fputs fails: %s\n", strerror(errno));
+			exit(EXIT_FAILURE);
+	}
 	if(file)
 		fclose(file);
 	
@@ -482,12 +530,13 @@ int post_process( ) {
 	cmd_fp = popen(size_cmd, "r");
 	if(cmd_fp == NULL) {
 		debug(D_DEBUG, "popen(`%s`) fails: %s\n", size_cmd, strerror(errno));
-		exit(1);
+		return -1;
 	}
 	while(fgets(cmd_rv, sizeof(cmd_rv) - 1, cmd_fp) != NULL) {
 		fprintf(stdout, "%s", cmd_rv);
 	}
-	pclose(cmd_fp);
+	if(cmd_fp)
+		pclose(cmd_fp);
 	return 0;
 }
 
@@ -532,7 +581,7 @@ int main(int argc, char *argv[])
 			break;
 		default:
 			show_help(argv[0]);
-			exit(1);
+			exit(EXIT_FAILURE);
 			break;
 		}
 	}
@@ -543,15 +592,18 @@ int main(int argc, char *argv[])
 	//preprocess: check whether the environment variable file exists; check whether the namelist file exists; check whether the package path exists;
 	if((prepare_work()) != 0) {
 		show_help(argv[0]);
-		return -1;
+		exit(EXIT_FAILURE);
 	}
 
-	sort_uniq_namelist(namelist, &fd);
+	if(sort_uniq_namelist(namelist, &fd) == -1) {
+		debug(D_DEBUG, "sort_uniq_namelist func fails.\n");
+		exit(EXIT_FAILURE);
+	}
 
 	namelist_file = fdopen(fd, "r");
 	if(!namelist_file) {
-		debug(D_DEBUG, "`sort -u %s` execute fails.\n", packagepath);
-		exit(1);
+		debug(D_DEBUG, "`sort -u %s` execute fails. fdopen fails: %s\n", packagepath, strerror(errno));
+		exit(EXIT_FAILURE);
 	}
 	count = 0;
 	while(fgets(line, LINE_MAX, namelist_file) != NULL) {
@@ -563,12 +615,16 @@ int main(int argc, char *argv[])
         strcpy(path, line);
         path[path_len] = '\0';
         remove_final_slashes(path);
-        line_process(path, caller, 0, 0);
+        if(line_process(path, caller, 0, 0) == -1)
+			debug(D_DEBUG, "line(%s) does not been processed perfectly.\n", line);
 	}
 	if(namelist_file)
 		fclose(namelist_file);
 
-	post_process( );
+	if(post_process() == -1) {
+		debug(D_DEBUG, "post_process fails.\n");
+		exit(EXIT_FAILURE);
+	}
 
 	fprintf(stdout, "The packaging process has finished.\nThe end time is: ");
 	print_time();

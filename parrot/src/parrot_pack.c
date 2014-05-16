@@ -201,7 +201,7 @@ int prepare_work()
 		return -1;
 	}
 	if(mkpath(packagepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1) == -1) {
-		fprintf(stderr, "mkdir(`%s`) fails: %s", packagepath, strerror(errno));
+		fprintf(stderr, "mkdir(`%s`) fails: %s\n", packagepath, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -423,7 +423,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 				return -1;
 			}
 			if((ignore_direntry == 0) && (create_dir_subitems(path, new_path) == -1)) {
-				debug(D_DEBUG, "create_dir_subitems(`%s`) fails.", path);
+				debug(D_DEBUG, "create_dir_subitems(`%s`) fails.\n", path);
 				return -1;
 			}
 		} else {
@@ -470,7 +470,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			strcpy(new_dir, packagepath);
 			strcat(new_dir, dir_name);
 			if(access(new_dir, F_OK) == -1) {
-				debug(D_DEBUG, "the dir `%s` of the target of symbolink file `%s` does not exist, need to be created firstly", dir_name, path);
+				debug(D_DEBUG, "the dir `%s` of the target of symbolink file `%s` does not exist, need to be created firstly\n", dir_name, path);
 				line_process(dir_name, "metadatacopy", 1, 0);
 			}
 		}
@@ -508,7 +508,7 @@ int post_process( ) {
 	sprintf(common_mountlist, "%s/%s", packagepath, "common-mountlist");
 	file = fopen(common_mountlist, "w");
 	if(!file) {
-		debug(D_DEBUG, "common-mountlist file `%s` can not be opened.", common_mountlist);
+		debug(D_DEBUG, "common-mountlist file `%s` can not be opened.\n", common_mountlist);
 		return -1;
 	}
 	if((fputs("/dev /dev\n", file) == EOF) || 

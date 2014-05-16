@@ -4,16 +4,20 @@
 #include <utime.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 #include <errno.h>
 #include <getopt.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <errno.h>
 #include <libgen.h>
 #include <fcntl.h>
 #include <sys/sendfile.h>
 #include <time.h>
-#include <copy_stream.h>
+
+#include "copy_stream.h"
+#include "debug.h"
 
 #define SIZE 256
 
@@ -44,6 +48,8 @@ static void show_help(const char *cmd)
 	fprintf(stdout, " %-34s The path of the namelist list.\n", "   --name-list=<listpath>");
 	fprintf(stdout, " %-34s The path of the environment variable file.\n", "   --env-path=<envpath>");
 	fprintf(stdout, " %-34s The path of the package.\n", "   --package-path=<packagepath>");
+	fprintf(stdout, " %-34s Enable debugging for this sub-system.    (PARROT_DEBUG_FLAGS)\n", "-d,--debug=<name>");
+	fprintf(stdout, " %-34s Send debugging to this file. (can also be :stderr, :stdout, :syslog, or :journal) (PARROT_DEBUG_FILE)\n", "-o,--debug-file=<file>");
 	fprintf(stdout, " %-34s Show the help info.\n", "-h,--help");
 	return;
 }
@@ -60,8 +66,12 @@ void print_time()
 /* Use `sort -u` shell command to sort the namelist and remove the duplicate items. */
 int sort_uniq_namelist(const char *filename, int *fd) {
 	int fds[2];
-	pipe(fds);
-	pid_t pid = fork();
+	pid_t pid;
+	if(pipe(fds)) {
+		debug(D_DEBUG, "pipe fails: %s\n", strerror(errno));
+		exit(1);
+	}
+	pid = fork();
 	if (pid == 0) {
 		int input = open(filename, O_RDONLY);
 		dup2(input, STDIN_FILENO);
@@ -73,7 +83,9 @@ int sort_uniq_namelist(const char *filename, int *fd) {
 	} else if (pid > 0) {
 		close(fds[1]);
 		*fd = fds[0];
-/* FIXME call wait on SIGCHLD */
+	} else {
+		debug(D_DEBUG, "fork fails: %s\n", strerror(errno));
+		exit(1);
 	}
 	return 0;
 }
@@ -112,9 +124,9 @@ If `fixed_mode` is 1, use the mode parameter; otherwise use the mode of the orig
 Currently, each directory is created using fixed mode (i.e., fixed_mode = 1).
 */
 int mkpath(const char *path, mode_t mode, int fixed_mode) {
-	fprintf(stdout, "mkpath: %s\n", path);
+	debug(D_DEBUG, "mkpath(`%s`) func\n", path);
 	if(access(path, F_OK) == 0) {
-		fprintf(stdout, "%s already exists, mkpath exist!\n", path);
+		debug(D_DEBUG, "%s already exists, mkpath exist!\n", path);
 		return 0;
 	}
 
@@ -125,7 +137,7 @@ int mkpath(const char *path, mode_t mode, int fixed_mode) {
 		if(stat(old_path, &st) == 0) {
 			mode = st.st_mode;
 		} else {
-			fprintf(stdout, "stat(`%s`) fails: %s\n", old_path, strerror(errno));
+			debug(D_DEBUG, "stat(`%s`) fails: %s\n", old_path, strerror(errno));
 			return -1;
 		}
 	}
@@ -161,19 +173,19 @@ create the package directory.
 int prepare_work()
 {
 	if(access(envpath, F_OK) == -1) {
-		fprintf(stdout, "The environment variable file (%s) does not exist.\n", envpath);
+		fprintf(stderr, "The environment variable file (`%s`) does not exist.\n", envpath);
 		return -1;
 	}
 	if(access(namelist, F_OK) == -1) {
-		fprintf(stdout, "The namelist file (%s) does not exist.\n", namelist);
+		fprintf(stderr, "The namelist file (`%s`) does not exist.\n", namelist);
 		return -1;
 	}
 	if(access(packagepath, F_OK) != -1) {
-		fprintf(stdout, "The package path (%s) has already existed, please delete it first or refer to another package path.\n", packagepath);
+		fprintf(stderr, "The package path (`%s`) has already existed, please delete it first or refer to another package path.\n", packagepath);
 		return -1;
 	}
 	if(mkpath(packagepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1) == -1) {
-		fprintf(stdout, "mkdir(%s) fails: %s", packagepath, strerror(errno));
+		fprintf(stderr, "mkdir(`%s`) fails: %s", packagepath, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -229,28 +241,28 @@ int dir_entry(const char* filename)
 	strcpy(new_path, packagepath);
 	strcat(new_path, filename);
 	if(access(new_path, F_OK) == 0) {
-		fprintf(stdout, "`%s` already exists\n", new_path);
+		debug(D_DEBUG, "dir_entry: `%s` already exists\n", new_path);
 	} else if(lstat(filename, &source_stat) == 0) {
 		if(S_ISDIR(source_stat.st_mode)) {
-			fprintf(stdout, "dir_entry: `%s`, ---dir\n", filename);
+			debug(D_DEBUG, "dir_entry: `%s`, ---dir\n", filename);
 			line_process(filename, "metadatacopy", 1, 1);
 		} else if(S_ISCHR(source_stat.st_mode)) {
-			fprintf(stdout, "dir_entry: `%s`, ---character, do nothing!\n", filename);
+			debug(D_DEBUG, "dir_entry: `%s`, ---character, do nothing!\n", filename);
 		} else if(S_ISBLK(source_stat.st_mode)) {
-			fprintf(stdout, "dir_entry: `%s`, ---block, do nothing!\n", filename);
+			debug(D_DEBUG, "dir_entry: `%s`, ---block, do nothing!\n", filename);
 		} else if(S_ISREG(source_stat.st_mode)) {
-			fprintf(stdout, "dir_entry: `%s`, ---regular file\n", filename);
+			debug(D_DEBUG, "dir_entry: `%s`, ---regular file\n", filename);
 			line_process(filename, "metadatacopy", 1, 1);
 		} else if(S_ISFIFO(source_stat.st_mode)) {
-			fprintf(stdout, "dir_entry: `%s`, ---fifo special file, do nothing!\n", filename);
+			debug(D_DEBUG, "dir_entry: `%s`, ---fifo special file, do nothing!\n", filename);
 		} else if(S_ISLNK(source_stat.st_mode)) {
-			fprintf(stdout, "dir_entry: `%s`, ---link file, do nothing!\n", filename);
+			debug(D_DEBUG, "dir_entry: `%s`, ---link file, do nothing!\n", filename);
 			line_process(filename, "metadatacopy", 1, 1);
 		} else if(S_ISSOCK(source_stat.st_mode)) {
-			fprintf(stdout, "dir_entry: `%s`, ---socket file, do nothing!\n", filename);
+			debug(D_DEBUG, "dir_entry: `%s`, ---socket file, do nothing!\n", filename);
 		}
 	} else {
-		fprintf(stdout, "lstat(`%s`): %s\n", filename, strerror(errno));
+		debug(D_DEBUG, "lstat(`%s`): %s\n", filename, strerror(errno));
 	}
 	return 0;
 }
@@ -261,10 +273,10 @@ int create_dir_subitems(const char *path, char *new_path) {
 	struct dirent *entry;
 	char full_entrypath[LINE_MAX], dir_name[LINE_MAX];
 	if(strcpy(dir_name, path) == NULL) {
-		fprintf(stdout, "create_dir_subitems %s error:%s\n", path, strerror(errno));
+		debug(D_DEBUG, "create_dir_subitems(`%s`) error: %s\n", path, strerror(errno));
 		return -1;
 	}
-	fprintf(stdout, "create_dir_subitems: `%s`\n", path);
+	debug(D_DEBUG, "create_dir_subitems(`%s`) func\n", path);
 	strcat(dir_name, "/");
 	dir = opendir(path);
 	if (dir != NULL)
@@ -277,7 +289,7 @@ int create_dir_subitems(const char *path, char *new_path) {
 		}
 		closedir(dir);
 	} else {
-		fprintf(stdout, "Couldn't open the directory `%s`.\n", path);
+		debug(D_DEBUG, "Couldn't open the directory `%s`.\n", path);
 	}
 	return 0;
 }
@@ -289,12 +301,15 @@ Currently only process DIR REG LINK, all the remaining files are ignored.
 */
 int line_process(const char *path, char *caller, int ignore_direntry, int is_direntry)
 {
-	fprintf(stdout, "`%s`\n", path);
+	debug(D_DEBUG, "line_process(`%s`) func\n", path);
 	if(is_special_path(path)) {
-		fprintf(stdout, "`%s`: Special path, ignore!\n", path);
+		debug(D_DEBUG, "`%s`: Special path, ignore!\n", path);
 		return 0;
 	}
-	int fullcopy = 0;
+	int fullcopy, existance;
+	char new_path[LINE_MAX];
+	struct stat source_stat;
+	fullcopy = 0;
 	ignore_direntry = 1;
 	if(strcmp(caller,"metadatacopy") == 0) {
 		fullcopy = 0;
@@ -303,44 +318,42 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 		ignore_direntry = 0;
 	}
 
-	char new_path[LINE_MAX];
 	strcpy(new_path, packagepath);
 	strcat(new_path, path);
 	/* existance: whether this item has existed in the target package. */
-	int existance = 0;
+	existance = 0;
 	/* if the item has existed in the target package and the copy degree is `metadatacopy`, it is done! */
 	if(access(new_path, F_OK) == 0) {
 		existance = 1;
 		if(fullcopy == 0) {
-			fprintf(stdout, "`%s`: metadata copy, already exist!\n", path);
+			debug(D_DEBUG, "`%s`: metadata copy, already exist!\n", path);
 			return 0;
 		}
 	}
 
-	struct stat source_stat;
 	if(lstat(path, &source_stat) == -1) {
-		fprintf(stdout, "lstat(`%s`): %s\n", path, strerror(errno));
+		debug(D_DEBUG, "lstat(`%s`): %s\n", path, strerror(errno));
 		return -1;
 	}
 
 	if(S_ISREG(source_stat.st_mode)) {
-		fprintf(stdout, "`%s`: regular file\n", path);
+		debug(D_DEBUG, "`%s`: regular file\n", path);
 		if(existance) {
 			/* here, the copy degree must be fullcopy. */
 			struct stat target_stat;
 			if(stat(new_path, &target_stat) == -1) {
-				fprintf(stdout, "stat(%s) fails: %s\n", new_path, strerror(errno));
+				debug(D_DEBUG, "stat(%s) fails: %s\n", new_path, strerror(errno));
 				return -1;
 			}
 			/* Here is the tricky point: we use `truncate` system call to change the size of one empty file (`st_size`), but its `st_blocks` is still 0. */
 			if(target_stat.st_blocks) {
-				fprintf(stdout, "`%s`: fullcopy exist! pass!\n", path);
+				debug(D_DEBUG, "`%s`: fullcopy exist! pass!\n", path);
 			} else {
 				remove(new_path);
 				if(copy_file_to_file(path, new_path) < 0)
-					fprintf(stdout, "copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
+					debug(D_DEBUG, "copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
 				else
-					fprintf(stdout, "`%s`: fullcopy not exist, metadatacopy exist! create fullcopy ...\n", path);
+					debug(D_DEBUG, "`%s`: fullcopy not exist, metadatacopy exist! create fullcopy ...\n", path);
 			}
 		} else {
 			if(is_direntry == 0) {
@@ -351,17 +364,17 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			}
 			if(fullcopy) {
 				if(copy_file_to_file(path, new_path) < 0)
-					fprintf(stdout, "copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
+					debug(D_DEBUG, "copy_file_to_file from %s to %s fails: %s\n", path, new_path, strerror(errno));
 				else
-					fprintf(stdout, "`%s`: fullcopy not exist, metadatacopy not exist! create fullcopy ...\n", path);
+					debug(D_DEBUG, "`%s`: fullcopy not exist, metadatacopy not exist! create fullcopy ...\n", path);
 			} else {
 				FILE *fp = fopen(new_path, "w");
 				if(fp != NULL)
 					fclose(fp);
 				else
-					fprintf(stdout, "fopen(`%s`) fails: %s\n", new_path, strerror(errno));
+					debug(D_DEBUG, "fopen(`%s`) fails: %s\n", new_path, strerror(errno));
 				truncate(new_path, source_stat.st_size);
-				fprintf(stdout, "`%s`: metadatacopy not exist! create metadatacopy ...\n", path);
+				debug(D_DEBUG, "`%s`: metadatacopy not exist! create metadatacopy ...\n", path);
 			}
 		}
 		/* copy the metadata info of the file */
@@ -371,7 +384,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 		utime(new_path, &time_buf);
 		chmod(new_path, source_stat.st_mode);
 	} else if(S_ISDIR(source_stat.st_mode)) {
-		fprintf(stdout, "`%s`: regular dir\n", path);
+		debug(D_DEBUG, "`%s`: regular dir\n", path);
 		if(is_direntry == 0) {
 			mkpath(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1);
 			if(ignore_direntry == 0)
@@ -380,19 +393,18 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			mkdir(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		}
 	} else if(S_ISLNK(source_stat.st_mode)) {
-		/* first use `readlink` to obtain the target of the symlink. */
-		char buf[LINE_MAX];
+		char buf[LINE_MAX], linked_path[LINE_MAX], pathcopy[LINE_MAX], dir_name[LINE_MAX], newbuf[LINE_MAX];
 		int len;
+		/* first use `readlink` to obtain the target of the symlink. */
 		if ((len = readlink(path, buf, sizeof(buf)-1)) != -1) {
 			buf[len] = '\0';
 		} else {
-			fprintf(stdout, "readlink(`%s`) fails: %s\n", path, strerror(errno));
+			debug(D_DEBUG, "readlink(`%s`) fails: %s\n", path, strerror(errno));
 			return -1;
 		}
-		fprintf(stdout, "`%s`: symbolink, the direct real path: `%s`\n", path, buf);
+		debug(D_DEBUG, "`%s`: symbolink, the direct real path: `%s`\n", path, buf);
 
 		/* then obtain the complete path of the target of the symlink. */
-		char linked_path[LINE_MAX], pathcopy[LINE_MAX], dir_name[LINE_MAX], newbuf[LINE_MAX];
 		strcpy(pathcopy, path);
 		strcpy(dir_name, dirname(pathcopy));
 		if(buf[0] == '/') {
@@ -403,7 +415,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 				strcat(linked_path, "/");
 			strcat(linked_path, buf);
 		}
-		fprintf(stdout, "the relative version of direct real path `%s` is: `%s`\n", path, linked_path);
+		debug(D_DEBUG, "the relative version of direct real path `%s` is: `%s`\n", path, linked_path);
 
 		/* process the target of the symlink recursively. */
 		if(fullcopy) {
@@ -418,7 +430,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			strcpy(new_dir, packagepath);
 			strcat(new_dir, dir_name);
 			if(access(new_dir, F_OK) == -1) {
-				fprintf(stdout, "the dir `%s` of the target of symbolink file `%s` does not exist, need to be created firstly", dir_name, path);
+				debug(D_DEBUG, "the dir `%s` of the target of symbolink file `%s` does not exist, need to be created firstly", dir_name, path);
 				line_process(dir_name, "metadatacopy", 1, 0);
 			}
 		}
@@ -430,20 +442,20 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 		}
 		/* Create the symlink relationship */
 		if(symlink(buf, new_path) == -1) {
-			fprintf(stdout, "symlink from `%s` to `%s` create fail, %s\n", new_path, buf, strerror(errno));
+			debug(D_DEBUG, "symlink from `%s` to `%s` create fail, %s\n", new_path, buf, strerror(errno));
 		} else {
-			fprintf(stdout, "create symlink from `%s` to `%s`.\n", new_path, buf);
+			debug(D_DEBUG, "create symlink from `%s` to `%s`.\n", new_path, buf);
 		}
 	} else {
-		fprintf(stdout, "The file type is not DIR or REG or LINK, ignore it!\n");
+		debug(D_DEBUG, "The file type is not DIR or REG or LINK, ignore it!\n");
 	}
 	return 0;
 }
 
 /* copy the environment variable file into the package; create common-mountlist file. */
 int post_process( ) {
-	char new_envpath[LINE_MAX], common_mountlist[LINE_MAX], size_cmd[LINE_MAX];
-	FILE *file;
+	char new_envpath[LINE_MAX], common_mountlist[LINE_MAX], size_cmd[LINE_MAX], cmd_rv[100];
+	FILE *file, *cmd_fp;
 
 	sprintf(new_envpath, "%s/%s", packagepath, envpath);
 	copy_file_to_file(envpath, new_envpath);
@@ -451,7 +463,7 @@ int post_process( ) {
 	sprintf(common_mountlist, "%s/%s", packagepath, "common-mountlist");
 	file = fopen(common_mountlist, "w");
 	if(!file) {
-		fprintf(stdout, "common-mountlist file `%s` can not be opened.", common_mountlist);
+		debug(D_DEBUG, "common-mountlist file `%s` can not be opened.", common_mountlist);
 		exit(1);
 	}
 	fputs("/dev /dev\n", file);
@@ -464,27 +476,34 @@ int post_process( ) {
 	if(file)
 		fclose(file);
 	
-	fprintf(stdout, "Package Path: %s\nPackage Size:", packagepath);
+	fprintf(stdout, "Package Path: %s\nPackage Size: ", packagepath);
 	sprintf(size_cmd, "du -hs %s", packagepath);
 
-	FILE *cmd_fp;
-	char cmd_rv[100];
 	cmd_fp = popen(size_cmd, "r");
 	if(cmd_fp == NULL) {
-		fprintf(stderr, "popen(`%s`) fails: %s\n", size_cmd, strerror(errno));
+		debug(D_DEBUG, "popen(`%s`) fails: %s\n", size_cmd, strerror(errno));
 		exit(1);
 	}
 	while(fgets(cmd_rv, sizeof(cmd_rv) - 1, cmd_fp) != NULL) {
-		fprintf(stdout, "%s\n", cmd_rv);
+		fprintf(stdout, "%s", cmd_rv);
 	}
 	pclose(cmd_fp);
 	return 0;
 }
 
+static void wait_for_children(int sig)
+{
+	while(wait(NULL) >= 0 || errno == EINTR)
+		;
+}
+
 int main(int argc, char *argv[])
 {
-	print_time();
-	int c;
+	int c, fd, count, path_len;
+	FILE *namelist_file;
+	char line[LINE_MAX], path[LINE_MAX], *caller;
+
+	signal(SIGCHLD, wait_for_children);
 
 	struct option long_options[] = {
 		{"help", no_argument, 0, 'h'},
@@ -494,7 +513,7 @@ int main(int argc, char *argv[])
 		{0,0,0,0}
 	};
 
-	while((c=getopt_long(argc, argv, "h", long_options, NULL)) > -1) {
+	while((c=getopt_long(argc, argv, "+hd:o:", long_options, NULL)) > -1) {
 		switch(c) {
 		case LONG_OPT_ENVPATH:
 			envpath = optarg;
@@ -505,27 +524,33 @@ int main(int argc, char *argv[])
 		case LONG_OPT_PACKAGEPATH:
 			packagepath = optarg;
 			break;
+		case 'd':
+			if(!debug_flags_set(optarg)) show_help(argv[0]);
+			break;
+		case 'o':
+			debug_config_file(optarg);
+			break;
 		default:
 			show_help(argv[0]);
-			exit(0);
+			exit(1);
 			break;
 		}
 	}
+
+	fprintf(stdout, "The packaging process has began ...\nThe start time is: ");
+	print_time();
 
 	//preprocess: check whether the environment variable file exists; check whether the namelist file exists; check whether the package path exists;
 	if((prepare_work()) != 0) {
 		show_help(argv[0]);
 		return -1;
 	}
-	int fd;
+
 	sort_uniq_namelist(namelist, &fd);
 
-	FILE *namelist_file;
-	int count, path_len;
-    char line[LINE_MAX], path[LINE_MAX], *caller;
 	namelist_file = fdopen(fd, "r");
 	if(!namelist_file) {
-		//fprintf(stdout, "Main func not open sorted namelist file: `%s`", sorted_filename);
+		debug(D_DEBUG, "`sort -u %s` execute fails.\n", packagepath);
 		exit(1);
 	}
 	count = 0;
@@ -534,7 +559,7 @@ int main(int argc, char *argv[])
         caller = strchr(line, '|') + 1;
         caller[strlen(caller) - 1] = '\0';
         path_len = strlen(line) - strlen(caller) - 1;
-        fprintf(stdout, "%d --- line: %s; path_len: %d\n", count, line, path_len);
+		debug(D_DEBUG, "%d --- line: %s; path_len: %d\n", count, line, path_len);
         strcpy(path, line);
         path[path_len] = '\0';
         remove_final_slashes(path);
@@ -544,6 +569,8 @@ int main(int argc, char *argv[])
 		fclose(namelist_file);
 
 	post_process( );
+
+	fprintf(stdout, "The packaging process has finished.\nThe end time is: ");
 	print_time();
 	return 0;
 }

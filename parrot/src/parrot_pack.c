@@ -78,23 +78,22 @@ int sort_uniq_namelist(const char *filename, int *fd) {
 		int input = open(filename, O_RDONLY);
 		if(input == -1) {
 			debug(D_DEBUG, "sort_uniq_namelist: open(`%s`) func fails: %s\n", filename, strerror(errno));
-			return -1;
+			exit(EXIT_FAILURE);
 		}
 		if(dup2(input, STDIN_FILENO) == -1) {
 			debug(D_DEBUG, "sort_uniq_namelist: dup2 fails: %s\n", strerror(errno));
-			return -1;
+			exit(EXIT_FAILURE);
 		}
-		if(input)
-			close(input);
+		close(input);
 		close(fds[0]);
 		if(dup2(fds[1], STDOUT_FILENO) == -1) {
 			debug(D_DEBUG, "sort_uniq_namelist: dup2 fails: %s\n", strerror(errno));
-			return -1;
+			exit(EXIT_FAILURE);
 		}
 		close(fds[1]);
 		if(execlp("sort", "sort", "-u", NULL) == -1) {
 			debug(D_DEBUG, "sort_uniq_namelist: execlp fails: %s\n", strerror(errno));
-			return -1;
+			exit(EXIT_FAILURE);
 		}
 	} else if (pid > 0) {
 		close(fds[1]);
@@ -389,17 +388,16 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 				else
 					debug(D_DEBUG, "`%s`: fullcopy not exist, metadatacopy not exist! create fullcopy ...\n", path);
 			} else {
-				FILE *fp = fopen(new_path, "w");
-				if(fp != NULL)
-					fclose(fp);
-				else {
-					debug(D_DEBUG, "fopen(`%s`) fails: %s\n", new_path, strerror(errno));
+				int fd = open(new_path, O_CREAT|O_WRONLY, S_IRUSR|S_IWUSR);
+				if (fd == -1) {
+					debug(D_DEBUG, "open(`%s`) fails: %s\n", new_path, strerror(errno));
 					return -1;
 				}
-				if(truncate(new_path, source_stat.st_size) == -1) {
+				if(ftruncate(fd, source_stat.st_size) == -1) {
 					debug(D_DEBUG, "truncate(`%s`) fails: %s\n", new_path, strerror(errno));
 					return -1;
 				}
+				close(fd);
 				debug(D_DEBUG, "`%s`: metadatacopy not exist! create metadatacopy ...\n", path);
 			}
 		}
@@ -521,8 +519,7 @@ int post_process( ) {
 			debug(D_DEBUG, "fputs fails: %s\n", strerror(errno));
 			exit(EXIT_FAILURE);
 	}
-	if(file)
-		fclose(file);
+	fclose(file);
 	
 	fprintf(stdout, "Package Path: %s\nPackage Size: ", packagepath);
 	sprintf(size_cmd, "du -hs %s", packagepath);
@@ -535,8 +532,7 @@ int post_process( ) {
 	while(fgets(cmd_rv, sizeof(cmd_rv) - 1, cmd_fp) != NULL) {
 		fprintf(stdout, "%s", cmd_rv);
 	}
-	if(cmd_fp)
-		pclose(cmd_fp);
+	pclose(cmd_fp);
 	return 0;
 }
 
@@ -618,8 +614,7 @@ int main(int argc, char *argv[])
         if(line_process(path, caller, 0, 0) == -1)
 			debug(D_DEBUG, "line(%s) does not been processed perfectly.\n", line);
 	}
-	if(namelist_file)
-		fclose(namelist_file);
+	fclose(namelist_file);
 
 	if(post_process() == -1) {
 		debug(D_DEBUG, "post_process fails.\n");

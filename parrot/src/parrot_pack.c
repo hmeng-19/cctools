@@ -30,11 +30,11 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 
 //files from these paths will be ignored.
 const char *special_path[] = {"var", "sys", "dev", "proc", "net", "misc", "selinux"};
-#define special_path_len sizeof(special_path)/sizeof(const char *)
+#define special_path_len (sizeof(special_path))/(sizeof(const char *))
 
 //these system calls will result in the whole copy of one file item.
 const char *special_caller[] = {"lstat", "stat", "open_object", "bind32", "connect32", "bind64", "connect64", "truncate link1", "mkalloc", "lsalloc", "whoami", "md5", "copyfile1", "copyfile2", "follow_symlink", "link2", "symlink2", "readlink", "unlink"};
-#define special_caller_len sizeof(special_caller)/sizeof(const char *)
+#define special_caller_len (sizeof(special_caller))/(sizeof(const char *))
 
 enum {
 	LONG_OPT_NAMELIST = 1,
@@ -167,16 +167,15 @@ int mkpath(const char *path, mode_t mode, int fixed_mode) {
 		return -1;
 
 	if((parent_dir = dirname(pathcopy)) == NULL)
-		goto out;
+		return -1;
 
 	if((mkpath(parent_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1) == -1) && (errno != EEXIST))
-		goto out;
+		return -1;
 
 	if((mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) && (errno != EEXIST))
 		rv = -1;
 	else
 		rv = 0;
-out:
 	return rv;
 }
 

@@ -36,6 +36,9 @@ const char *special_path[] = {"var", "sys", "dev", "proc", "net", "misc", "selin
 const char *special_caller[] = {"lstat", "stat", "open_object", "bind32", "connect32", "bind64", "connect64", "truncate link1", "mkalloc", "lsalloc", "whoami", "md5", "copyfile1", "copyfile2", "follow_symlink", "link2", "symlink2", "readlink", "unlink"};
 #define special_caller_len (sizeof(special_caller))/(sizeof(const char *))
 
+mode_t default_dirmode = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH;
+mode_t default_regmode = S_IRWXU | S_IRGRP;
+
 enum {
 	LONG_OPT_NAMELIST = 1,
 	LONG_OPT_ENVPATH,
@@ -169,10 +172,10 @@ int mkpath(const char *path, mode_t mode, int fixed_mode) {
 	if((parent_dir = dirname(pathcopy)) == NULL)
 		return -1;
 
-	if((mkpath(parent_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1) == -1) && (errno != EEXIST))
+	if((mkpath(parent_dir, default_dirmode, 1) == -1) && (errno != EEXIST))
 		return -1;
 
-	if((mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) && (errno != EEXIST))
+	if((mkdir(path, default_dirmode) == -1) && (errno != EEXIST))
 		rv = -1;
 	else
 		rv = 0;
@@ -198,7 +201,7 @@ int prepare_work()
 		fprintf(stderr, "The package path (`%s`) has already existed, please delete it first or refer to another package path.\n", packagepath);
 		return -1;
 	}
-	if(mkpath(packagepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1) == -1) {
+	if(mkpath(packagepath, default_dirmode, 1) == -1) {
 		fprintf(stderr, "mkdir(`%s`) fails: %s\n", packagepath, strerror(errno));
 		return -1;
 	}
@@ -240,7 +243,10 @@ int is_special_path(const char *path)
 			return 1;
 		}
 	}
-	return 0;
+	if(strcmp("afs", first_dir) == 0)
+		return 2;
+	else
+		return 0;
 }
 
 /*
@@ -314,9 +320,17 @@ Currently only process DIR REG LINK, all the remaining files are ignored.
 int line_process(const char *path, char *caller, int ignore_direntry, int is_direntry)
 {
 	debug(D_DEBUG, "line_process(`%s`) func\n", path);
-	if(is_special_path(path)) {
+	int afs_item = 0;
+	switch(is_special_path(path)) {
+	case 1:
 		debug(D_DEBUG, "`%s`: Special path, ignore!\n", path);
 		return 0;
+	case 2:
+		debug(D_DEBUG, "this path is under /afs!\n");
+		afs_item = 1;
+		break;
+	default:
+		break;
 	}
 	int fullcopy, existance;
 	char new_path[LINE_MAX];
@@ -408,6 +422,13 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 			debug(D_DEBUG, "utime(`%s`) fails: %s\n", new_path, strerror(errno));
 			return -1;
 		}
+		/* if the path is under /afs, use a fixed default st_mode setting instead of its original st_mode. */
+		if(afs_item) {
+			if(chmod(new_path, default_regmode) == -1) {
+				debug(D_DEBUG, "chmod(`%s`) fails: %s\n", new_path, strerror(errno));
+				return -1;
+			}
+		}
 		if(chmod(new_path, source_stat.st_mode) == -1) {
 			debug(D_DEBUG, "chmod(`%s`) fails: %s\n", new_path, strerror(errno));
 			return -1;
@@ -415,7 +436,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 	} else if(S_ISDIR(source_stat.st_mode)) {
 		debug(D_DEBUG, "`%s`: regular dir\n", path);
 		if(is_direntry == 0) {
-			if(mkpath(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 1) == -1) {
+			if(mkpath(new_path, default_dirmode, 1) == -1) {
 				debug(D_DEBUG, "mkpath(`%s`) fails.\n", new_path);
 				return -1;
 			}
@@ -424,7 +445,7 @@ int line_process(const char *path, char *caller, int ignore_direntry, int is_dir
 				return -1;
 			}
 		} else {
-			if(mkdir(new_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) {
+			if(mkdir(new_path, default_dirmode) == -1) {
 				debug(D_DEBUG, "mkdir(`%s`) fails: %s\n", new_path, strerror(errno));
 				return -1;
 			}
@@ -580,6 +601,7 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
+	debug_config_file_size(0); /* do not rotate debug file by default */
 
 	fprintf(stdout, "The packaging process has began ...\nThe start time is: ");
 	print_time();

@@ -39,6 +39,7 @@ extern "C" {
 #include "stringtools.h"
 #include "tracer.h"
 #include "xxmalloc.h"
+#include "hash_table.h"
 }
 
 #include <fcntl.h>
@@ -60,6 +61,7 @@ extern "C" {
 
 extern char **environ;
 FILE *namelist_file;
+struct hash_table *namelist_table;
 int linux_major;
 int linux_minor;
 int linux_micro;
@@ -69,7 +71,6 @@ pid_t trace_this_pid = -1;
 int pfs_master_timeout = 300;
 struct file_cache *pfs_file_cache = 0;
 struct password_cache *pfs_password_cache = 0;
-int pfs_trap_after_fork = 0;
 int pfs_force_stream = 0;
 int pfs_force_cache = 0;
 int pfs_force_sync = 0;
@@ -102,6 +103,7 @@ INT64_T pfs_read_count = 0;
 INT64_T pfs_write_count = 0;
 
 const char * pfs_cvmfs_repo_arg = 0;
+const char * pfs_cvmfs_config_arg = 0;
 bool pfs_cvmfs_repo_switching = false;
 char pfs_cvmfs_alien_cache_dir[PFS_PATH_MAX];
 char pfs_cvmfs_locks_dir[PFS_PATH_MAX];
@@ -120,7 +122,8 @@ static int root_exitstatus = 0;
 static int channel_size = 10;
 
 enum {
-	LONG_OPT_CVMFS_REPO_SWITCHING = UCHAR_MAX+1,
+	LONG_OPT_CVMFS_REPO_SWITCHING=UCHAR_MAX+1,
+	LONG_OPT_CVMFS_CONFIG,
 	LONG_OPT_CVMFS_DISABLE_ALIEN_CACHE,
 	LONG_OPT_CVMFS_ALIEN_CACHE,
 	LONG_OPT_HELPER,
@@ -148,13 +151,11 @@ static void get_linux_version(const char *cmd)
 
 	debug(D_DEBUG,"kernel is %s %s",name.sysname,name.release);
 
-	/* compatibility checking */
-	if(!linux_available(2,4,0))
-		pfs_trap_after_fork = 1;
-
 	/* warning for latest untested version of Linux */
-	if(linux_available(3,3,0))
+	if(linux_available(3,15,3))
 		debug(D_NOTICE,"parrot_run %d.%d.%s has not been tested on %s %s yet, this may not work",CCTOOLS_VERSION_MAJOR,CCTOOLS_VERSION_MINOR,CCTOOLS_VERSION_MICRO,name.sysname,name.release);
+	else if (!linux_available(2,5,46))
+		fatal("this version of Parrot requires at least kernel version 2.5.46");
 }
 
 static void pfs_helper_init( const char *argv0 ) 
@@ -213,6 +214,7 @@ static void show_help( const char *cmd )
 	fprintf(stdout, " %-30s Use this proxy server for HTTP requests.         (HTTP_PROXY)\n", "-p,--proxy=<hst:p>");
 	fprintf(stdout, " %-30s Enable paranoid mode for identity boxing mode.\n", "-P,--paranoid");
 	fprintf(stdout, " %-30s Inhibit catalog queries to list /chirp.\n", "-Q,--no-chirp-catalog");
+	fprintf(stdout, " %-30s CVMFS common configuration.               (PARROT_CVMFS_CONFIG)\n", "   --cvmfs-config=<config>");
 	fprintf(stdout, " %-30s CVMFS repositories to enable.             (PARROT_CVMFS_REPO)\n", "-r,--cvmfs-repos=<repos>");
 	fprintf(stdout, " %-30s Allow repository switching when using CVMFS.\n","   --cvmfs-repo-switching");
 	fprintf(stdout, " %-30s Set CVMFS common cache directory.         (PARROT_CVMFS_ALIEN_CACHE)\n","   --cvmfs-alien-cache");
@@ -627,6 +629,7 @@ int main( int argc, char *argv[] )
 		{"block-size", required_argument, 0, 'b'},
 		{"channel-auth", no_argument, 0, 'C'},
 		{"chirp-auth",  required_argument, 0, 'a'},
+		{"cvmfs-repos", required_argument, 0, 'r'},
 		{"cvmfs-alien-cache", required_argument, 0, LONG_OPT_CVMFS_ALIEN_CACHE},
 		{"cvmfs-disable-alien-cache", no_argument, 0, LONG_OPT_CVMFS_DISABLE_ALIEN_CACHE},
 		{"cvmfs-repo-switching", no_argument, 0, LONG_OPT_CVMFS_REPO_SWITCHING},
@@ -766,8 +769,13 @@ int main( int argc, char *argv[] )
 				debug(D_DEBUG, "Can not open namelist file: %s", optarg);
 				return 1;
 			}
+			namelist_table = hash_table_create(0, 0);
+			if(!namelist_table) {
+				debug(D_DEBUG, "Failed to create hash table for namelist!\n");
+				return 1;
+			}
 			char cmd[PFS_PATH_MAX];
-			if(snprintf(cmd, PFS_PATH_MAX, "find /lib*/ -name ld-linux*>>%s", optarg) >= 0)
+			if(snprintf(cmd, PFS_PATH_MAX, "find /lib*/ -name ld-linux*>>%s 2>/dev/null", optarg) >= 0)
 				system(cmd);
 			else {
 				debug(D_DEBUG, "writing ld-linux* into namelist file failed.");
@@ -792,6 +800,9 @@ int main( int argc, char *argv[] )
 			break;
 		case 'Q':
 			chirp_global_inhibit_catalog(1);
+			break;
+		case LONG_OPT_CVMFS_CONFIG:
+			pfs_cvmfs_config_arg = optarg;
 			break;
 		case 'r':
 			pfs_cvmfs_repo_arg = optarg;
@@ -1032,8 +1043,16 @@ int main( int argc, char *argv[] )
 
 	delete_dir(pfs_cvmfs_locks_dir);
 
-	if(namelist_file)
+	if(namelist_table && namelist_file) {
+		char *key;
+		void *value;
+		hash_table_firstkey(namelist_table);
+		while(hash_table_nextkey(namelist_table, &key, &value)) {
+			fprintf(namelist_file, "%s|%s\n", key, (char *)value);
+		}
+		hash_table_delete(namelist_table);
 		fclose(namelist_file);
+	}
 	
 	if(WIFEXITED(root_exitstatus)) {
 		int status = WEXITSTATUS(root_exitstatus);

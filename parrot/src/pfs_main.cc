@@ -856,9 +856,12 @@ int main( int argc, char *argv[] )
 
 			netlist_table = hash_table_create(0, 0);
 			if(!netlist_table) {
+				fprintf(stdout, "netlist_table create fail\n");
 				debug(D_DEBUG, "Failed to create hash table for netlist!\n");
 				return 1;
 			}
+			else
+				fprintf(stdout, "netlist_table create successfully\n");
 			break;
 		case 'R':
 			pfs_root_checksum = optarg;
@@ -1136,7 +1139,7 @@ int main( int argc, char *argv[] )
 			//strcpy(((struct pfs_socket *)value)->ip_addr, "2.2.2");
 			struct pfs_socket_info *p_sock;
 			p_sock = (struct pfs_socket_info *)value;
-			fprintf(netlist_file, "id: %d; domain: %d; type: %d, protocol: %d;\n", p_sock->id, p_sock->domain, p_sock->type, p_sock->protocol);
+			fprintf(netlist_file, "id: %d; domain: %d; domain_type:%s; type: %d, protocol: %d;\n", p_sock->id, p_sock->domain, p_sock->domain_type, p_sock->type, p_sock->protocol);
 			fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n", p_sock->ip_addr, p_sock->port, p_sock->host_name, p_sock->service_name, p_sock->resource_path, p_sock->resource_status);
 			free((struct pfs_socket_info *)value);
 		}

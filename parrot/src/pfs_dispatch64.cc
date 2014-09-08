@@ -26,6 +26,8 @@ int pfs_dispatch64( struct pfs_process *p )
 #include "pfs_process.h"
 #include "pfs_service.h"
 #include "pfs_sys.h"
+#include "pfs_types.h"
+#include "network_packet.h"
 
 extern "C" {
 #include "debug.h"
@@ -34,6 +36,7 @@ extern "C" {
 #include "stringtools.h"
 #include "tracer.h"
 #include "xxmalloc.h"
+#include "hash_table.h"
 }
 
 #include <unistd.h>
@@ -49,6 +52,7 @@ extern "C" {
 #include <sys/un.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
 
 #include <assert.h>
 #include <ctype.h>
@@ -60,6 +64,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <netdb.h>
 
 #ifndef O_CLOEXEC
 #	define O_CLOEXEC 02000000
@@ -89,6 +94,9 @@ extern INT64_T pfs_write_count;
 extern int parrot_dir_fd;
 extern char *pfs_ldso_path;
 extern int *pfs_syscall_totals64;
+
+extern FILE *netlist_file;
+extern struct hash_table *netlist_table;
 
 extern void handle_specific_process( pid_t pid );
 
@@ -1502,6 +1510,52 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 				} else {
 					/* We only care about AF_UNIX sockets. */
 					debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), args[0], args[1], args[2]);
+					int domain, s;
+					char host_buf[100], port_buf[100], ip_addr[1024];
+					struct sockaddr *sock_addr;
+					sock_addr = (struct sockaddr *) (&addr);
+					domain = sock_addr->sa_family;
+					s = getnameinfo(sock_addr, sizeof(*sock_addr), host_buf, sizeof(host_buf), port_buf, sizeof(port_buf), 100| 100);
+					if (s == 0) {
+						fprintf(stdout, "Accepted connection on descriptor %ld (host=%s, port=%s)\n", args[0], host_buf, port_buf);
+						inet_ntop(sock_addr->sa_family, get_in_addr(sock_addr), ip_addr, sizeof(ip_addr));
+						char domain_type[10];
+						if(domain == AF_INET)
+							strcpy(domain_type, "AF_INET");
+						if(domain == AF_INET6)
+							strcpy(domain_type, "AF_INET6");
+						if(netlist_table && (domain == AF_INET || domain == AF_INET6)) {
+							struct pfs_socket_info *p_sock, *existed_socket;
+							p_sock = (struct pfs_socket_info *) malloc(sizeof(struct pfs_socket_info));
+							char buf[10];
+							snprintf(buf, sizeof(buf), "%ld", args[0]);
+							p_sock->id = args[0];
+							p_sock->domain = domain;
+							strcpy(p_sock->domain_type, domain_type);
+							p_sock->type = -1;
+							p_sock->protocol = -1;
+							strcpy(p_sock->ip_addr, ip_addr);
+							p_sock->port = get_in_port(sock_addr);
+							strcpy(p_sock->host_name, host_buf);
+							strcpy(p_sock->service_name, port_buf);
+							strcpy(p_sock->resource_path, "");
+							p_sock->resource_status = -1;
+
+							existed_socket = (struct pfs_socket_info *)hash_table_lookup(netlist_table, buf);
+							if(!existed_socket) {
+								hash_table_insert(netlist_table, buf, p_sock);
+								fprintf(netlist_file, "create one new socket %s\n", buf);
+							} else {
+								fprintf(netlist_file, "this socket already exist %ld, the info is as follows:\n", args[0]);
+								fprintf(netlist_file, "id: %d; domain: %d; domain_type: %s; type: %d; protocol: %d\n", existed_socket->id, existed_socket->domain, existed_socket->domain_type, existed_socket->type, existed_socket->protocol);
+								fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n\n", existed_socket->ip_addr, existed_socket->port, existed_socket->host_name, existed_socket->service_name, existed_socket->resource_path, existed_socket->resource_status);
+								free(existed_socket);
+								hash_table_remove(netlist_table, buf);
+								fprintf(netlist_file, "create one new socket %s\n", buf);
+								hash_table_insert(netlist_table, buf, p_sock);
+							}
+						}
+					}
 				}
 			} else if (!p->syscall_dummy && p->syscall_result == 1) {
 				/* We aren't changing/reading the *actual* result, we're just restoring the tracee's addr structure. */

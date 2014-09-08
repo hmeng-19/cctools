@@ -62,6 +62,7 @@ struct pfs_statfs {
 struct pfs_socket_info {
 	int id;
 	int domain;
+	char domain_type[10];
 	int type;
 	int protocol;
 	char ip_addr[PATH_MAX];

@@ -59,6 +59,19 @@ struct pfs_statfs {
 	INT64_T f_ffree;
 };
 
+struct pfs_socket_info {
+	int id;
+	int domain;
+	int type;
+	int protocol;
+	char ip_addr[PATH_MAX];
+	int port;
+	char host_name[PATH_MAX];
+	char service_name[PATH_MAX];
+	char resource_path[PATH_MAX];
+	int resource_status;
+};
+
 extern uid_t pfs_uid;
 extern gid_t pfs_gid;
 

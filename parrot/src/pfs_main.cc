@@ -64,6 +64,8 @@ extern "C" {
 extern char **environ;
 FILE *namelist_file;
 struct hash_table *namelist_table;
+FILE *netlist_file;
+struct hash_table *netlist_table;
 int linux_major;
 int linux_minor;
 int linux_micro;
@@ -129,6 +131,7 @@ enum {
 	LONG_OPT_CVMFS_DISABLE_ALIEN_CACHE,
 	LONG_OPT_CVMFS_ALIEN_CACHE,
 	LONG_OPT_HELPER,
+	LONG_OPT_NET_LIST,
 };
 
 static void get_linux_version(const char *cmd)
@@ -208,6 +211,7 @@ static void show_help( const char *cmd )
 	fprintf(stdout, " %-30s Do not checksum files.\n", "-k,--no-checksums");
 	fprintf(stdout, " %-30s Path to ld.so to use.                      (PARROT_LDSO_PATH)\n", "-l,--ld-path=<path>");
 	fprintf(stdout, " %-30s Record all the file names.\n", "-n,--name-list=<path>");
+	fprintf(stdout, " %-30s Record all the network activities.\n", "   --net-list=<path>");
 	fprintf(stdout, " %-30s Use this file as a mountlist.             (PARROT_MOUNT_FILE)\n", "-m,--ftab-file=<file>");
 	fprintf(stdout, " %-30s Mount (redirect) /foo to /bar.          (PARROT_MOUNT_STRING)\n", "-M,--mount=/foo=/bar");
 	fprintf(stdout, " %-30s Pretend that this is my hostname.          (PARROT_HOST_NAME)\n", "-N,--hostname=<name>");
@@ -667,6 +671,7 @@ int main( int argc, char *argv[] )
 		{"ld-path", required_argument, 0, 'l'},
 		{"mount", required_argument, 0, 'M'},
 		{"name-list", required_argument, 0, 'n'},
+		{"net-list", required_argument, 0, LONG_OPT_NET_LIST},
 		{"no-checksums", no_argument, 0, 'k'},
 		{"no-chirp-catalog", no_argument, 0, 'Q'},
 		{"no-follow-symlinks", no_argument, 0, 'f'},
@@ -836,6 +841,24 @@ int main( int argc, char *argv[] )
 			break;
 		case LONG_OPT_CVMFS_DISABLE_ALIEN_CACHE:
 			pfs_cvmfs_enable_alien = false;
+			break;
+		case LONG_OPT_NET_LIST:
+			if(access(optarg, F_OK) != -1) {
+				fprintf(stderr, "The net-list file (%s) has already existed. Please delete it first or refer to another namelist file!!\n", optarg);
+				return 1;
+			}
+			netlist_file = fopen(optarg, "a");
+			if(!netlist_file) {
+				debug(D_DEBUG, "Can not open netlist file: %s", optarg);
+				return 1;
+			}
+			fprintf(netlist_file, "All the network activities:\n");
+
+			netlist_table = hash_table_create(0, 0);
+			if(!netlist_table) {
+				debug(D_DEBUG, "Failed to create hash table for netlist!\n");
+				return 1;
+			}
 			break;
 		case 'R':
 			pfs_root_checksum = optarg;
@@ -1105,6 +1128,23 @@ int main( int argc, char *argv[] )
 		fclose(namelist_file);
 	}
 	
+	if(netlist_file) {
+		char *key;
+		void *value;
+		hash_table_firstkey(netlist_table);
+		while(hash_table_nextkey(netlist_table, &key, &value)) {
+			//strcpy(((struct pfs_socket *)value)->ip_addr, "2.2.2");
+			struct pfs_socket_info *p_sock;
+			p_sock = (struct pfs_socket_info *)value;
+			fprintf(netlist_file, "id: %d; domain: %d; type: %d, protocol: %d;\n", p_sock->id, p_sock->domain, p_sock->type, p_sock->protocol);
+			fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n", p_sock->ip_addr, p_sock->port, p_sock->host_name, p_sock->service_name, p_sock->resource_path, p_sock->resource_status);
+			free((struct pfs_socket_info *)value);
+		}
+		hash_table_delete(netlist_table);
+
+		fclose(netlist_file);
+	}
+
 	if(WIFEXITED(root_exitstatus)) {
 		int status = WEXITSTATUS(root_exitstatus);
 		debug(D_PROCESS,"%s exited normally with status %d",argv[optind],status);

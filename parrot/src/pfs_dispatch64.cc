@@ -237,6 +237,10 @@ static void decode_read( struct pfs_process *p, INT64_T entering, INT64_T syscal
 						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@read@@@@@@@@@@@@\n");
 						fprintf(netlist_file, "fd: %ld; domain: %s; length:%d; actual_len: %d\n", fd, existed_socket->domain_type, (int)length, (int)p->syscall_result);
 						fprintf(netlist_file, "data: %.*s\n", (int)p->syscall_result, local_addr);
+						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
+						if(existed_socket->http_checking == 1 && HttpCheck(local_addr, (int)p->syscall_result) == 2)
+							existed_socket->http_checking = 2;
+
 					}
 				}
 
@@ -309,6 +313,9 @@ static void decode_write( struct pfs_process *p, INT64_T entering, INT64_T sysca
 						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write entering@@@@@@@@@@@@\n");
 						int actual = (int)args[2];
 						fprintf(netlist_file, "fd:%ld; domain:%s; actual:%d; data:`%.*s' \n", fd, existed_socket->domain_type, (int)actual, (int)actual, local_addr);
+						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
+						if(existed_socket->http_checking == 0 && HttpCheck(local_addr, int(actual)) == 1)
+							existed_socket->http_checking = 1;
 					}
 				}
 
@@ -336,6 +343,10 @@ static void decode_write( struct pfs_process *p, INT64_T entering, INT64_T sysca
 					if(existed_socket && existed_socket->domain != AF_INET6) {
 						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write@@@@@@@@@@@@\n");
 						fprintf(netlist_file, "fd:%ld; domain:%s; actual:%d; data:`%.*s' \n", fd, existed_socket->domain_type, (int)actual, (int)actual, local_addr);
+						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
+						if(existed_socket->http_checking == 0 && HttpCheck(local_addr, int(actual)) == 1)
+							existed_socket->http_checking = 1;
+
 					}
 				}
 
@@ -1721,8 +1732,8 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 		case SYSCALL64_setsockopt:
 		case SYSCALL64_shutdown:
 			if(p->syscall == SYSCALL64_sendto) {
-				fprintf(netlist_file, "------------sendto---------\n");
 				if(netlist_table) {
+					fprintf(netlist_file, "------------sendto---------\n");
 					struct pfs_socket_info *existed_socket;
 					char buf[10];
 					snprintf(buf, sizeof(buf), "%ld", args[0]);
@@ -1742,8 +1753,8 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 			}
 
 			if(p->syscall == SYSCALL64_recvfrom) {
-				fprintf(netlist_file, "------------recvfrom---------\n");
 				if(netlist_table) {
+					fprintf(netlist_file, "------------recvfrom---------\n");
 					struct pfs_socket_info *existed_socket;
 					char buf[10];
 					snprintf(buf, sizeof(buf), "%ld", args[0]);

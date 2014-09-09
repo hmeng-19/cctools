@@ -53,6 +53,25 @@ int get_in_port(struct sockaddr *sa)
 		return ntohs(((struct sockaddr_in6*)sa)->sin6_port);
 }
 
+int HttpCheck(char *buffer, int size) {
+	if(buffer[0] == 'G' && buffer[1] == 'E' && buffer[2] == 'T') {
+		char *s;
+		s = strchr(buffer, ' ');
+		s ++;
+		s = strchr(s, ' ');
+		s ++;
+		if(s[0] == 'H' && s[1] == 'T' && s[2] == 'T' && s[3] == 'P') {
+			fprintf(netlist_file, "\nHTTP dependency item -- request:\n%.*s\n", size, buffer);
+			return 1;
+		}
+	}
+	if(buffer[0] == 'H' && buffer[1] == 'T' && buffer[2] == 'T' && buffer[3] == 'P' && buffer[4] == '/') {
+		fprintf(netlist_file, "\nHTTP dependency item -- response:\n%.*s\n", size, buffer);
+		return 2;
+	}
+	return -1;
+}
+
 void ProcessPacket(unsigned char* buffer, int size)
 {
 	//Get the IP Header part of this packet
@@ -60,14 +79,16 @@ void ProcessPacket(unsigned char* buffer, int size)
 	fprintf(netlist_file, "ProcessPacket: protocol: %d\n", iph->protocol);
 	switch (iph->protocol) //Check the Protocol and do accordingly...
 	{
-		case 1:  //ICMP Protocol
+		case IPPROTO_ICMP:  //ICMP Protocol
 			print_icmp_packet(buffer,size);
 			break;
-		case 0:
-		case 6:  //TCP Protocol
+		case IPPROTO_IP:
+			print_ip_packet(buffer , size);
+			break;
+		case IPPROTO_TCP:  //TCP Protocol
 			print_tcp_packet(buffer , size);
 			break;
-        case 17: //UDP Protocol
+        case IPPROTO_UDP: //UDP Protocol
 			print_udp_packet(buffer , size);
 			break;
 		default: //Some Other Protocol like ARP etc.
@@ -105,12 +126,31 @@ void print_ip_header(unsigned char* Buffer, int Size)
 	fprintf(netlist_file,"   |-Destination IP   : %s\n",inet_ntoa(dest.sin_addr));
 }
 
+void print_ip_packet(unsigned char* Buffer, int Size)
+{
+	unsigned short iphdrlen;
+
+	struct iphdr *iph = (struct iphdr *)Buffer;
+	iphdrlen = (iph->ihl)*4;
+
+	fprintf(netlist_file,"\n\n***********************IP Packet*************************\n");
+	print_ip_header(Buffer,Size);
+
+	fprintf(netlist_file,"IP Header\n");
+	PrintData(Buffer,iphdrlen);
+
+	fprintf(netlist_file,"Data Payload\n");
+	PrintData(Buffer + iphdrlen, (Size - iph->ihl*4) );
+
+	fprintf(netlist_file,"\n###########################################################");
+}
+
 void print_tcp_packet(unsigned char* Buffer, int Size)
 {
 	unsigned short iphdrlen;
 
 	struct iphdr *iph = (struct iphdr *)Buffer;
-	iphdrlen = iph->ihl*4;
+	iphdrlen = (iph->ihl)*4;
 
 	struct tcphdr *tcph=(struct tcphdr*)(Buffer + iphdrlen);
 

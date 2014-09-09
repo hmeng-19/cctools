@@ -71,6 +71,7 @@ struct pfs_socket_info {
 	char service_name[PATH_MAX];
 	char resource_path[PATH_MAX];
 	int resource_status;
+	int http_checking;
 };
 
 extern uid_t pfs_uid;

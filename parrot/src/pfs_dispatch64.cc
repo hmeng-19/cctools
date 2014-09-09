@@ -228,6 +228,18 @@ static void decode_read( struct pfs_process *p, INT64_T entering, INT64_T syscal
 
 			if(syscall==SYSCALL64_read) {
 				p->syscall_result = pfs_read(fd,local_addr,length);
+				if(netlist_table) {
+					struct pfs_socket_info *existed_socket;
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+					if(existed_socket) {
+						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@read@@@@@@@@@@@@\n");
+						fprintf(netlist_file, "fd: %ld; length:%d; actual_len: %d\n", fd, (int)length, (int)p->syscall_result);
+						fprintf(netlist_file, "data: %.*s\n", (int)p->syscall_result, local_addr);
+					}
+				}
+
 			} else if(syscall==SYSCALL64_pread) {
 				p->syscall_result = pfs_pread(fd,local_addr,length,offset);
 			}
@@ -284,6 +296,23 @@ static void decode_write( struct pfs_process *p, INT64_T entering, INT64_T sysca
 		INT64_T length = args[2];
 		if(pfs_channel_alloc(0,length,&p->io_channel_offset)) {
 			divert_to_channel(p,SYSCALL64_pwrite,uaddr,length,p->io_channel_offset);
+
+			INT64_T fd = args[0];
+			char *local_addr = pfs_channel_base() + p->io_channel_offset;
+			if(syscall==SYSCALL64_write) {
+				if(netlist_table) {
+					struct pfs_socket_info *existed_socket;
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+					if(existed_socket) {
+						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write entering@@@@@@@@@@@@\n");
+						int actual = (int)args[2];
+						fprintf(netlist_file, "fd:%ld; actual:%d; data:`%.*s' \n", fd, (int)actual, (int)actual, local_addr);
+					}
+				}
+
+			}
 		} else {
 			divert_to_dummy(p,-ENOMEM);
 		}
@@ -299,6 +328,17 @@ static void decode_write( struct pfs_process *p, INT64_T entering, INT64_T sysca
 
 			if(syscall==SYSCALL64_write) {
 				p->syscall_result = pfs_write(fd,local_addr,actual);
+				if(netlist_table) {
+					struct pfs_socket_info *existed_socket;
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+					if(existed_socket) {
+						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write@@@@@@@@@@@@\n");
+						fprintf(netlist_file, "fd:%ld; actual:%d; data:`%.*s' \n", fd, (int)actual, (int)actual, local_addr);
+					}
+				}
+
 			} else if(syscall==SYSCALL64_pwrite) {
 				p->syscall_result = pfs_pwrite(fd,local_addr,actual,offset);
 			}
@@ -1435,6 +1475,20 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 		case SYSCALL64_pread:
 			if (p->table->isnative(args[0])) {
 				if (entering) debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), args[0], args[1], args[2]);
+				if(netlist_table) {
+					struct pfs_socket_info *existed_socket;
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+					if(existed_socket) {
+						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@read@@@@@@@@@@@@\n");
+						void *data;
+						data = xxmalloc(args[2]);
+						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
+						fprintf(netlist_file, "data: %s\n", (char *) data);
+						ProcessPacket((unsigned char*)data, (int)args[2]);
+					}
+				}
 			} else {
 				decode_read(p,entering,p->syscall,args);
 			}
@@ -1444,6 +1498,20 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 		case SYSCALL64_pwrite:
 			if (p->table->isnative(args[0])) {
 				if (entering) debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), args[0], args[1], args[2]);
+				if(netlist_table) {
+					struct pfs_socket_info *existed_socket;
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+					if(existed_socket) {
+						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write@@@@@@@@@@@@\n");
+						void *data;
+						data = xxmalloc(args[2]);
+						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
+						fprintf(netlist_file, "data: %s\n", (char *) data);
+						ProcessPacket((unsigned char*)data, (int)args[2]);
+					}
+				}
 			} else {
 				decode_write(p,entering,p->syscall,args);
 			}
@@ -1517,7 +1585,6 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 					domain = sock_addr->sa_family;
 					s = getnameinfo(sock_addr, sizeof(*sock_addr), host_buf, sizeof(host_buf), port_buf, sizeof(port_buf), 100| 100);
 					if (s == 0) {
-						fprintf(stdout, "Accepted connection on descriptor %ld (host=%s, port=%s)\n", args[0], host_buf, port_buf);
 						inet_ntop(sock_addr->sa_family, get_in_addr(sock_addr), ip_addr, sizeof(ip_addr));
 						char domain_type[10];
 						if(domain == AF_INET)
@@ -1646,6 +1713,41 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 		case SYSCALL64_sendto:
 		case SYSCALL64_setsockopt:
 		case SYSCALL64_shutdown:
+			if(p->syscall == SYSCALL64_sendto) {
+				fprintf(netlist_file, "------------sendto---------\n");
+				if(netlist_table) {
+					struct pfs_socket_info *existed_socket;
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+					if(existed_socket) {
+						fprintf(netlist_file, "sendto %ld; length: %ld\n", args[0], args[2]);
+						void *data;
+						data = xxmalloc(args[2]);
+						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
+						fprintf(netlist_file, "data: %s\n", (char *) data);
+						ProcessPacket((unsigned char*)data, (int)args[2]);
+					}
+				}
+			}
+
+			if(p->syscall == SYSCALL64_recvfrom) {
+				fprintf(netlist_file, "------------recvfrom---------\n");
+				if(netlist_table) {
+					struct pfs_socket_info *existed_socket;
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+					if(existed_socket) {
+						fprintf(netlist_file, "sendto %ld; length: %ld\n", args[0], args[2]);
+						void *data;
+						data = xxmalloc(args[2]);
+						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
+						fprintf(netlist_file, "data: %s\n", (char *) data);
+						ProcessPacket((unsigned char*)data, (int)args[2]);
+					}
+				}
+			}
 			if(entering && !p->table->isnative(args[0]))
 				divert_to_dummy(p,-EBADF);
 			break;

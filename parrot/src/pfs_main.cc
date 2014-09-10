@@ -1142,8 +1142,10 @@ int main( int argc, char *argv[] )
 			//strcpy(((struct pfs_socket *)value)->ip_addr, "2.2.2");
 			struct pfs_socket_info *p_sock;
 			p_sock = (struct pfs_socket_info *)value;
-			fprintf(netlist_file, "id: %d; domain: %d; domain_type:%s; type: %d, protocol: %d;\n", p_sock->id, p_sock->domain, p_sock->domain_type, p_sock->type, p_sock->protocol);
-			fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n", p_sock->ip_addr, p_sock->port, p_sock->host_name, p_sock->service_name, p_sock->resource_path, p_sock->resource_status);
+			if(strcmp(p_sock->service_name, "http") == 0 || strcmp(p_sock->service_name, "https") == 0 || strcmp(p_sock->service_name, "ssh") == 0) {
+				fprintf(netlist_file, "\nid: %d; domain: %d; domain_type:%s; ", p_sock->id, p_sock->domain, p_sock->domain_type);
+				fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n", p_sock->ip_addr, p_sock->port, p_sock->host_name, p_sock->service_name, p_sock->resource_path, p_sock->resource_status);
+			}
 			free((struct pfs_socket_info *)value);
 		}
 		hash_table_delete(netlist_table);

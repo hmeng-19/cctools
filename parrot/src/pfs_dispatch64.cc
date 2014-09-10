@@ -238,10 +238,10 @@ static void decode_read( struct pfs_process *p, INT64_T entering, INT64_T syscal
 					snprintf(buf, sizeof(buf), "%ld", args[0]);
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket && existed_socket->domain != AF_INET6) {
-						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@read@@@@@@@@@@@@\n");
-						fprintf(netlist_file, "fd: %ld; domain: %s; length:%d; actual_len: %d\n", fd, existed_socket->domain_type, (int)length, (int)p->syscall_result);
-						fprintf(netlist_file, "data: %.*s\n", (int)p->syscall_result, local_addr);
-						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
+//						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@read@@@@@@@@@@@@\n");
+//						fprintf(netlist_file, "fd: %ld; domain: %s; length:%d; actual_len: %d\n", fd, existed_socket->domain_type, (int)length, (int)p->syscall_result);
+//						fprintf(netlist_file, "data: %.*s\n", (int)p->syscall_result, local_addr);
+//						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 1 && HttpCheck(local_addr, (int)p->syscall_result) == 2)
 							existed_socket->http_checking = 2;
 
@@ -305,7 +305,7 @@ static void decode_write( struct pfs_process *p, INT64_T entering, INT64_T sysca
 		if(pfs_channel_alloc(0,length,&p->io_channel_offset)) {
 			divert_to_channel(p,SYSCALL64_pwrite,uaddr,length,p->io_channel_offset);
 
-			INT64_T fd = args[0];
+//			INT64_T fd = args[0];
 			char *local_addr = pfs_channel_base() + p->io_channel_offset;
 			if(syscall==SYSCALL64_write) {
 				if(netlist_table) {
@@ -314,10 +314,10 @@ static void decode_write( struct pfs_process *p, INT64_T entering, INT64_T sysca
 					snprintf(buf, sizeof(buf), "%ld", args[0]);
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket && existed_socket->domain != AF_INET6) {
-						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write entering@@@@@@@@@@@@\n");
+//						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write entering@@@@@@@@@@@@\n");
 						int actual = (int)args[2];
-						fprintf(netlist_file, "fd:%ld; domain:%s; actual:%d; data:`%.*s' \n", fd, existed_socket->domain_type, (int)actual, (int)actual, local_addr);
-						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
+//						fprintf(netlist_file, "fd:%ld; domain:%s; actual:%d; data:`%.*s' \n", fd, existed_socket->domain_type, (int)actual, (int)actual, local_addr);
+//						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 0 && HttpCheck(local_addr, int(actual)) == 1)
 							existed_socket->http_checking = 1;
 					}
@@ -345,9 +345,9 @@ static void decode_write( struct pfs_process *p, INT64_T entering, INT64_T sysca
 					snprintf(buf, sizeof(buf), "%ld", args[0]);
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket && existed_socket->domain != AF_INET6) {
-						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write@@@@@@@@@@@@\n");
-						fprintf(netlist_file, "fd:%ld; domain:%s; actual:%d; data:`%.*s' \n", fd, existed_socket->domain_type, (int)actual, (int)actual, local_addr);
-						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
+//						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write@@@@@@@@@@@@\n");
+//						fprintf(netlist_file, "fd:%ld; domain:%s; actual:%d; data:`%.*s' \n", fd, existed_socket->domain_type, (int)actual, (int)actual, local_addr);
+//						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 0 && HttpCheck(local_addr, int(actual)) == 1)
 							existed_socket->http_checking = 1;
 
@@ -1489,19 +1489,21 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 					char buf[10];
 					snprintf(buf, sizeof(buf), "%ld", args[0]);
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
-					if(existed_socket && existed_socket->domain != AF_INET6 && strcmp(existed_socket->host_name, "github.com") == 0) {
-						if(strcmp(existed_socket->service_name, "https") == 0)
-							git_https_checking = 0;
-						else if(strcmp(existed_socket->service_name, "ssh") == 0)
-							git_ssh_checking = 0;
-						fprintf(netlist_file, "closing socket %d \n", existed_socket->id);
-						FILE *git_conf_file;
-						if(is_opened_gitconf == 0) {
-							is_opened_gitconf = 1;
-							git_conf_file = fopen(git_conf_filename, "r");
-							char line[PATH_MAX];
-							while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
-								fprintf(netlist_file, "%s", line);
+					if(existed_socket && existed_socket->domain != AF_INET6) {
+//						fprintf(netlist_file, "closing socket %d \n", existed_socket->id);
+						if(strcmp(existed_socket->host_name, "github.com") == 0) {
+							if(strcmp(existed_socket->service_name, "https") == 0)
+								git_https_checking = 0;
+							if(strcmp(existed_socket->service_name, "ssh") == 0)
+								git_ssh_checking = 0;
+							FILE *git_conf_file;
+							if(is_opened_gitconf == 0) {
+								is_opened_gitconf = 1;
+								git_conf_file = fopen(git_conf_filename, "r");
+								char line[PATH_MAX];
+								while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
+									fprintf(netlist_file, "%s", line);
+								}
 							}
 						}
 					}
@@ -1518,12 +1520,12 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 					snprintf(buf, sizeof(buf), "%ld", args[0]);
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket && existed_socket->domain != AF_INET6) {
-						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@read@@@@@@@@@@@@\n");
+//						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@read@@@@@@@@@@@@\n");
 						void *data;
 						data = xxmalloc(args[2]);
 						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
-						fprintf(netlist_file, "socket: %d; domain:%s; data: %s\n", existed_socket->id, existed_socket->domain_type, (char *) data);
-						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
+//						fprintf(netlist_file, "socket: %d; domain:%s; data: %s\n", existed_socket->id, existed_socket->domain_type, (char *) data);
+//						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 1 && HttpCheck((char *)data, args[2]) == 2)
 							existed_socket->http_checking = 2;
 //						ProcessPacket((unsigned char*)data, (int)args[2]);
@@ -1544,12 +1546,12 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 					snprintf(buf, sizeof(buf), "%ld", args[0]);
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket && existed_socket->domain != AF_INET6) {
-						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write@@@@@@@@@@@@\n");
+//						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write@@@@@@@@@@@@\n");
 						void *data;
 						data = xxmalloc(args[2]);
 						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
-						fprintf(netlist_file, "socket:%d, domain:%s, data: %s\n", existed_socket->id, existed_socket->domain_type, (char *) data);
-						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
+//						fprintf(netlist_file, "socket:%d, domain:%s, data: %s\n", existed_socket->id, existed_socket->domain_type, (char *) data);
+//						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 0 && HttpCheck((char *)data, args[2]) == 1)
 							existed_socket->http_checking = 1;
 //						ProcessPacket((unsigned char*)data, (int)args[2]);
@@ -1665,7 +1667,7 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 								hash_table_insert(netlist_table, buf, p_sock);
 								fprintf(netlist_file, "create one new socket %s\n", buf);
 							} else {
-								fprintf(netlist_file, "this socket already exist %ld, the info is as follows:\n", args[0]);
+								fprintf(netlist_file, "this socket fd already exist %ld, the info is as follows:\n", args[0]);
 								fprintf(netlist_file, "id: %d; domain: %d; domain_type: %s; type: %d; protocol: %d\n", existed_socket->id, existed_socket->domain, existed_socket->domain_type, existed_socket->type, existed_socket->protocol);
 								fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n\n", existed_socket->ip_addr, existed_socket->port, existed_socket->host_name, existed_socket->service_name, existed_socket->resource_path, existed_socket->resource_status);
 								free(existed_socket);
@@ -1673,6 +1675,7 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 								fprintf(netlist_file, "create one new socket %s\n", buf);
 								hash_table_insert(netlist_table, buf, p_sock);
 							}
+							is_opened_gitconf = 0;
 						}
 					}
 				}
@@ -1767,18 +1770,18 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 		case SYSCALL64_shutdown:
 			if(p->syscall == SYSCALL64_sendto) {
 				if(netlist_table) {
-					fprintf(netlist_file, "------------sendto---------\n");
+//					fprintf(netlist_file, "------------sendto---------\n");
 					struct pfs_socket_info *existed_socket;
 					char buf[10];
 					snprintf(buf, sizeof(buf), "%ld", args[0]);
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket && existed_socket->domain != AF_INET6) {
-						fprintf(netlist_file, "sendto %ld; domain: %s; length: %ld\n", args[0], existed_socket->domain_type, args[2]);
+//						fprintf(netlist_file, "sendto %ld; domain: %s; length: %ld\n", args[0], existed_socket->domain_type, args[2]);
 						void *data;
 						data = xxmalloc(args[2]);
 						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
-						fprintf(netlist_file, "data: %s\n", (char *) data);
-						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
+//						fprintf(netlist_file, "data: %s\n", (char *) data);
+//						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 0 && HttpCheck((char *)data, args[2]) == 1)
 							existed_socket->http_checking = 1;
 //						ProcessPacket((unsigned char*)data, (int)args[2]);
@@ -1788,18 +1791,18 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 
 			if(p->syscall == SYSCALL64_recvfrom) {
 				if(netlist_table) {
-					fprintf(netlist_file, "------------recvfrom---------\n");
+//					fprintf(netlist_file, "------------recvfrom---------\n");
 					struct pfs_socket_info *existed_socket;
 					char buf[10];
 					snprintf(buf, sizeof(buf), "%ld", args[0]);
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket && existed_socket->domain != AF_INET6) {
-						fprintf(netlist_file, "recvfrom %ld; domain:%s; length: %ld\n", args[0], existed_socket->domain_type, args[2]);
+//						fprintf(netlist_file, "recvfrom %ld; domain:%s; length: %ld\n", args[0], existed_socket->domain_type, args[2]);
 						void *data;
 						data = xxmalloc(args[2]);
 						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
-						fprintf(netlist_file, "data: %s\n", (char *) data);
-						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
+//						fprintf(netlist_file, "data: %s\n", (char *) data);
+//						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 1 && HttpCheck((char *)data, args[2]) == 2)
 							existed_socket->http_checking = 2;
 //						ProcessPacket((unsigned char*)data, (int)args[2]);

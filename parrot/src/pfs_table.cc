@@ -462,7 +462,7 @@ int pfs_table::resolve_name(int is_special_syscall, const char *cname, struct pf
 		char *git_s;
 		git_s = strstr(pname->path, "/.git/config");
 		if(git_s != NULL && *(git_s + 13) == '\0') {
-			fprintf(netlist_file, "filename: %s\n", pname->path);
+//			fprintf(netlist_file, "filename: %s\n", pname->path);
 			strcpy(git_conf_filename, pname->path);
 		}
 	}

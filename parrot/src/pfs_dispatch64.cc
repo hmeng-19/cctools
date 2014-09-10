@@ -97,8 +97,12 @@ extern int *pfs_syscall_totals64;
 
 extern FILE *netlist_file;
 extern struct hash_table *netlist_table;
+extern int git_https_checking;
+extern int git_ssh_checking;
+extern char git_conf_filename[PATH_MAX];
 
 extern void handle_specific_process( pid_t pid );
+int is_opened_gitconf = 0;
 
 #define POINTER( i ) ((void *)(uintptr_t)(i))
 
@@ -1480,6 +1484,28 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 						p->syscall_dummy = 1; /* Fake a dummy "return" but allow the kernel to close the Parrot fd. */
 				}
 			}
+				if(netlist_table) {
+					struct pfs_socket_info *existed_socket;
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+					if(existed_socket && existed_socket->domain != AF_INET6 && strcmp(existed_socket->host_name, "github.com") == 0) {
+						if(strcmp(existed_socket->service_name, "https") == 0)
+							git_https_checking = 0;
+						else if(strcmp(existed_socket->service_name, "ssh") == 0)
+							git_ssh_checking = 0;
+						fprintf(netlist_file, "closing socket %d \n", existed_socket->id);
+						FILE *git_conf_file;
+						if(is_opened_gitconf == 0) {
+							is_opened_gitconf = 1;
+							git_conf_file = fopen(git_conf_filename, "r");
+							char line[PATH_MAX];
+							while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
+								fprintf(netlist_file, "%s", line);
+							}
+						}
+					}
+				}
 			break;
 
 		case SYSCALL64_read:
@@ -1627,6 +1653,14 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 							p_sock->http_checking = 0;
 
 							existed_socket = (struct pfs_socket_info *)hash_table_lookup(netlist_table, buf);
+							if(strcmp(host_buf, "github.com") == 0) {
+								if(strcmp(port_buf, "https") == 0) {
+									git_https_checking = 1;
+								}
+								if(strcmp(port_buf, "ssh") == 0) {
+									git_ssh_checking = 1;
+								}
+							}
 							if(!existed_socket) {
 								hash_table_insert(netlist_table, buf, p_sock);
 								fprintf(netlist_file, "create one new socket %s\n", buf);

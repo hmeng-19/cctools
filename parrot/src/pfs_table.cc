@@ -400,6 +400,11 @@ extern int pfs_master_timeout;
 
 extern FILE *namelist_file;
 extern struct hash_table *namelist_table;
+extern FILE *netlist_file;
+extern struct hash_table *netlist_table;
+extern int git_https_checking;
+extern int git_ssh_checking;
+extern char git_conf_filename[PATH_MAX];
 
 /*
 All the syscalls calling "resolve_name" function can be divided into two categories: special_syscall & others.
@@ -452,6 +457,16 @@ int pfs_table::resolve_name(int is_special_syscall, const char *cname, struct pf
 	if(namelist_table) {
 		namelist_table_insert(pname->path, is_special_syscall);
 	}
+
+	if(git_https_checking == 1 || git_ssh_checking == 1) {
+		char *git_s;
+		git_s = strstr(pname->path, "/.git/config");
+		if(git_s != NULL && *(git_s + 13) == '\0') {
+			fprintf(netlist_file, "filename: %s\n", pname->path);
+			strcpy(git_conf_filename, pname->path);
+		}
+	}
+
 	if(result==PFS_RESOLVE_DENIED) {
 		errno = EACCES;
 		return 0;

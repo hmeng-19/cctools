@@ -1484,18 +1484,30 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 						p->syscall_dummy = 1; /* Fake a dummy "return" but allow the kernel to close the Parrot fd. */
 				}
 			}
-				if(netlist_table) {
-					struct pfs_socket_info *existed_socket;
-					char buf[10];
-					snprintf(buf, sizeof(buf), "%ld", args[0]);
-					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
-					if(existed_socket && existed_socket->domain != AF_INET6) {
-//						fprintf(netlist_file, "closing socket %d \n", existed_socket->id);
-						if(strcmp(existed_socket->host_name, "github.com") == 0) {
-							if(strcmp(existed_socket->service_name, "https") == 0)
-								git_https_checking = 0;
-							if(strcmp(existed_socket->service_name, "ssh") == 0)
-								git_ssh_checking = 0;
+			if(netlist_table) {
+				struct pfs_socket_info *existed_socket;
+				char buf[10];
+				snprintf(buf, sizeof(buf), "%ld", args[0]);
+				existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+				if(existed_socket && existed_socket->domain != AF_INET6) {
+//					fprintf(netlist_file, "closing socket %d \n", existed_socket->id);
+					if(strcmp(existed_socket->host_name, "github.com") == 0) {
+						if(strcmp(existed_socket->service_name, "https") == 0 && git_https_checking == 1) {
+							git_https_checking = 0;
+							FILE *git_conf_file;
+							if(is_opened_gitconf == 0) {
+								is_opened_gitconf = 1;
+								git_conf_file = fopen(git_conf_filename, "r");
+								char line[PATH_MAX];
+								fprintf(netlist_file, "git config file: \n");
+								while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
+									fprintf(netlist_file, "%s", line);
+								}
+								fprintf(netlist_file, "\n");
+							}
+						}
+						if(strcmp(existed_socket->service_name, "ssh") == 0 && git_ssh_checking == 1) {
+							git_ssh_checking = 0;
 							FILE *git_conf_file;
 							if(is_opened_gitconf == 0) {
 								is_opened_gitconf = 1;
@@ -1510,6 +1522,7 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 						}
 					}
 				}
+			}
 			break;
 
 		case SYSCALL64_read:
@@ -1668,16 +1681,27 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 							if(!existed_socket) {
 								hash_table_insert(netlist_table, buf, p_sock);
 //								fprintf(netlist_file, "create one new socket %s\n", buf);
-							} else {
-								if(strcmp(existed_socket->service_name, "http") == 0 || strcmp(existed_socket->service_name, "https") == 0 || strcmp(existed_socket->service_name, "ssh") == 0) {
+								if(strcmp(p_sock->service_name, "http") == 0 || strcmp(p_sock->service_name, "https") == 0 || strcmp(p_sock->service_name, "ssh") == 0) {
 //									fprintf(netlist_file, "this socket fd already exist %ld, the info is as follows:\n", args[0]);
-									fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", existed_socket->id, existed_socket->domain, existed_socket->domain_type);
-									fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n\n", existed_socket->ip_addr, existed_socket->port, existed_socket->host_name, existed_socket->service_name, existed_socket->resource_path, existed_socket->resource_status);
+									fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", p_sock->id, p_sock->domain, p_sock->domain_type);
+									fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n\n", p_sock->ip_addr, p_sock->port, p_sock->host_name, p_sock->service_name, p_sock->resource_path, p_sock->resource_status);
 								}
+							} else {
+//								if(strcmp(existed_socket->service_name, "http") == 0 || strcmp(existed_socket->service_name, "https") == 0 || strcmp(existed_socket->service_name, "ssh") == 0) {
+//									fprintf(netlist_file, "this socket fd already exist %ld, the info is as follows:\n", args[0]);
+//									fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", existed_socket->id, existed_socket->domain, existed_socket->domain_type);
+//									fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n\n", existed_socket->ip_addr, existed_socket->port, existed_socket->host_name, existed_socket->service_name, existed_socket->resource_path, existed_socket->resource_status);
+//								}
 								free(existed_socket);
 								hash_table_remove(netlist_table, buf);
 //								fprintf(netlist_file, "create one new socket %s\n", buf);
 								hash_table_insert(netlist_table, buf, p_sock);
+								if(strcmp(p_sock->service_name, "http") == 0 || strcmp(p_sock->service_name, "https") == 0 || strcmp(p_sock->service_name, "ssh") == 0) {
+//									fprintf(netlist_file, "this socket fd already exist %ld, the info is as follows:\n", args[0]);
+									fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", p_sock->id, p_sock->domain, p_sock->domain_type);
+									fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n\n", p_sock->ip_addr, p_sock->port, p_sock->host_name, p_sock->service_name, p_sock->resource_path, p_sock->resource_status);
+								}
+
 							}
 							is_opened_gitconf = 0;
 						}

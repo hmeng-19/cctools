@@ -1492,32 +1492,41 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 				if(existed_socket) {
 //					fprintf(netlist_file, "closing socket %d \n", existed_socket->id);
 					if(strcmp(existed_socket->host_name, "github.com") == 0) {
+						char *s;
 						if(strcmp(existed_socket->service_name, "https") == 0 && git_https_checking == 1) {
 							git_https_checking = 0;
-							FILE *git_conf_file;
-							if(is_opened_gitconf == 0) {
-								is_opened_gitconf = 1;
-								git_conf_file = fopen(git_conf_filename, "r");
-								char line[PATH_MAX];
-								fprintf(netlist_file, "git config file: \n");
-								while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
-									fprintf(netlist_file, "%s", line);
+							s = strstr(p->name, "git");
+							if(s != NULL && s[3] == '\0') {
+								fprintf(netlist_file, "this is git https\n");
+								FILE *git_conf_file;
+								if(is_opened_gitconf == 0) {
+									is_opened_gitconf = 1;
+									git_conf_file = fopen(git_conf_filename, "r");
+									char line[PATH_MAX];
+									fprintf(netlist_file, "git config file: \n");
+									while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
+										fprintf(netlist_file, "%s", line);
+									}
+									fprintf(netlist_file, "\n");
 								}
-								fprintf(netlist_file, "\n");
 							}
 						}
 						if(strcmp(existed_socket->service_name, "ssh") == 0 && git_ssh_checking == 1) {
 							git_ssh_checking = 0;
-							FILE *git_conf_file;
-							if(is_opened_gitconf == 0) {
-								is_opened_gitconf = 1;
-								git_conf_file = fopen(git_conf_filename, "r");
-								char line[PATH_MAX];
-								fprintf(netlist_file, "git config file: \n");
-								while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
-									fprintf(netlist_file, "%s", line);
+							s = strstr(p->name, "ssh");
+							if(s != NULL && s[3] == '\0') {
+								fprintf(netlist_file, "this is git ssh\n");
+								FILE *git_conf_file;
+								if(is_opened_gitconf == 0) {
+									is_opened_gitconf = 1;
+									git_conf_file = fopen(git_conf_filename, "r");
+									char line[PATH_MAX];
+									fprintf(netlist_file, "git config file: \n");
+									while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
+										fprintf(netlist_file, "%s", line);
+									}
+									fprintf(netlist_file, "\n");
 								}
-								fprintf(netlist_file, "\n");
 							}
 						}
 					}
@@ -1668,6 +1677,7 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 							strcpy(p_sock->resource_path, "");
 							p_sock->resource_status = -1;
 							p_sock->http_checking = 0;
+//							fprintf(netlist_file, "%s %s %s\n", p->name, p->new_logical_name, p->new_physical_name);
 
 							existed_socket = (struct pfs_socket_info *)hash_table_lookup(netlist_table, buf);
 							if(strcmp(host_buf, "github.com") == 0) {

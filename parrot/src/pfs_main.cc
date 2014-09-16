@@ -67,6 +67,7 @@ struct hash_table *namelist_table;
 FILE *netlist_file;
 struct hash_table *netlist_table;
 struct hash_table *ip_table;
+struct hash_table *dns_alias_table;
 int git_https_checking = 0;
 int git_ssh_checking = 0;
 char git_conf_filename[PATH_MAX];
@@ -872,6 +873,13 @@ int main( int argc, char *argv[] )
 				return 1;
 			}
 
+			dns_alias_table = hash_table_create(0, 0);
+			if(!dns_alias_table) {
+				fprintf(netlist_file, "dns_alias_table create fail\n");
+				debug(D_DEBUG, "Failed to create hash table for netlist!\n");
+				return 1;
+			}
+
 			break;
 		case 'R':
 			pfs_root_checksum = optarg;
@@ -1165,6 +1173,16 @@ int main( int argc, char *argv[] )
 			free((char *)ip_value);
 		}
 		hash_table_delete(ip_table);
+
+		char *dns_alias_key;
+		void *dns_alias_value;
+		hash_table_firstkey(dns_alias_table);
+		while(hash_table_nextkey(dns_alias_table, &dns_alias_key, &dns_alias_value)) {
+			fprintf(netlist_file, "dns_alias_table item: alias: %s; hostname: %s\n", dns_alias_key, (char *)dns_alias_value);
+			free((char *)dns_alias_value);
+		}
+		hash_table_delete(dns_alias_table);
+
 		fclose(netlist_file);
 	}
 

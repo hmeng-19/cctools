@@ -66,6 +66,7 @@ FILE *namelist_file;
 struct hash_table *namelist_table;
 FILE *netlist_file;
 struct hash_table *netlist_table;
+struct hash_table *ip_table;
 int git_https_checking = 0;
 int git_ssh_checking = 0;
 char git_conf_filename[PATH_MAX];
@@ -859,12 +860,18 @@ int main( int argc, char *argv[] )
 
 			netlist_table = hash_table_create(0, 0);
 			if(!netlist_table) {
-				fprintf(stdout, "netlist_table create fail\n");
+				fprintf(netlist_file, "netlist_table create fail\n");
 				debug(D_DEBUG, "Failed to create hash table for netlist!\n");
 				return 1;
 			}
-			else
-				fprintf(stdout, "netlist_table create successfully\n");
+
+			ip_table = hash_table_create(0, 0);
+			if(!ip_table) {
+				fprintf(netlist_file, "ip_table create fail\n");
+				debug(D_DEBUG, "Failed to create hash table for netlist!\n");
+				return 1;
+			}
+
 			break;
 		case 'R':
 			pfs_root_checksum = optarg;
@@ -1150,6 +1157,14 @@ int main( int argc, char *argv[] )
 		}
 		hash_table_delete(netlist_table);
 
+		char *ip_key;
+		void *ip_value;
+		hash_table_firstkey(ip_table);
+		while(hash_table_nextkey(ip_table, &ip_key, &ip_value)) {
+			fprintf(netlist_file, "ip_table item: ip: %s; hostname: %s\n", ip_key, (char *)ip_value);
+			free((char *)ip_value);
+		}
+		hash_table_delete(ip_table);
 		fclose(netlist_file);
 	}
 

@@ -98,6 +98,7 @@ extern int *pfs_syscall_totals64;
 
 extern FILE *netlist_file;
 extern struct hash_table *netlist_table;
+extern struct hash_table *ip_table;
 extern int git_https_checking;
 extern int git_ssh_checking;
 extern char git_conf_filename[PATH_MAX];
@@ -239,10 +240,22 @@ static void decode_read( struct pfs_process *p, INT64_T entering, INT64_T syscal
 					snprintf(buf, sizeof(buf), "%ld", args[0]);
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket && existed_socket->port == 53) {
-						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@read@@@@@@@@@@@@\n");
+//						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@read@@@@@@@@@@@@\n");
 //						fprintf(netlist_file, "fd: %ld; domain: %s; length:%d; actual_len: %d\n", fd, existed_socket->domain_type, (int)length, (int)p->syscall_result);
 //						fprintf(netlist_file, "data: %.*s\n", (int)p->syscall_result, local_addr);
-						dns_packet_parser((unsigned char *)local_addr, (int)p->syscall_result);
+						char hostname[HOSTNAME_MAX], ipaddr[50];
+						dns_packet_parser((unsigned char *)local_addr, (int)p->syscall_result, hostname, ipaddr);
+						if(ipaddr[0] != '\0') {
+							fprintf(netlist_file, "hostname: %s, ipaddr: %s\n", hostname, ipaddr);
+							char *existed_hostname;
+							existed_hostname = (char *)hash_table_lookup(ip_table, (char *)hostname);
+							if(!existed_hostname) {
+								char *ip_value;
+								ip_value = (char *)malloc(HOSTNAME_MAX);
+								strcpy(ip_value, hostname);
+								hash_table_insert(ip_table, (char *)ipaddr, (char *)ip_value);
+							}
+						}
 //						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 1 && HttpCheck(local_addr, (int)p->syscall_result) == 2)
 							existed_socket->http_checking = 2;
@@ -319,7 +332,20 @@ static void decode_write( struct pfs_process *p, INT64_T entering, INT64_T sysca
 						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write entering@@@@@@@@@@@@\n");
 						int actual = (int)args[2];
 //						fprintf(netlist_file, "domain:%s; actual:%d; data:`%.*s' \n", existed_socket->domain_type, (int)actual, (int)actual, local_addr);
-						dns_packet_parser((unsigned char *)local_addr, (int)actual);
+						char hostname[HOSTNAME_MAX], ipaddr[50];
+						dns_packet_parser((unsigned char *)local_addr, (int)actual, hostname, ipaddr);
+						if(ipaddr[0] != '\0') {
+							fprintf(netlist_file, "hostname: %s, ipaddr: %s\n", hostname, ipaddr);
+							char *existed_hostname;
+							existed_hostname = (char *)hash_table_lookup(ip_table, (char *)hostname);
+							if(!existed_hostname) {
+								char *ip_value;
+								ip_value = (char *)malloc(HOSTNAME_MAX);
+								strcpy(ip_value, hostname);
+								hash_table_insert(ip_table, (char *)ipaddr, (char *)ip_value);
+							}
+						}
+
 //						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 0 && HttpCheck(local_addr, int(actual)) == 1)
 							existed_socket->http_checking = 1;
@@ -350,7 +376,20 @@ static void decode_write( struct pfs_process *p, INT64_T entering, INT64_T sysca
 					if(existed_socket && existed_socket->port == 53) {
 						fprintf(netlist_file, "@@@@@@@@@@@@@@@@@@write@@@@@@@@@@@@\n");
 //						fprintf(netlist_file, "fd:%ld; domain:%s; actual:%d; data:`%.*s' \n", fd, existed_socket->domain_type, (int)actual, (int)actual, local_addr);
-						dns_packet_parser((unsigned char *)local_addr, (int)actual);
+						char hostname[HOSTNAME_MAX], ipaddr[50];
+						dns_packet_parser((unsigned char *)local_addr, (int)actual, hostname, ipaddr);
+						if(ipaddr[0] != '\0') {
+							fprintf(netlist_file, "hostname: %s, ipaddr: %s\n", hostname, ipaddr);
+							char *existed_hostname;
+							existed_hostname = (char *)hash_table_lookup(ip_table, (char *)hostname);
+							if(!existed_hostname) {
+								char *ip_value;
+								ip_value = (char *)malloc(HOSTNAME_MAX);
+								strcpy(ip_value, hostname);
+								hash_table_insert(ip_table, (char *)ipaddr, (char *)ip_value);
+							}
+						}
+
 //						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 0 && HttpCheck(local_addr, int(actual)) == 1)
 							existed_socket->http_checking = 1;
@@ -1553,7 +1592,19 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 						data = xxmalloc(args[2]);
 						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
 //						fprintf(netlist_file, "socket: %d; domain:%s; data: %s\n", existed_socket->id, existed_socket->domain_type, (char *) data);
-						dns_packet_parser((unsigned char *)data, args[2]);
+						char hostname[HOSTNAME_MAX], ipaddr[50];
+						dns_packet_parser((unsigned char *)data, args[2], hostname, ipaddr);
+						if(ipaddr[0] != '\0') {
+							fprintf(netlist_file, "hostname: %s, ipaddr: %s\n", hostname, ipaddr);
+							char *existed_hostname;
+							existed_hostname = (char *)hash_table_lookup(ip_table, (char *)hostname);
+							if(!existed_hostname) {
+								char *ip_value;
+								ip_value = (char *)malloc(HOSTNAME_MAX);
+								strcpy(ip_value, hostname);
+								hash_table_insert(ip_table, (char *)ipaddr, (char *)ip_value);
+							}
+						}
 //						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 1 && HttpCheck((char *)data, args[2]) == 2)
 							existed_socket->http_checking = 2;
@@ -1580,7 +1631,19 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 						data = xxmalloc(args[2]);
 						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
 //						fprintf(netlist_file, "socket:%d, domain:%s, data: %s\n", existed_socket->id, existed_socket->domain_type, (char *) data);
-						dns_packet_parser((unsigned char *)data, args[2]);
+						char hostname[HOSTNAME_MAX], ipaddr[50];
+						dns_packet_parser((unsigned char *)data, args[2], hostname, ipaddr);
+						if(ipaddr[0] != '\0') {
+							fprintf(netlist_file, "hostname: %s, ipaddr: %s\n", hostname, ipaddr);
+							char *existed_hostname;
+							existed_hostname = (char *)hash_table_lookup(ip_table, (char *)hostname);
+							if(!existed_hostname) {
+								char *ip_value;
+								ip_value = (char *)malloc(HOSTNAME_MAX);
+								strcpy(ip_value, hostname);
+								hash_table_insert(ip_table, (char *)ipaddr, (char *)ip_value);
+							}
+						}
 //						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 0 && HttpCheck((char *)data, args[2]) == 1)
 							existed_socket->http_checking = 1;
@@ -1677,8 +1740,13 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 							p_sock->type = -1;
 							p_sock->protocol = -1;
 							strcpy(p_sock->ip_addr, ip_addr);
+							char *item_value;
+							item_value = (char *)hash_table_lookup(ip_table, ip_addr);
+							if(item_value)
+								strcpy(p_sock->host_name, item_value);
+							else
+								strcpy(p_sock->host_name, host_buf);
 							p_sock->port = get_in_port(sock_addr);
-							strcpy(p_sock->host_name, host_buf);
 							strcpy(p_sock->service_name, port_buf);
 							strcpy(p_sock->resource_path, "");
 							p_sock->resource_status = -1;
@@ -1825,7 +1893,19 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 						data = xxmalloc(args[2]);
 						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
 //						fprintf(netlist_file, "data: %s\n", (char *) data);
-						dns_packet_parser((unsigned char *)data, args[2]);
+						char hostname[HOSTNAME_MAX], ipaddr[50];
+						dns_packet_parser((unsigned char *)data, args[2], hostname, ipaddr);
+						if(ipaddr[0] != '\0') {
+							fprintf(netlist_file, "hostname: %s, ipaddr: %s\n", hostname, ipaddr);
+							char *existed_hostname;
+							existed_hostname = (char *)hash_table_lookup(ip_table, (char *)hostname);
+							if(!existed_hostname) {
+								char *ip_value;
+								ip_value = (char *)malloc(HOSTNAME_MAX);
+								strcpy(ip_value, hostname);
+								hash_table_insert(ip_table, (char *)ipaddr, (char *)ip_value);
+							}
+						}
 //						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 0 && HttpCheck((char *)data, args[2]) == 1)
 							existed_socket->http_checking = 1;
@@ -1847,7 +1927,19 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 						data = xxmalloc(args[2]);
 						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
 //						fprintf(netlist_file, "data: %s\n", (char *) data);
-						dns_packet_parser((unsigned char *)data, args[2]);
+						char hostname[HOSTNAME_MAX], ipaddr[50];
+						dns_packet_parser((unsigned char *)data, args[2], hostname, ipaddr);
+						if(ipaddr[0] != '\0') {
+							fprintf(netlist_file, "hostname: %s, ipaddr: %s\n", hostname, ipaddr);
+							char *existed_hostname;
+							existed_hostname = (char *)hash_table_lookup(ip_table, (char *)hostname);
+							if(!existed_hostname) {
+								char *ip_value;
+								ip_value = (char *)malloc(HOSTNAME_MAX);
+								strcpy(ip_value, hostname);
+								hash_table_insert(ip_table, (char *)ipaddr, (char *)ip_value);
+							}
+						}
 //						fprintf(netlist_file, "http_checking: %d\n", existed_socket->http_checking);
 						if(existed_socket->http_checking == 1 && HttpCheck((char *)data, args[2]) == 2)
 							existed_socket->http_checking = 2;

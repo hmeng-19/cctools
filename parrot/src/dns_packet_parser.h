@@ -3,6 +3,7 @@
 #include <string.h>
 
 #define HOSTNAME_MAX 255
+#define IP_LEN 50
 
 struct dns_header {
 	unsigned short id;
@@ -25,6 +26,6 @@ struct dns_answer {
 	unsigned short rdlength;
 };
 
-void dns_packet_parser(unsigned char *data, int size);
+void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX], char ip_addr[IP_LEN]);
 int qname_resolver(unsigned char *qname, char hostname[HOSTNAME_MAX]);
 int answer_name_resolver(unsigned char *name);

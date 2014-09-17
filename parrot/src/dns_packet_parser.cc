@@ -21,7 +21,6 @@ int qname_resolver(unsigned char *qname, char hostname[HOSTNAME_MAX]) {
 }
 
 int answer_name_resolver(unsigned char *data, unsigned char *name, char cname_alias[HOSTNAME_MAX], int cname_flag) {
-			;
 	int len, sub_len;
 	len = 0;
 	strcpy(cname_alias, "");
@@ -55,9 +54,17 @@ int answer_name_resolver(unsigned char *data, unsigned char *name, char cname_al
 		sub_len = (unsigned int)name[len];
 	}
 	len --;
-	cname_alias[len] = '\0';
-	if(cname_flag == 1)
-		fprintf(netlist_file, "cname_alias: %s\n", cname_alias);
+	if(cname_flag == 1) {
+		cname_alias[len] = '\0';
+		int i;
+		for(i = 0; i < len; i++) {
+			if(cname_alias[i] == 0) {
+				cname_alias[0] = '\0';
+				return 0;
+			}
+		}
+//		fprintf(netlist_file, "cname_alias: %s\n", cname_alias);
+	}
 	return len;
 }
 
@@ -121,16 +128,16 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 					}
 				}
 				if(ntohs(dns_a->type) == 5) {
-/*
-					for(i = 0 ; i < (ntohs(dns_a->rdlength)); i++) {
-						fprintf(netlist_file," %02X",(unsigned int)rdata[i]);
-					}
-					fprintf(netlist_file, "\n");
-					for(i = 0 ; i < (ntohs(dns_a->rdlength)); i++) {
-						fprintf(netlist_file,"%c",(unsigned char)rdata[i]);
-					}
-					fprintf(netlist_file, "\n");
-*/
+
+//					for(i = 0 ; i < (ntohs(dns_a->rdlength)); i++) {
+//						fprintf(netlist_file," %02X",(unsigned int)rdata[i]);
+//					}
+//					fprintf(netlist_file, "\n");
+//					for(i = 0 ; i < (ntohs(dns_a->rdlength)); i++) {
+//						fprintf(netlist_file,"%c",(unsigned char)rdata[i]);
+//					}
+//					fprintf(netlist_file, "\n");
+
 //					int answer_len;
 					answer_name_resolver(data, rdata, cname_alias, 1);
 //					fprintf(netlist_file, "answer_len: %d; alias: %s\n", answer_len, cname_alias);

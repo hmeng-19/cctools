@@ -70,6 +70,7 @@ struct hash_table *ip_table;
 struct hash_table *dns_alias_table;
 int git_https_checking = 0;
 int git_ssh_checking = 0;
+int is_opened_gitconf = 0;
 char git_conf_filename[PATH_MAX];
 int linux_major;
 int linux_minor;
@@ -1169,7 +1170,7 @@ int main( int argc, char *argv[] )
 		void *ip_value;
 		hash_table_firstkey(ip_table);
 		while(hash_table_nextkey(ip_table, &ip_key, &ip_value)) {
-			fprintf(netlist_file, "ip_table item: ip: %s; hostname: %s\n", ip_key, (char *)ip_value);
+//			fprintf(netlist_file, "ip_table item: ip: %s; hostname: %s\n", ip_key, (char *)ip_value);
 			free((char *)ip_value);
 		}
 		hash_table_delete(ip_table);
@@ -1178,7 +1179,7 @@ int main( int argc, char *argv[] )
 		void *dns_alias_value;
 		hash_table_firstkey(dns_alias_table);
 		while(hash_table_nextkey(dns_alias_table, &dns_alias_key, &dns_alias_value)) {
-			fprintf(netlist_file, "dns_alias_table item: alias: %s; hostname: %s\n", dns_alias_key, (char *)dns_alias_value);
+//			fprintf(netlist_file, "dns_alias_table item: alias: %s; hostname: %s\n", dns_alias_key, (char *)dns_alias_value);
 			free((char *)dns_alias_value);
 		}
 		hash_table_delete(dns_alias_table);

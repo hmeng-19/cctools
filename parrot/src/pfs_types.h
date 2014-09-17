@@ -64,6 +64,7 @@ struct pfs_socket_info {
 	int domain;
 	char domain_type[10];
 	int type;
+	char type_name[20];
 	int protocol;
 	char ip_addr[PATH_MAX];
 	int port;

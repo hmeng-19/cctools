@@ -8,6 +8,7 @@
 void *get_in_addr(struct sockaddr *sa);
 int get_in_port(struct sockaddr *sa);
 int HttpCheck(char *buffer, int size);
+void GetTransportProtocol(unsigned char* buffer, int size, char protocol[20]);
 void ProcessPacket(unsigned char* , int);
 void print_ip_header(unsigned char* , int);
 void print_ip_packet(unsigned char* , int);

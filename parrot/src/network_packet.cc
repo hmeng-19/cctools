@@ -66,10 +66,34 @@ int HttpCheck(char *buffer, int size) {
 		}
 	}
 	if(buffer[0] == 'H' && buffer[1] == 'T' && buffer[2] == 'T' && buffer[3] == 'P' && buffer[4] == '/') {
-		fprintf(netlist_file, "\nHTTP dependency item -- response:\n%.*s\n", size, buffer);
+		if(size > 500)
+			fprintf(netlist_file, "\nHTTP dependency item -- response (only first 500 bytes):\n%.*s\n", 500, buffer);
+		else
+			fprintf(netlist_file, "\nHTTP dependency item -- response:\n%.*s\n", size, buffer);
 		return 2;
 	}
 	return -1;
+}
+
+void GetTransportProtocol(unsigned char* buffer, int size, char protocol[20])
+{
+	//Get the IP Header part of this packet
+	struct iphdr *iph = (struct iphdr*)buffer;
+	fprintf(netlist_file, "ProcessPacket: protocol: %d\n", iph->protocol);
+	switch (iph->protocol) //Check the Protocol and do accordingly...
+	{
+		case IPPROTO_ICMP:  //ICMP Protocol
+			strcpy(protocol, "ICMP");
+			break;
+		case IPPROTO_TCP:  //TCP Protocol
+			strcpy(protocol, "TCP");
+			break;
+        case IPPROTO_UDP: //UDP Protocol
+			strcpy(protocol, "UDP");
+			break;
+		default: //Some Other Protocol like ARP etc.
+			break;
+	}
 }
 
 void ProcessPacket(unsigned char* buffer, int size)

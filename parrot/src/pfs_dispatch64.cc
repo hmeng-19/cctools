@@ -711,7 +711,8 @@ static void decode_execve( struct pfs_process *p, INT64_T entering, INT64_T sysc
 
         /* debug arguments/environment */
 		if(netlist_file) {
-			int argc = 0, n = 0;
+			int argc = 0;
+//			int n = 0;
 			fprintf(netlist_file,"execve(");
 			fprintf(netlist_file,"%s,",path);
 			fprintf(netlist_file,"[");

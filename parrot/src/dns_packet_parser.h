@@ -27,5 +27,6 @@ struct dns_answer {
 };
 
 int qname_resolver(unsigned char *qname, char hostname[HOSTNAME_MAX]);
+void name_resolver(unsigned char *data, unsigned char *name, char hostname[HOSTNAME_MAX], int current_len);
 int answer_name_resolver(unsigned char *data, unsigned char *name, char cname_alias[HOSTNAME_MAX], int cname_flag);
 void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX], char ip_addr[IP_LEN], char cname_alias[HOSTNAME_MAX]);

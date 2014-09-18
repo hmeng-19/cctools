@@ -114,7 +114,7 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 //			fprintf(netlist_file, "an_class: %d\n", ntohs(dns_a->answer_class));
 //			fprintf(netlist_file, "an_len: %d\n", ntohs(dns_a->rdlength));
 			int i;
-			if((ntohs(dns_a->type) == 1 || ntohs(dns_a->type) == 5) && ntohs(dns_a->answer_class) == 1 && (ntohs(dns_a->rdlength)) > 0) {
+			if((ntohs(dns_a->type) == 1 || ntohs(dns_a->type) == 28 || ntohs(dns_a->type) == 5) && ntohs(dns_a->answer_class) == 1 && (ntohs(dns_a->rdlength)) > 0) {
 				rdata = (unsigned char *) (name + name_len + 10);
 				if(ntohs(dns_a->type) == 1) {
 					char buf[4];
@@ -127,6 +127,18 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 							strcat(ip_addr, ".");
 					}
 				}
+				if(ntohs(dns_a->type) == 28) {
+					char buf[4];
+					strcpy(ip_addr, "");
+					for(i = 0 ; i < (ntohs(dns_a->rdlength)); i++) {
+//						fprintf(netlist_file,"%u.",rdata[i]); //if its a number or alphabet
+						snprintf(buf, sizeof(buf), "%02X", (unsigned int)rdata[i]);
+						strcat(ip_addr, buf);
+						if((i < (ntohs(dns_a->rdlength) - 2)) && i%2 == 1)
+							strcat(ip_addr, ".");
+					}
+				}
+
 				if(ntohs(dns_a->type) == 5) {
 
 //					for(i = 0 ; i < (ntohs(dns_a->rdlength)); i++) {

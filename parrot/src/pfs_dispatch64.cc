@@ -710,12 +710,11 @@ static void decode_execve( struct pfs_process *p, INT64_T entering, INT64_T sysc
 		tracer_copy_in_string(p->tracer,path,POINTER(args[0]),sizeof(path));
 
         /* debug arguments/environment */
-/*
-		{
+		if(netlist_file) {
 			int argc = 0, n = 0;
 			fprintf(netlist_file,"execve(");
-			fprintf(netlist_file,"\t%s,",path);
-			fprintf(netlist_file,"\t[");
+			fprintf(netlist_file,"%s,",path);
+			fprintf(netlist_file,"[");
 			while (1) {
 				char arg[4096];
 				char *argp;
@@ -723,24 +722,23 @@ static void decode_execve( struct pfs_process *p, INT64_T entering, INT64_T sysc
 				if (argp == NULL) break;
 				tracer_copy_in_string(p->tracer, arg, argp, sizeof(arg));
 				arg[4096-1] = '\0';
-				fprintf(netlist_file,"\t\"%s\",",arg);
+				fprintf(netlist_file," \"%s\",",arg);
 				argc++;
 			}
-			fprintf(netlist_file,"\t],");
-			fprintf(netlist_file,"\t[");
-			while (1) {
-				char var[4096];
-				char *varp;
-				tracer_copy_in(p->tracer, &varp, ((char **)args[2])+n, sizeof(varp));
-				if (varp == NULL) break;
-				tracer_copy_in_string(p->tracer, var, varp, sizeof(var));
-				var[4096-1] = '\0';
-				fprintf(netlist_file,"\t\"%s\",",var);
-				n++;
-			}
-			fprintf(netlist_file,"\t])");
+			fprintf(netlist_file,"]\n\n");
+//			fprintf(netlist_file,"\t[");
+//			while (1) {
+//				char var[4096];
+//				char *varp;
+//				tracer_copy_in(p->tracer, &varp, ((char **)args[2])+n, sizeof(varp));
+//				if (varp == NULL) break;
+//				tracer_copy_in_string(p->tracer, var, varp, sizeof(var));
+//				var[4096-1] = '\0';
+//				fprintf(netlist_file,"\t\"%s\",",var);
+//				n++;
+//			}
+//			fprintf(netlist_file,"\t])");
         }
-*/
 
 		if(!is_executable(path)) {
 			divert_to_dummy(p, -errno);

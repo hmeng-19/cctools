@@ -127,7 +127,7 @@ void connect_process(int fd, struct sockaddr_un addr) {
 			strcpy(existed_socket->type_name, type_name);
 			fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", existed_socket->id, existed_socket->domain, existed_socket->domain_type);
 			fprintf(netlist_file, "type: %d; type_name: %s; ", existed_socket->type, existed_socket->type_name);
-			fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n\n", existed_socket->ip_addr, existed_socket->port, existed_socket->host_name, existed_socket->service_name, existed_socket->resource_path, existed_socket->resource_status);
+			fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s\n\n", existed_socket->ip_addr, existed_socket->port, existed_socket->host_name, existed_socket->service_name);
 		}
 		is_opened_gitconf = 0;
 	}

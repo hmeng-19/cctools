@@ -12,6 +12,8 @@ See the file COPYING for details.
 #include "pfs_process.h"
 #include "pfs_service.h"
 #include "pfs_sys.h"
+#include "pfs_types.h"
+#include "network_packet.h"
 #include "pfs_sysdeps.h"
 
 extern "C" {
@@ -21,6 +23,7 @@ extern "C" {
 #include "stringtools.h"
 #include "tracer.h"
 #include "xxmalloc.h"
+#include "hash_table.h"
 }
 
 #include <unistd.h>
@@ -35,6 +38,7 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
 
 #include <assert.h>
 #include <ctype.h>
@@ -46,6 +50,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <netdb.h>
 
 #ifndef O_CLOEXEC
 #	define O_CLOEXEC 02000000
@@ -75,6 +80,15 @@ extern INT64_T pfs_write_count;
 extern int parrot_dir_fd;
 extern char *pfs_ldso_path;
 extern int *pfs_syscall_totals32;
+
+extern FILE *netlist_file;
+extern struct hash_table *netlist_table;
+extern struct hash_table *ip_table;
+extern struct hash_table *dns_alias_table;
+extern int git_https_checking;
+extern int git_ssh_checking;
+extern char git_conf_filename[PATH_MAX];
+extern int is_opened_gitconf;
 
 extern void handle_specific_process( pid_t pid );
 
@@ -203,6 +217,7 @@ static void decode_read( struct pfs_process *p, int entering, int syscall, const
 
 			if(syscall==SYSCALL32_read) {
 				p->syscall_result = pfs_read(fd,local_addr,length);
+				socket_data_parser(fd, local_addr, int(p->syscall_result));
 			} else if(syscall==SYSCALL32_pread) {
 				p->syscall_result = pfs_pread(fd,local_addr,length,offset);
 			}
@@ -258,6 +273,10 @@ static void decode_write( struct pfs_process *p, int entering, int syscall, cons
 		INT64_T length = args[2];
 		if(pfs_channel_alloc(0,length,&p->io_channel_offset)) {
 			divert_to_channel(p,SYSCALL32_pwrite,POINTER(args[1]),length,p->io_channel_offset);
+			char *local_addr = pfs_channel_base() + p->io_channel_offset;
+			if(syscall==SYSCALL64_write) {
+				socket_data_parser(int(args[0]), local_addr, int(args[2]));
+			}
 		} else {
 			divert_to_dummy(p,-ENOMEM);
 		}
@@ -277,6 +296,7 @@ static void decode_write( struct pfs_process *p, int entering, int syscall, cons
 
 			if(syscall==SYSCALL32_write) {
 				p->syscall_result = pfs_write(fd,local_addr,actual);
+				socket_data_parser(fd, local_addr, actual);
 			} else if(syscall==SYSCALL32_pwrite) {
 				p->syscall_result = pfs_pwrite(fd,local_addr,actual,offset);
 			}
@@ -667,6 +687,8 @@ void decode_socketcall( struct pfs_process *p, int entering, int syscall, const 
 				} else {
 					/* We only care about AF_UNIX sockets. */
 					debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), a[0], a[1], a[2]);
+					if(netlist_table)
+						connect_process32(int(a[0]), addr);
 				}
 				break;
 			}
@@ -680,6 +702,37 @@ void decode_socketcall( struct pfs_process *p, int entering, int syscall, const 
 			case SYS_SHUTDOWN:
 			case SYS_SETSOCKOPT:
 			case SYS_GETSOCKOPT:
+				if(syscall == SYS_SENDTO) {
+					if(netlist_table) {
+						struct pfs_socket_info *existed_socket;
+						char buf[10];
+						snprintf(buf, sizeof(buf), "%ld", a[0]);
+						existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+						if(existed_socket) {
+							void *data;
+							data = xxmalloc(a[2]);
+							tracer_copy_in(p->tracer, data, POINTER(a[1]), a[2]);
+							socket_data_parser(int(a[0]), (char *)data, int(a[2]));
+						}
+					}
+				}
+	
+				if(syscall == SYS_RECVFROM) {
+					if(netlist_table) {
+						struct pfs_socket_info *existed_socket;
+						char buf[10];
+						snprintf(buf, sizeof(buf), "%ld", a[0]);
+						existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+						if(existed_socket) {
+	//						fprintf(netlist_file, "recvfrom %ld; domain:%s; length: %ld\n", args[0], existed_socket->domain_type, args[2]);
+							void *data;
+							data = xxmalloc(a[2]);
+							tracer_copy_in(p->tracer, data, POINTER(a[1]), a[2]);
+							socket_data_parser(int(a[0]), (char *)data, int(a[2]));
+						}
+					}
+				}
+	
 				if (p->table->isnative(a[0])) {
 					debug(D_DEBUG, "fallthrough 32bit socket op(%" PRId64 ", %" PRId64 ", %" PRId64 ")", a[0], a[1], a[2]);
 				} else {
@@ -698,6 +751,8 @@ void decode_socketcall( struct pfs_process *p, int entering, int syscall, const 
 				INT64_T actual;
 				tracer_result_get(p->tracer, &actual);
 				if (actual >= 0) {
+					if(syscall == SYS_SOCKET)
+						socket_process(int(actual), int(a[0]), int(a[1]), int(a[2]));
 					if (syscall == SYS_SOCKETPAIR) {
 						int fds[2];
 						tracer_copy_in(p->tracer, fds, POINTER(a[3]), sizeof(fds));
@@ -900,6 +955,38 @@ void decode_execve( struct pfs_process *p, int entering, int syscall, const INT6
 		debug(D_PROCESS,"execve: scratch addr: %p",scratch_addr);
 
 		tracer_copy_in_string(p->tracer,path,POINTER(args[0]),sizeof(path));
+
+        /* debug arguments/environment */
+		if(netlist_file) {
+			int argc = 0;
+//			int n = 0;
+			fprintf(netlist_file,"execve(");
+			fprintf(netlist_file,"%s,",path);
+			fprintf(netlist_file,"[");
+			while (1) {
+				char arg[4096];
+				char *argp;
+				tracer_copy_in(p->tracer, &argp, ((char **)args[1])+argc, sizeof(argp));
+				if (argp == NULL) break;
+				tracer_copy_in_string(p->tracer, arg, argp, sizeof(arg));
+				arg[4096-1] = '\0';
+				fprintf(netlist_file," \"%s\",",arg);
+				argc++;
+			}
+			fprintf(netlist_file,"]\n\n");
+//			fprintf(netlist_file,"\t[");
+//			while (1) {
+//				char var[4096];
+//				char *varp;
+//				tracer_copy_in(p->tracer, &varp, ((char **)args[2])+n, sizeof(varp));
+//				if (varp == NULL) break;
+//				tracer_copy_in_string(p->tracer, var, varp, sizeof(var));
+//				var[4096-1] = '\0';
+//				fprintf(netlist_file,"\t\"%s\",",var);
+//				n++;
+//			}
+//			fprintf(netlist_file,"\t])");
+        }
 
 		if(!is_executable(path)) {
 			divert_to_dummy(p, -errno);
@@ -1715,12 +1802,25 @@ void decode_syscall( struct pfs_process *p, int entering )
 						p->syscall_dummy = 1; /* Fake a dummy "return" (so p->syscall_result is returned) but allow the kernel to close the Parrot fd. */
 				}
 			}
+			get_git_conf(int(args[0]), p->name);
 			break;
 
 		case SYSCALL32_read:
 		case SYSCALL32_pread:
 			if (p->table->isnative(args[0])) {
 				if (entering) debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), args[0], args[1], args[2]);
+				if(netlist_table) {
+					struct pfs_socket_info *existed_socket;
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%d", int(args[0]));
+					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+					if(existed_socket) {
+						void *data;
+						data = xxmalloc(args[2]);
+						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
+						socket_data_parser(int(args[0]), (char *)data, int(args[2]));
+					}
+				}
 			} else {
 				decode_read(p,entering,p->syscall,args);
 			}
@@ -1730,6 +1830,18 @@ void decode_syscall( struct pfs_process *p, int entering )
 		case SYSCALL32_pwrite:
 			if (p->table->isnative(args[0])) {
 				if (entering) debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), args[0], args[1], args[2]);
+				if(netlist_table) {
+					struct pfs_socket_info *existed_socket;
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+					if(existed_socket) {
+						void *data;
+						data = xxmalloc(args[2]);
+						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
+						socket_data_parser(int(args[0]), (char *)data, int(args[2]));
+					}
+				}
 			} else {
 				decode_write(p,entering,p->syscall,args);
 			}

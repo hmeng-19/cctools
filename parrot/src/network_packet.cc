@@ -87,6 +87,52 @@ void socket_process(int fd, int domain, int type, int protocol) {
 	}
 }
 
+void connect_process32(int fd, struct pfs_kernel_sockaddr_un addr) {
+	struct pfs_socket_info *existed_socket;
+	char buf[10];
+	snprintf(buf, sizeof(buf), "%d", fd);
+	existed_socket = (struct pfs_socket_info *)hash_table_lookup(netlist_table, buf);
+	if(existed_socket) {
+		int s;
+		char host_buf[100], port_buf[100], ip_addr[1024];
+		struct sockaddr *sock_addr;
+		sock_addr = (struct sockaddr *) (&addr);
+		s = getnameinfo(sock_addr, sizeof(*sock_addr), host_buf, sizeof(host_buf), port_buf, sizeof(port_buf), 100| 100);
+		if (s == 0) {
+			inet_ntop(sock_addr->sa_family, get_in_addr(sock_addr), ip_addr, sizeof(ip_addr));
+			strcpy(existed_socket->ip_addr, ip_addr);
+			char *item_value;
+			item_value = (char *)hash_table_lookup(ip_table, ip_addr);
+			if(item_value)
+				strcpy(existed_socket->host_name, item_value);
+			else {
+				item_value = (char *)hash_table_lookup(dns_alias_table, host_buf);
+				if(item_value)
+					strcpy(existed_socket->host_name, item_value);
+				else
+					strcpy(existed_socket->host_name, host_buf);
+			}
+			existed_socket->port = get_in_port(sock_addr);
+			strcpy(existed_socket->service_name, port_buf);
+			if(strcmp(host_buf, "github.com") == 0) {
+				if(strcmp(port_buf, "https") == 0) {
+					git_https_checking = 1;
+				}
+				if(strcmp(port_buf, "ssh") == 0) {
+					git_ssh_checking = 1;
+				}
+			}
+			char type_name[20];
+			get_socket_type(existed_socket->type, type_name);
+			strcpy(existed_socket->type_name, type_name);
+			fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", existed_socket->id, existed_socket->domain, existed_socket->domain_type);
+			fprintf(netlist_file, "type: %d; type_name: %s; ", existed_socket->type, existed_socket->type_name);
+			fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s\n\n", existed_socket->ip_addr, existed_socket->port, existed_socket->host_name, existed_socket->service_name);
+		}
+		is_opened_gitconf = 0;
+	}
+}
+
 void connect_process(int fd, struct sockaddr_un addr) {
 	struct pfs_socket_info *existed_socket;
 	char buf[10];

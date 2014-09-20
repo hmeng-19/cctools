@@ -116,17 +116,17 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 	unsigned short flags;
 	flags = ntohs(dns_h->flags);
 
-//	fprintf(netlist_file, "qr: %d\n", ((flags >> 15) & 0x0001));
-//	fprintf(netlist_file, "opcode: %d\n", ((flags >> 11) & 0x000f));
-//	fprintf(netlist_file, "aa: %d\n", ((flags >> 10) & 0x0001));
-//	fprintf(netlist_file, "tc: %d\n", ((flags >> 9) & 0x0001));
-//	fprintf(netlist_file, "rd: %d\n", ((flags >> 8) & 0x0001));
-//	fprintf(netlist_file, "ra: %d\n", ((flags >> 7) & 0x0001));
-//	fprintf(netlist_file, "rcode: %d\n", (flags & 0x000f));
-//	fprintf(netlist_file, "qdcount: %d\n", ntohs(dns_h->qdcount));
-//	fprintf(netlist_file, "ancount: %d\n", ntohs(dns_h->ancount));
-//	fprintf(netlist_file, "nscount: %d\n", ntohs(dns_h->nscount));
-//	fprintf(netlist_file, "arcount: %d\n", ntohs(dns_h->arcount));
+	fprintf(netlist_file, "qr: %d\n", ((flags >> 15) & 0x0001));
+	fprintf(netlist_file, "opcode: %d\n", ((flags >> 11) & 0x000f));
+	fprintf(netlist_file, "aa: %d\n", ((flags >> 10) & 0x0001));
+	fprintf(netlist_file, "tc: %d\n", ((flags >> 9) & 0x0001));
+	fprintf(netlist_file, "rd: %d\n", ((flags >> 8) & 0x0001));
+	fprintf(netlist_file, "ra: %d\n", ((flags >> 7) & 0x0001));
+	fprintf(netlist_file, "rcode: %d\n", (flags & 0x000f));
+	fprintf(netlist_file, "qdcount: %d\n", ntohs(dns_h->qdcount));
+	fprintf(netlist_file, "ancount: %d\n", ntohs(dns_h->ancount));
+	fprintf(netlist_file, "nscount: %d\n", ntohs(dns_h->nscount));
+	fprintf(netlist_file, "arcount: %d\n", ntohs(dns_h->arcount));
 
 	//parse dns_qeustion
 	unsigned char *qname = data + 12;
@@ -137,9 +137,9 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 		//qname_len = qname_resolver(qname, hostname);
 		qname_len = answer_name_resolver(data, qname);
 
-//		struct dns_question *dns_q = (struct dns_question *) (qname + qname_len + 2);
-//		fprintf(netlist_file, "qtype: %d\n", ntohs(dns_q->qtype));
-//		fprintf(netlist_file, "qclass: %d\n", ntohs(dns_q->qclass));
+		struct dns_question *dns_q = (struct dns_question *) (qname + qname_len + 2);
+		fprintf(netlist_file, "qtype: %d\n", ntohs(dns_q->qtype));
+		fprintf(netlist_file, "qclass: %d\n", ntohs(dns_q->qclass));
 
 		current_pos += qname_len + 2;
 		//parse dns_answer
@@ -157,9 +157,9 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 				return;
 			current_pos += name_len;
 			dns_a = (struct dns_answer *)(name + name_len);
-//			fprintf(netlist_file, "an_type: %d\n", ntohs(dns_a->type));
-//			fprintf(netlist_file, "an_class: %d\n", ntohs(dns_a->answer_class));
-//			fprintf(netlist_file, "an_len: %d\n", ntohs(dns_a->rdlength));
+			fprintf(netlist_file, "an_type: %d\n", ntohs(dns_a->type));
+			fprintf(netlist_file, "an_class: %d\n", ntohs(dns_a->answer_class));
+			fprintf(netlist_file, "an_len: %d\n", ntohs(dns_a->rdlength));
 			int i;
 			if((ntohs(dns_a->type) == 1 || ntohs(dns_a->type) == 28 || ntohs(dns_a->type) == 5) && ntohs(dns_a->answer_class) == 1 && (ntohs(dns_a->rdlength)) > 0) {
 				current_pos += 10;

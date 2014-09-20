@@ -706,7 +706,7 @@ void decode_socketcall( struct pfs_process *p, int entering, int syscall, const 
 					if(netlist_table) {
 						struct pfs_socket_info *existed_socket;
 						char buf[10];
-						snprintf(buf, sizeof(buf), "%ld", a[0]);
+						snprintf(buf, sizeof(buf), "%d", int(a[0]));
 						existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 						if(existed_socket) {
 							void *data;
@@ -721,7 +721,7 @@ void decode_socketcall( struct pfs_process *p, int entering, int syscall, const 
 					if(netlist_table) {
 						struct pfs_socket_info *existed_socket;
 						char buf[10];
-						snprintf(buf, sizeof(buf), "%ld", a[0]);
+						snprintf(buf, sizeof(buf), "%d", int(a[0]));
 						existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 						if(existed_socket) {
 	//						fprintf(netlist_file, "recvfrom %ld; domain:%s; length: %ld\n", args[0], existed_socket->domain_type, args[2]);
@@ -1833,7 +1833,7 @@ void decode_syscall( struct pfs_process *p, int entering )
 				if(netlist_table) {
 					struct pfs_socket_info *existed_socket;
 					char buf[10];
-					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					snprintf(buf, sizeof(buf), "%d", int(args[0]));
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket) {
 						void *data;

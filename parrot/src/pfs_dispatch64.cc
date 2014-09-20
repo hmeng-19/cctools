@@ -1583,7 +1583,8 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 				} else {
 					/* We only care about AF_UNIX sockets. */
 					debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), args[0], args[1], args[2]);
-					connect_process(int(args[0]), addr);
+					if(netlist_table)
+						connect_process(int(args[0]), addr);
 				}
 			} else if (!p->syscall_dummy && p->syscall_result == 1) {
 				/* We aren't changing/reading the *actual* result, we're just restoring the tracee's addr structure. */

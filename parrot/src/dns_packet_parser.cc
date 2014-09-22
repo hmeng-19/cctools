@@ -90,7 +90,6 @@ int answer_name_resolver(unsigned char *data, unsigned char *name) {
 		len += (sub_len + 1);
 		sub_len = (unsigned int)name[len];
 	}
-	len --;
 //	if(cname_flag == 1) {
 //		cname_alias[len] = '\0';
 //		int i;
@@ -102,6 +101,7 @@ int answer_name_resolver(unsigned char *data, unsigned char *name) {
 //		}
 ////		fprintf(netlist_file, "cname_alias: %s\n", cname_alias);
 //	}
+	len++;
 	return len;
 }
 
@@ -139,15 +139,15 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 		//qname_len = qname_resolver(qname, hostname);
 		qname_len = answer_name_resolver(data, qname);
 
-		struct dns_question *dns_q = (struct dns_question *) (qname + qname_len + 2);
+		struct dns_question *dns_q = (struct dns_question *) (qname + qname_len);
 		fprintf(netlist_file, "qtype: %d\n", ntohs(dns_q->qtype));
 		fprintf(netlist_file, "qclass: %d\n", ntohs(dns_q->qclass));
 
-		current_pos += qname_len + 2;
+		current_pos += qname_len;
 		//parse dns_answer
 		unsigned char *rdata;
 		if(((flags >> 15) & 0x0001) == 1) {
-			unsigned char *name = qname + qname_len + 2 + 4;
+			unsigned char *name = qname + qname_len + 4;
 			current_pos += 4;
 			struct dns_answer *dns_a;
 			int name_len;
@@ -198,12 +198,12 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 						return;
 					fprintf(netlist_file, "%s cname %s\n", hostname, tmpname);
 					//	fprintf(netlist_file, "current pos: %d\n", current_pos);
-					current_pos += first_answer_len + 2;
+					current_pos += first_answer_len;
 					
 					int answer_no = 1;
 					while(answer_no < ntohs(dns_h->ancount) - 1) {
 						char next_hostname[HOSTNAME_MAX];
-						unsigned char *next_answer_name = data + current_pos;
+						unsigned char *next_answer_name = (unsigned char *)(data + current_pos);
 						int next_answer_name_len = answer_name_resolver(data, next_answer_name);
 						struct dns_answer *next_dns_answer = (struct dns_answer *)(next_answer_name + next_answer_name_len);
 						strcpy(next_hostname, "");
@@ -225,7 +225,7 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 					}
 
 					//the last answer is <the last alias, ip address>
-					unsigned char *last_answer_name = data + current_pos;
+					unsigned char *last_answer_name = (unsigned char *)(data + current_pos);
 					int last_answer_name_len = answer_name_resolver(data, last_answer_name);
 					struct dns_answer *dns_last_answer = (struct dns_answer *)(last_answer_name + last_answer_name_len);
 					char last_hostname[HOSTNAME_MAX];

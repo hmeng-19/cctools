@@ -26,6 +26,7 @@ void name_resolver(unsigned char *data, unsigned char *name, char hostname[HOSTN
 		unsigned short offset = ntohs((unsigned short)((name[0] & 0x3f) * 256)) + ntohs((unsigned short)name[1]);
 		position = ntohs(offset) & 0x3fff;
 		name_resolver(data, data + position, hostname, current_len);
+		return;
 	} else {
 		int len, sub_len;
 		len = 0;
@@ -36,6 +37,7 @@ void name_resolver(unsigned char *data, unsigned char *name, char hostname[HOSTN
 				unsigned short offset = ntohs((unsigned short)((name[len] & 0x3f) * 256)) + ntohs((unsigned short)name[len+1]);
 				position = ntohs(offset) & 0x3fff;
 				name_resolver(data, data + position, hostname, current_len);
+				return;
 			} else {
 				strncat(hostname, (char *)name + len + 1, sub_len);
 				strncat(hostname, ".", 1);

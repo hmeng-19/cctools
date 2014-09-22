@@ -135,7 +135,7 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 	current_pos += 12;
 	int qname_len;
 	//only deal with DNS packets with only one question
-	if(((flags >> 11) & 0x000f) == 0 && ntohs(dns_h->qdcount) == 1 && ntohs(dns_h->arcount) == 0) {
+	if(((flags >> 11) & 0x000f) == 0 && ntohs(dns_h->qdcount) == 1) {
 		//qname_len = qname_resolver(qname, hostname);
 		qname_len = answer_name_resolver(data, qname);
 

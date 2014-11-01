@@ -34,6 +34,8 @@ enum pfs_process_state {
 };
 
 #define PFS_SCRATCH_SPACE (8*4096)
+
+/* Each pfs_process structure represents an user-level application process. */
 struct pfs_process {
 	char name[PFS_PATH_MAX];
 	pid_t pid, ppid, tgid;

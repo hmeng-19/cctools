@@ -980,6 +980,7 @@ int main( int argc, char *argv[] )
 		signal(SIGUSR1, set_attached_and_ready);
 		raise(SIGSTOP); /* synchronize with parent, above */
 		while (!attached_and_ready) ; /* spin waiting to be traced (NO SLEEPING/STOPPING) */
+		/* when `parrot_run user-cmd` is executed, parrot_run is the calling process, which creates a child process to execute the user-cmd. */
 		execvp(argv[optind],&argv[optind]);
 		fprintf(stderr, "unable to execute %s: %s\n", argv[optind], strerror(errno));
 		fflush(stderr);
@@ -999,9 +1000,13 @@ int main( int argc, char *argv[] )
 
 	root_pid = pid;
 	debug(D_PROCESS,"attaching to pid %d",pid);
+	/* Attach the tracee (the application process whose process id is pid) to the tracer (parrot). */
 	if (tracer_attach(pid) == -1)
 		fatal("could not trace child");
 	kill(pid, SIGUSR1);
+	/* pid is the process id of the tracee, getpid() returns the process id of the calling process (parrot).
+	 * create one pfs_process struct to maintain the info of the tracee, and set the ppid of the tracee to be parrot.
+	 */
 	p = pfs_process_create(pid,getpid(),0);
 	if(!p) {
 		if(pfs_write_rval) {

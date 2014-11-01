@@ -70,6 +70,7 @@ struct x86_64_registers {
 	INT64_T ds,es,fs,gs;
 };
 
+/* The name of this struct is confusing, it should be tracee. */
 struct tracer {
 	pid_t pid;
 	int memory_file;
@@ -82,6 +83,7 @@ struct tracer {
 	int has_args5_bug;
 };
 
+/* The tracer is parrot, and the tracee is original application process. */
 int tracer_attach (pid_t pid)
 {
 	intptr_t options = PTRACE_O_TRACESYSGOOD|PTRACE_O_TRACEEXEC|PTRACE_O_TRACEEXIT|PTRACE_O_TRACECLONE|PTRACE_O_TRACEFORK|PTRACE_O_TRACEVFORK;
@@ -221,9 +223,13 @@ int tracer_continue( struct tracer *t, int signum )
 	return 0;
 }
 
+/* Get the register contents of the tracee (the application process), and preserve them into the `args` parameter. */
 int tracer_args_get( struct tracer *t, INT64_T *syscall, INT64_T args[TRACER_ARGS_MAX] )
 {
 	if(!t->gotregs) {
+		/* `t` is a struct maintained by the tracer (parrot) to record the information of the tracee.
+		 * `PTRACE_GETREGS`: copy the tracee's general-purpose or floating-point registers, respectively, to `t->regs`.
+		 */
 		if(ptrace(PTRACE_GETREGS,t->pid,0,&t->regs) == -1)
 			ERROR;
 		t->gotregs = 1;
@@ -277,6 +283,7 @@ void tracer_has_args5_bug( struct tracer *t )
 	t->has_args5_bug = 1;
 }
 
+/* change the register information of the tracee structure maintained by the tracer. */
 int tracer_args_set( struct tracer *t, INT64_T syscall, const INT64_T *args, int nargs )
 {
 	if(!t->gotregs) {
@@ -431,6 +438,7 @@ static ssize_t tracer_copy_out_slow( struct tracer *t, const void *data, const v
 	return length;
 }
 
+/* copy the size of `length` data from `data` into the memory space of the tracee (`uaddr`). */
 ssize_t tracer_copy_out( struct tracer *t, const void *data, const void *uaddr, size_t length )
 {
 	static int has_fast_write=1;
@@ -476,6 +484,7 @@ static ssize_t tracer_copy_in_slow( struct tracer *t, void *data, const void *ua
 
 	while((length-total)>=sizeof(word)) {
 		errno = 0;
+		/* Read  and return a  word  at the address buaddr in the tracee's memory. */
 		if ((*((long*)bdata) = ptrace(PTRACE_PEEKDATA,t->pid,buaddr,0)) == -1 && errno) {
 			if (total)
 				return total;
@@ -552,6 +561,7 @@ is 32 or 64 bit, since the 32-bit pread() cannot read above the 2GB
 limit on a 32-bit process.
 */
 
+/* copy the size of `length` data from the memory space of the tracee (`uaddr`) into `data`. */
 ssize_t tracer_copy_in( struct tracer *t, void *data, const void *uaddr, size_t length )
 {
 	static int fast_read_success = 0;

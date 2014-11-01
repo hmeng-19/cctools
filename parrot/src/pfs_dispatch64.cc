@@ -950,6 +950,9 @@ static void decode_syscall( struct pfs_process *p, int entering )
 		p->completing_execve = 0;
 	}
 
+	/* `entering = 1` happens when the user-level application process starts a syscall;
+	 * `entering = 0` happens when the kernel finishes a syscall and tries to return the result to the application process.
+	 */
 	if(entering) {
 		p->state = PFS_PROCESS_STATE_KERNEL;
 		p->syscall_dummy = 0;

@@ -816,7 +816,7 @@ static void decode_execve( struct pfs_process *p, int entering, INT64_T syscall,
 		if(pattern_match(firstline, "^#!%s*(%S+)%s*(.-)%s*$", &interp_exe, &interp_arg) >= 0) {
 			debug(D_PROCESS, "execve: %s (%s) is an interpreted executable", p->new_logical_name, physical_name);
 			if (strlen(interp_arg))
-				debug(D_PROCESS, "execve: instead do %s \"%s\" %s", interp_exe, interp_arg, logical_name);
+				debug(D_PROCESS, "execve: instead do %s \"%s\" %s", interp_exe, interp_arg, logical_name); /* An example: "execve: instead do /usr/bin/env perl /cvmfs/cms.cern.ch/share/lcg/SCRAMV1/V2_2_5_pre8/bin/scram" */
 			else
 				debug(D_PROCESS, "execve: instead do %s %s", interp_exe, logical_name);
 
@@ -2964,6 +2964,7 @@ void pfs_dispatch64( struct pfs_process *p )
 	struct pfs_process *oldcurrent = pfs_current;
 	pfs_current = p;
 
+	/* This `switch` traps the enterings or syscall returns to change the memory and registers of the tracee. */
 	switch(p->state) {
 		case PFS_PROCESS_STATE_KERNEL:
 			decode_syscall(p,0);
@@ -2976,6 +2977,7 @@ void pfs_dispatch64( struct pfs_process *p )
 			assert(0);
 	}
 
+	/* This `switch` applies the changes of the memory and registers of the tracee through ptrace POKEDATA, and restarts the trapped syscall. */
 	switch(p->state) {
 		case PFS_PROCESS_STATE_KERNEL:
 		case PFS_PROCESS_STATE_USER:

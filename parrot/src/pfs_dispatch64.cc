@@ -96,13 +96,6 @@ extern char *pfs_ldso_path;
 extern int *pfs_syscall_totals64;
 
 extern FILE *netlist_file;
-extern struct hash_table *netlist_table;
-extern struct hash_table *ip_table;
-extern struct hash_table *dns_alias_table;
-extern int git_https_checking;
-extern int git_ssh_checking;
-extern char git_conf_filename[PATH_MAX];
-extern int is_opened_gitconf;
 
 extern void handle_specific_process( pid_t pid );
 
@@ -712,7 +705,6 @@ static void decode_execve( struct pfs_process *p, INT64_T entering, INT64_T sysc
         /* debug arguments/environment */
 		if(netlist_file) {
 			int argc = 0;
-//			int n = 0;
 			fprintf(netlist_file,"execve(%s,[", path);
 			while (1) {
 				char arg[4096];
@@ -725,18 +717,6 @@ static void decode_execve( struct pfs_process *p, INT64_T entering, INT64_T sysc
 				argc++;
 			}
 			fprintf(netlist_file,"])\n\n");
-//			fprintf(netlist_file,"\t[");
-//			while (1) {
-//				char var[4096];
-//				char *varp;
-//				tracer_copy_in(p->tracer, &varp, ((char **)args[2])+n, sizeof(varp));
-//				if (varp == NULL) break;
-//				tracer_copy_in_string(p->tracer, var, varp, sizeof(var));
-//				var[4096-1] = '\0';
-//				fprintf(netlist_file,"\t\"%s\",",var);
-//				n++;
-//			}
-//			fprintf(netlist_file,"\t])");
         }
 
 		if(!is_executable(path)) {
@@ -1374,7 +1354,7 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 				INT64_T actual;
 				tracer_result_get(p->tracer, &actual);
 				if (actual >= 0) {
-					if(p->syscall == SYSCALL64_socket && netlist_table)
+					if(p->syscall == SYSCALL64_socket && netlist_file)
 						socket_process(int(actual), int(args[0]), int(args[1]), int(args[2]));
 					if (p->syscall == SYSCALL64_socketpair || p->syscall == SYSCALL64_pipe || p->syscall == SYSCALL64_pipe2) {
 						int fds[2];
@@ -1475,7 +1455,7 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 						p->syscall_dummy = 1; /* Fake a dummy "return" but allow the kernel to close the Parrot fd. */
 				}
 			}
-			if(netlist_table)
+			if(netlist_file)
 				get_git_conf(int(args[0]), p->name);
 			break;
 
@@ -1483,17 +1463,11 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 		case SYSCALL64_pread:
 			if (p->table->isnative(args[0])) {
 				if (entering) debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), args[0], args[1], args[2]);
-				if(netlist_table) {
-					struct pfs_socket_info *existed_socket;
-					char buf[10];
-					snprintf(buf, sizeof(buf), "%d", int(args[0]));
-					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
-					if(existed_socket) {
-						void *data;
-						data = xxmalloc(args[2]);
-						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
-						socket_data_parser(int(args[0]), (char *)data, int(args[2]));
-					}
+				if(netlist_file) {
+					void *data;
+					data = xxmalloc(args[2]);
+					tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
+					socket_data_parser(int(args[0]), (char *)data, int(args[2]));
 				}
 			} else {
 				decode_read(p,entering,p->syscall,args);
@@ -1504,17 +1478,11 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 		case SYSCALL64_pwrite:
 			if (p->table->isnative(args[0])) {
 				if (entering) debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), args[0], args[1], args[2]);
-				if(netlist_table) {
-					struct pfs_socket_info *existed_socket;
-					char buf[10];
-					snprintf(buf, sizeof(buf), "%d", int(args[0]));
-					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
-					if(existed_socket) {
-						void *data;
-						data = xxmalloc(args[2]);
-						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
-						socket_data_parser(int(args[0]), (char *)data, int(args[2]));
-					}
+				if(netlist_file) {
+					void *data;
+					data = xxmalloc(args[2]);
+					tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
+					socket_data_parser(int(args[0]), (char *)data, int(args[2]));
 				}
 			} else {
 				decode_write(p,entering,p->syscall,args);
@@ -1584,7 +1552,7 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 					debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), args[0], args[1], args[2]);
 
 					/* Create one pfs_socket_info struct for each network socket (non AF_UNIX socket) */
-					if(netlist_table)
+					if(netlist_file)
 						connect_process64(int(args[0]), addr);
 				}
 			} else if (!p->syscall_dummy && p->syscall_result == 1) {
@@ -1677,32 +1645,20 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 		case SYSCALL64_setsockopt:
 		case SYSCALL64_shutdown:
 			if(p->syscall == SYSCALL64_sendto) {
-				if(netlist_table) {
-					struct pfs_socket_info *existed_socket;
-					char buf[10];
-					snprintf(buf, sizeof(buf), "%d", int(args[0]));
-					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
-					if(existed_socket) {
-						void *data;
-						data = xxmalloc(args[2]);
-						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
-						socket_data_parser(int(args[0]), (char *)data, int(args[2]));
-					}
+				if(netlist_file) {
+					void *data;
+					data = xxmalloc(args[2]);
+					tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
+					socket_data_parser(int(args[0]), (char *)data, int(args[2]));
 				}
 			}
 
 			if(p->syscall == SYSCALL64_recvfrom) {
-				if(netlist_table) {
-					struct pfs_socket_info *existed_socket;
-					char buf[10];
-					snprintf(buf, sizeof(buf), "%d", int(args[0]));
-					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
-					if(existed_socket) {
-						void *data;
-						data = xxmalloc(args[2]);
-						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
-						socket_data_parser(int(args[0]), (char *)data, int(args[2]));
-					}
+				if(netlist_file) {
+					void *data;
+					data = xxmalloc(args[2]);
+					tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);
+					socket_data_parser(int(args[0]), (char *)data, int(args[2]));
 				}
 			}
 			if(entering && !p->table->isnative(args[0]))

@@ -87,7 +87,7 @@ void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX
 
 		int qname_len;
 		qname_len = name_len_resolver(data, qname);
-		struct dns_question *dns_q = (struct dns_question *) (qname + qname_len);
+		//struct dns_question *dns_q = (struct dns_question *) (qname + qname_len);
 		current_pos += qname_len; //current_pos points to dns_q->qtype
 
 		//parse dns_answer

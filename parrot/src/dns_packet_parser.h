@@ -14,11 +14,13 @@ struct dns_header {
 	unsigned short arcount;
 };
 
+/* dns_question struct does not include qname, whose length is variable */
 struct dns_question {
 	unsigned short qtype;
 	unsigned short qclass;
 };
 
+/* dns_answer struct does not include name and rdata, whose lengths are variable */
 struct dns_answer {
 	unsigned short type;
 	unsigned short answer_class;
@@ -26,7 +28,6 @@ struct dns_answer {
 	unsigned short rdlength;
 };
 
-int qname_resolver(unsigned char *qname, char hostname[HOSTNAME_MAX]);
 void name_resolver(unsigned char *data, unsigned char *name, char hostname[HOSTNAME_MAX], int current_len);
-int answer_name_resolver(unsigned char *data, unsigned char *name);
+int name_len_resolver(unsigned char *data, unsigned char *name);
 void dns_packet_parser(unsigned char *data, int size, char hostname[HOSTNAME_MAX], char ip_addr[IP_LEN]);

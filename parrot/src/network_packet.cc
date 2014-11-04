@@ -44,239 +44,196 @@ extern int git_ssh_checking;
 extern char git_conf_filename[PATH_MAX];
 extern int is_opened_gitconf;
 
+/* for each SYSCALL_SOCKET syscall, create one pfs_socket_info struct to preserve the socket info. */
 void socket_process(int fd, int domain, int type, int protocol) {
-	if(netlist_table) {
-		if(domain == AF_INET || domain == AF_INET6) {
-			char domain_type[10];
-			if(domain == AF_INET)
-				strcpy(domain_type, "AF_INET");
-			if(domain == AF_INET6)
-				strcpy(domain_type, "AF_INET6");
-			struct pfs_socket_info *p_sock, *existed_socket;
-			p_sock = (struct pfs_socket_info *) malloc(sizeof(struct pfs_socket_info));
-			char buf[10];
-			snprintf(buf, sizeof(buf), "%d", fd);
-			p_sock->id = fd;
-			p_sock->domain = domain;
-			strcpy(p_sock->domain_type, domain_type);
-			p_sock->type = type;
-			p_sock->protocol = protocol;
-			strcpy(p_sock->ip_addr, "");
-			p_sock->port = -1;
-			strcpy(p_sock->host_name, "");
-			strcpy(p_sock->service_name, "");
-			strcpy(p_sock->resource_path, "");
-			p_sock->resource_status = -1;
-			p_sock->http_checking = 0;
+	if(domain == AF_INET || domain == AF_INET6) {
+		char domain_type[10];
+		if(domain == AF_INET)
+			strcpy(domain_type, "AF_INET");
+		else
+			strcpy(domain_type, "AF_INET6");
+		struct pfs_socket_info *p_sock, *existed_socket;
+		p_sock = (struct pfs_socket_info *) malloc(sizeof(struct pfs_socket_info));
+		char buf[10];
+		snprintf(buf, sizeof(buf), "%d", fd);
+		p_sock->id = fd;
+		p_sock->domain = domain;
+		strcpy(p_sock->domain_type, domain_type);
+		p_sock->type = type;
+		p_sock->protocol = protocol;
+		strcpy(p_sock->ip_addr, "");
+		p_sock->port = -1;
+		strcpy(p_sock->host_name, "");
+		strcpy(p_sock->service_name, "");
+		strcpy(p_sock->resource_path, "");
+		p_sock->resource_status = -1;
+		p_sock->http_checking = 0;
 
-			existed_socket = (struct pfs_socket_info *)hash_table_lookup(netlist_table, buf);
-			if(!existed_socket) {
-				hash_table_insert(netlist_table, buf, p_sock);
-//				fprintf(netlist_file, "create one new socket\n");
-//				fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", p_sock->id, p_sock->domain, p_sock->domain_type);
-//				fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n\n", p_sock->ip_addr, p_sock->port, p_sock->host_name, p_sock->service_name, p_sock->resource_path, p_sock->resource_status);
-			} else {
-				free(existed_socket);
-				hash_table_remove(netlist_table, buf);
-				hash_table_insert(netlist_table, buf, p_sock);
-//				fprintf(netlist_file, "create one new socket, but this socket has ever been used, first delete the old one, and here is the new one\n");
-//				fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", p_sock->id, p_sock->domain, p_sock->domain_type);
-//				fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s; resource_path: %s; resource_status: %d\n\n", p_sock->ip_addr, p_sock->port, p_sock->host_name, p_sock->service_name, p_sock->resource_path, p_sock->resource_status);
+		existed_socket = (struct pfs_socket_info *)hash_table_lookup(netlist_table, buf);
+		/* if the socket fd has been occupied, first remove the existing socket item from netlist_table, and then insert the new pfs_socket_info into the table. */
+		if(!existed_socket) {
+			hash_table_insert(netlist_table, buf, p_sock);
+		} else {
+			free(existed_socket);
+			hash_table_remove(netlist_table, buf);
+			hash_table_insert(netlist_table, buf, p_sock);
+		}
+	}
+}
+
+/* fill in the pfs_socket_info struct according to the connect syscall: ip_addr, port, host_name, service_name, type_name */
+void connect_process(int fd, struct sockaddr *sock_addr) {
+	struct pfs_socket_info *existed_socket;
+	char buf[10];
+	snprintf(buf, sizeof(buf), "%d", fd);
+	existed_socket = (struct pfs_socket_info *)hash_table_lookup(netlist_table, buf);
+	if(existed_socket) {
+		int s;
+		char host_buf[100], service_name_buf[100], ip_addr[1024];
+		/* obtain hostname and port info from socket_addr
+		 * the hostname obtained from getnameinfo may not be the hostname used by the application, 
+		 * so ip_table and dns_table will be checked to get the hostname used by the application
+		 */
+		s = getnameinfo(sock_addr, sizeof(*sock_addr), host_buf, sizeof(host_buf), service_name_buf, sizeof(service_name_buf), 100| 100);
+		if (s == 0) {
+			/* obtain ip_addr info from socket_addr */
+			inet_ntop(sock_addr->sa_family, get_in_addr(sock_addr), ip_addr, sizeof(ip_addr));
+			strcpy(existed_socket->ip_addr, ip_addr);
+
+			/* the priority of hostname information for an ip_addr: ip_table > dns_alias_table > host_buf */
+			char *item_value;
+			item_value = (char *)hash_table_lookup(ip_table, ip_addr);
+			if(item_value)
+				strcpy(existed_socket->host_name, item_value);
+			else {
+				item_value = (char *)hash_table_lookup(dns_alias_table, host_buf);
+				if(item_value)
+					strcpy(existed_socket->host_name, item_value);
+				else
+					strcpy(existed_socket->host_name, host_buf);
 			}
+			existed_socket->port = get_in_port(sock_addr);
+			strcpy(existed_socket->service_name, service_name_buf);
+			if(strcmp(host_buf, "github.com") == 0) {
+				if(strcmp(service_name_buf, "https") == 0) {
+					git_https_checking = 1;
+				}
+				if(strcmp(service_name_buf, "ssh") == 0) {
+					git_ssh_checking = 1;
+				}
+				is_opened_gitconf = 0;
+			}
+			char type_name[20];
+			get_socket_type(existed_socket->type, type_name);
+			strcpy(existed_socket->type_name, type_name);
+			fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", existed_socket->id, existed_socket->domain, existed_socket->domain_type);
+			fprintf(netlist_file, "type: %d; type_name: %s; ", existed_socket->type, existed_socket->type_name);
+			fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s\n\n", existed_socket->ip_addr, existed_socket->port, existed_socket->host_name, existed_socket->service_name);
 		}
 	}
 }
 
 void connect_process32(int fd, struct pfs_kernel_sockaddr_un addr) {
-	struct pfs_socket_info *existed_socket;
-	char buf[10];
-	snprintf(buf, sizeof(buf), "%d", fd);
-	existed_socket = (struct pfs_socket_info *)hash_table_lookup(netlist_table, buf);
-	if(existed_socket) {
-		int s;
-		char host_buf[100], port_buf[100], ip_addr[1024];
-		struct sockaddr *sock_addr;
-		sock_addr = (struct sockaddr *) (&addr);
-		s = getnameinfo(sock_addr, sizeof(*sock_addr), host_buf, sizeof(host_buf), port_buf, sizeof(port_buf), 100| 100);
-		if (s == 0) {
-			inet_ntop(sock_addr->sa_family, get_in_addr(sock_addr), ip_addr, sizeof(ip_addr));
-			strcpy(existed_socket->ip_addr, ip_addr);
-			char *item_value;
-			item_value = (char *)hash_table_lookup(ip_table, ip_addr);
-			if(item_value)
-				strcpy(existed_socket->host_name, item_value);
-			else {
-				item_value = (char *)hash_table_lookup(dns_alias_table, host_buf);
-				if(item_value)
-					strcpy(existed_socket->host_name, item_value);
-				else
-					strcpy(existed_socket->host_name, host_buf);
-			}
-			existed_socket->port = get_in_port(sock_addr);
-			strcpy(existed_socket->service_name, port_buf);
-			if(strcmp(host_buf, "github.com") == 0) {
-				if(strcmp(port_buf, "https") == 0) {
-					git_https_checking = 1;
-				}
-				if(strcmp(port_buf, "ssh") == 0) {
-					git_ssh_checking = 1;
-				}
-			}
-			char type_name[20];
-			get_socket_type(existed_socket->type, type_name);
-			strcpy(existed_socket->type_name, type_name);
-			fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", existed_socket->id, existed_socket->domain, existed_socket->domain_type);
-			fprintf(netlist_file, "type: %d; type_name: %s; ", existed_socket->type, existed_socket->type_name);
-			fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s\n\n", existed_socket->ip_addr, existed_socket->port, existed_socket->host_name, existed_socket->service_name);
-		}
-		is_opened_gitconf = 0;
-	}
+	struct sockaddr *sock_addr;
+	sock_addr = (struct sockaddr *) (&addr);
+	connect_process(fd, sock_addr);
 }
 
-void connect_process(int fd, struct sockaddr_un addr) {
-	struct pfs_socket_info *existed_socket;
-	char buf[10];
-	snprintf(buf, sizeof(buf), "%d", fd);
-	existed_socket = (struct pfs_socket_info *)hash_table_lookup(netlist_table, buf);
-	if(existed_socket) {
-		int s;
-		char host_buf[100], port_buf[100], ip_addr[1024];
-		struct sockaddr *sock_addr;
-		sock_addr = (struct sockaddr *) (&addr);
-		s = getnameinfo(sock_addr, sizeof(*sock_addr), host_buf, sizeof(host_buf), port_buf, sizeof(port_buf), 100| 100);
-		if (s == 0) {
-			inet_ntop(sock_addr->sa_family, get_in_addr(sock_addr), ip_addr, sizeof(ip_addr));
-			strcpy(existed_socket->ip_addr, ip_addr);
-			char *item_value;
-			item_value = (char *)hash_table_lookup(ip_table, ip_addr);
-			if(item_value)
-				strcpy(existed_socket->host_name, item_value);
-			else {
-				item_value = (char *)hash_table_lookup(dns_alias_table, host_buf);
-				if(item_value)
-					strcpy(existed_socket->host_name, item_value);
-				else
-					strcpy(existed_socket->host_name, host_buf);
-			}
-			existed_socket->port = get_in_port(sock_addr);
-			strcpy(existed_socket->service_name, port_buf);
-			if(strcmp(host_buf, "github.com") == 0) {
-				if(strcmp(port_buf, "https") == 0) {
-					git_https_checking = 1;
-				}
-				if(strcmp(port_buf, "ssh") == 0) {
-					git_ssh_checking = 1;
-				}
-			}
-			char type_name[20];
-			get_socket_type(existed_socket->type, type_name);
-			strcpy(existed_socket->type_name, type_name);
-			fprintf(netlist_file, "\nid: %d; domain: %d; domain_type: %s; ", existed_socket->id, existed_socket->domain, existed_socket->domain_type);
-			fprintf(netlist_file, "type: %d; type_name: %s; ", existed_socket->type, existed_socket->type_name);
-			fprintf(netlist_file, "ip_addr: %s; port: %d; host_name: %s; service_name: %s\n\n", existed_socket->ip_addr, existed_socket->port, existed_socket->host_name, existed_socket->service_name);
-		}
-		is_opened_gitconf = 0;
-	}
+void connect_process64(int fd, struct sockaddr_un addr) {
+	struct sockaddr *sock_addr;
+	sock_addr = (struct sockaddr *) (&addr);
+	connect_process(fd, sock_addr);
 }
 
+/* parse the socket data traffic, currently only dns and http service data is parsed. */
 void socket_data_parser(int fd, char *data, int length) {
-	if(netlist_table) {
-		struct pfs_socket_info *existed_socket;
-		char buf[10];
-		snprintf(buf, sizeof(buf), "%d", fd);
-		existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
-		if(existed_socket) {
-			if(existed_socket->port == 53) {
-				char hostname[HOSTNAME_MAX], ipaddr[IP_LEN];
-//				char cname_alias[HOSTNAME_MAX];
-				dns_packet_parser((unsigned char *)data, length, hostname, ipaddr);
-				if(hostname[0] != '\0' && ipaddr[0] != '\0') {
-					char *existed_hostname;
-					existed_hostname = (char *)hash_table_lookup(ip_table, (char *)hostname);
-					if(!existed_hostname) {
-						char *ip_value;
-						ip_value = (char *)malloc(HOSTNAME_MAX);
-						strcpy(ip_value, hostname);
-						hash_table_insert(ip_table, (char *)ipaddr, (char *)ip_value);
-						fprintf(netlist_file, "DNS (Address Record) hostname: %s, ipaddr: %s\n", hostname, ipaddr);
+	struct pfs_socket_info *existed_socket;
+	char buf[10];
+	snprintf(buf, sizeof(buf), "%d", fd);
+	existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+	if(existed_socket) {
+		/* parser dns service data */
+		if(existed_socket->port == 53) {
+			char hostname[HOSTNAME_MAX], ipaddr[IP_LEN];
+			dns_packet_parser((unsigned char *)data, length, hostname, ipaddr);
+			if(hostname[0] != '\0' && ipaddr[0] != '\0') {
+				/* check whether <hostname, ipaddr> exists in ip_table. if not, insert it. */
+				char *existed_hostname;
+				existed_hostname = (char *)hash_table_lookup(ip_table, (char *)hostname);
+				if(!existed_hostname) {
+					char *ip_value;
+					ip_value = (char *)malloc(HOSTNAME_MAX);
+					strcpy(ip_value, hostname);
+					hash_table_insert(ip_table, (char *)ipaddr, (char *)ip_value);
+					fprintf(netlist_file, "DNS (Address Record) hostname: %s, ipaddr: %s\n", hostname, ipaddr);
+				}
+			}
+		}
+		/* parse http service data */
+		if(existed_socket->port == 80) {
+			/* obtain http request */
+			if(existed_socket->http_checking == 0 && HttpCheck(data, length, 0) == 1) {
+				existed_socket->http_checking = 1;
+				return;
+			}
+			/* obtain http response */
+			if(existed_socket->http_checking == 1 && HttpCheck(data, length, 1) == 2) {
+				existed_socket->http_checking = 2;
+				return;
+			}
+		}
+	}
+}
+
+/* when a socket is going to be closed, the pfs_socket_info will be checked to see whether the socket is used for git.
+ * if yes, the git configuration file will be obtained.
+ */
+void get_git_conf(int fd, char *executable_name) {
+	struct pfs_socket_info *existed_socket;
+	char buf[10];
+	snprintf(buf, sizeof(buf), "%d",fd);
+	existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
+	if(existed_socket && (strcmp(existed_socket->host_name, "github.com") == 0)) {
+		char *s;
+		if(strcmp(existed_socket->service_name, "https") == 0 && git_https_checking == 1) {
+			git_https_checking = 0;
+			s = strstr(executable_name, "git");
+			if(s != NULL && s[3] == '\0') {
+				fprintf(netlist_file, "this is git https\n");
+				FILE *git_conf_file;
+				if(is_opened_gitconf == 0) {
+					is_opened_gitconf = 1;
+					git_conf_file = fopen(git_conf_filename, "r");
+					char line[PATH_MAX];
+					fprintf(netlist_file, "git config file: \n");
+					while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
+						fprintf(netlist_file, "%s", line);
 					}
+					fprintf(netlist_file, "\n");
 				}
-//				} else if(cname_alias[0] != '\0') {
-//					char *existed_cname_alias;
-//					existed_cname_alias = (char *)hash_table_lookup(dns_alias_table, (char *)cname_alias);
-//					if(!existed_cname_alias) {
-//						char *dns_alias_table_value;
-//						dns_alias_table_value = (char *)malloc(HOSTNAME_MAX);
-//						strcpy(dns_alias_table_value, hostname);
-////						fprintf(netlist_file, "One alias of `%s' is `%s'\n", hostname, cname_alias);
-//						hash_table_insert(dns_alias_table, (char *)cname_alias, (char *)dns_alias_table_value);
-//						fprintf(netlist_file, "DNS (CNAME) hostname: %s, cname: %s\n", hostname, cname_alias);
-//					}
-//				}
-			} else {
-				if(existed_socket->http_checking == 0 && HttpCheck(data, length, 0) == 1) {
-					existed_socket->http_checking = 1;
-					return;
-				}
-				if(existed_socket->http_checking == 1 && HttpCheck(data, length, 1) == 2) {
-					existed_socket->http_checking = 2;
-					return;
+			}
+		}
+		if(strcmp(existed_socket->service_name, "ssh") == 0 && git_ssh_checking == 1) {
+			git_ssh_checking = 0;
+			s = strstr(executable_name, "ssh");
+			if(s != NULL && s[3] == '\0') {
+				fprintf(netlist_file, "this is git ssh\n");
+				FILE *git_conf_file;
+				if(is_opened_gitconf == 0) {
+					is_opened_gitconf = 1;
+					git_conf_file = fopen(git_conf_filename, "r");
+					char line[PATH_MAX];
+					fprintf(netlist_file, "git config file: \n");
+					while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
+						fprintf(netlist_file, "%s", line);
+					}
+					fprintf(netlist_file, "\n");
 				}
 			}
 		}
 	}
 }
 
-void get_git_conf(int fd, char *executable_name) {
-	if(netlist_table) {
-		struct pfs_socket_info *existed_socket;
-		char buf[10];
-		snprintf(buf, sizeof(buf), "%d",fd);
-		existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
-		if(existed_socket) {
-//		fprintf(netlist_file, "closing socket %d \n", existed_socket->id);
-			if(strcmp(existed_socket->host_name, "github.com") == 0) {
-				char *s;
-				if(strcmp(existed_socket->service_name, "https") == 0 && git_https_checking == 1) {
-					git_https_checking = 0;
-					s = strstr(executable_name, "git");
-					if(s != NULL && s[3] == '\0') {
-						fprintf(netlist_file, "this is git https\n");
-						FILE *git_conf_file;
-						if(is_opened_gitconf == 0) {
-							is_opened_gitconf = 1;
-							git_conf_file = fopen(git_conf_filename, "r");
-							char line[PATH_MAX];
-							fprintf(netlist_file, "git config file: \n");
-							while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
-								fprintf(netlist_file, "%s", line);
-							}
-							fprintf(netlist_file, "\n");
-						}
-					}
-				}
-				if(strcmp(existed_socket->service_name, "ssh") == 0 && git_ssh_checking == 1) {
-					git_ssh_checking = 0;
-					s = strstr(executable_name, "ssh");
-					if(s != NULL && s[3] == '\0') {
-						fprintf(netlist_file, "this is git ssh\n");
-						FILE *git_conf_file;
-						if(is_opened_gitconf == 0) {
-							is_opened_gitconf = 1;
-							git_conf_file = fopen(git_conf_filename, "r");
-							char line[PATH_MAX];
-							fprintf(netlist_file, "git config file: \n");
-							while(fgets(line, PATH_MAX, git_conf_file) != NULL) {
-								fprintf(netlist_file, "%s", line);
-							}
-							fprintf(netlist_file, "\n");
-						}
-					}
-				}
-			}
-		}
-	}
-}
 void get_socket_family(int family, char family_name[20]) {
 	switch(family) {
 		case AF_UNIX:
@@ -315,6 +272,7 @@ void get_socket_type(int type, char type_name[20]) {
 	}
 }
 
+/* get the ip addr from sockaddr */
 void *get_in_addr(struct sockaddr *sa)
 {
 	if (sa->sa_family == AF_INET) {
@@ -323,6 +281,7 @@ void *get_in_addr(struct sockaddr *sa)
        return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+/* get the port number from sockaddr */
 int get_in_port(struct sockaddr *sa)
 {
 	if (sa->sa_family == AF_INET) {
@@ -331,6 +290,9 @@ int get_in_port(struct sockaddr *sa)
 		return ntohs(((struct sockaddr_in6*)sa)->sin6_port);
 }
 
+/* obtain http requests and responses 
+ * stage = 0: http request; stage = 1: http response
+ */
 int HttpCheck(char *buffer, int size, int stage) {
 	if(stage == 0 && buffer[0] == 'G' && buffer[1] == 'E' && buffer[2] == 'T') {
 		char *s;

@@ -7,8 +7,9 @@
 #include "pfs_sysdeps.h"
 
 void socket_process(int fd, int domain, int type, int protocol);
-void connect_process(int fd, struct sockaddr_un addr);
+void connect_process(int fd, struct sockaddr *sock_addr);
 void connect_process32(int fd, struct pfs_kernel_sockaddr_un addr);
+void connect_process64(int fd, struct sockaddr_un addr);
 void socket_data_parser(int fd, char *data, int length);
 void get_git_conf(int fd, char *executable_name);
 void get_socket_family(int family, char family_name[20]);

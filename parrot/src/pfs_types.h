@@ -60,11 +60,11 @@ struct pfs_statfs {
 };
 
 struct pfs_socket_info {
-	int id;
-	int domain;
-	char domain_type[10];
+	int id; //socket fd
+	int domain; 
+	char domain_type[10]; //AF_INET, AF_INET6
 	int type;
-	char type_name[20];
+	char type_name[20]; //socket type: stream, datagram, seqpacket, raw, unknown.
 	int protocol;
 	char ip_addr[PATH_MAX];
 	int port;

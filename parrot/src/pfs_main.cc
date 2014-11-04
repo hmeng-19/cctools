@@ -64,6 +64,8 @@ extern "C" {
 extern char **environ;
 FILE *namelist_file;
 struct hash_table *namelist_table;
+
+/* network activity tracking */
 FILE *netlist_file;
 struct hash_table *netlist_table;
 struct hash_table *ip_table;
@@ -72,6 +74,7 @@ int git_https_checking = 0;
 int git_ssh_checking = 0;
 int is_opened_gitconf = 0;
 char git_conf_filename[PATH_MAX];
+
 int linux_major;
 int linux_minor;
 int linux_micro;
@@ -860,6 +863,7 @@ int main( int argc, char *argv[] )
 			}
 			fprintf(netlist_file, "All the network activities:\n");
 
+			/*key: socket fd; value: pfs_socket_info structure */
 			netlist_table = hash_table_create(0, 0);
 			if(!netlist_table) {
 				fprintf(netlist_file, "netlist_table create fail\n");
@@ -867,6 +871,7 @@ int main( int argc, char *argv[] )
 				return 1;
 			}
 
+			/* key: ip_addr; value: host_name */
 			ip_table = hash_table_create(0, 0);
 			if(!ip_table) {
 				fprintf(netlist_file, "ip_table create fail\n");
@@ -874,6 +879,7 @@ int main( int argc, char *argv[] )
 				return 1;
 			}
 
+			/*key: host_name; value: alias of host_name */
 			dns_alias_table = hash_table_create(0, 0);
 			if(!dns_alias_table) {
 				fprintf(netlist_file, "dns_alias_table create fail\n");

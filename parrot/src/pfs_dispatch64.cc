@@ -713,9 +713,7 @@ static void decode_execve( struct pfs_process *p, INT64_T entering, INT64_T sysc
 		if(netlist_file) {
 			int argc = 0;
 //			int n = 0;
-			fprintf(netlist_file,"execve(");
-			fprintf(netlist_file,"%s,",path);
-			fprintf(netlist_file,"[");
+			fprintf(netlist_file,"execve(%s,[", path);
 			while (1) {
 				char arg[4096];
 				char *argp;
@@ -726,7 +724,7 @@ static void decode_execve( struct pfs_process *p, INT64_T entering, INT64_T sysc
 				fprintf(netlist_file," \"%s\",",arg);
 				argc++;
 			}
-			fprintf(netlist_file,"]\n\n");
+			fprintf(netlist_file,"])\n\n");
 //			fprintf(netlist_file,"\t[");
 //			while (1) {
 //				char var[4096];
@@ -1376,7 +1374,7 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 				INT64_T actual;
 				tracer_result_get(p->tracer, &actual);
 				if (actual >= 0) {
-					if(p->syscall == SYSCALL64_socket)
+					if(p->syscall == SYSCALL64_socket && netlist_table)
 						socket_process(int(actual), int(args[0]), int(args[1]), int(args[2]));
 					if (p->syscall == SYSCALL64_socketpair || p->syscall == SYSCALL64_pipe || p->syscall == SYSCALL64_pipe2) {
 						int fds[2];
@@ -1477,7 +1475,8 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 						p->syscall_dummy = 1; /* Fake a dummy "return" but allow the kernel to close the Parrot fd. */
 				}
 			}
-			get_git_conf(int(args[0]), p->name);
+			if(netlist_table)
+				get_git_conf(int(args[0]), p->name);
 			break;
 
 		case SYSCALL64_read:
@@ -1508,7 +1507,7 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 				if(netlist_table) {
 					struct pfs_socket_info *existed_socket;
 					char buf[10];
-					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					snprintf(buf, sizeof(buf), "%d", int(args[0]));
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket) {
 						void *data;
@@ -1583,8 +1582,10 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 				} else {
 					/* We only care about AF_UNIX sockets. */
 					debug(D_DEBUG, "fallthrough %s(%" PRId64 ", %" PRId64 ", %" PRId64 ")", tracer_syscall_name(p->tracer,p->syscall), args[0], args[1], args[2]);
+
+					/* Create one pfs_socket_info struct for each network socket (non AF_UNIX socket) */
 					if(netlist_table)
-						connect_process(int(args[0]), addr);
+						connect_process64(int(args[0]), addr);
 				}
 			} else if (!p->syscall_dummy && p->syscall_result == 1) {
 				/* We aren't changing/reading the *actual* result, we're just restoring the tracee's addr structure. */
@@ -1679,7 +1680,7 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 				if(netlist_table) {
 					struct pfs_socket_info *existed_socket;
 					char buf[10];
-					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					snprintf(buf, sizeof(buf), "%d", int(args[0]));
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket) {
 						void *data;
@@ -1694,10 +1695,9 @@ static void decode_syscall( struct pfs_process *p, INT64_T entering )
 				if(netlist_table) {
 					struct pfs_socket_info *existed_socket;
 					char buf[10];
-					snprintf(buf, sizeof(buf), "%ld", args[0]);
+					snprintf(buf, sizeof(buf), "%d", int(args[0]));
 					existed_socket = (struct pfs_socket_info *) hash_table_lookup(netlist_table, buf);
 					if(existed_socket) {
-//						fprintf(netlist_file, "recvfrom %ld; domain:%s; length: %ld\n", args[0], existed_socket->domain_type, args[2]);
 						void *data;
 						data = xxmalloc(args[2]);
 						tracer_copy_in(p->tracer, data, POINTER(args[1]), args[2]);

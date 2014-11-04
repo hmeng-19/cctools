@@ -1,0 +1,2 @@
+Parrot is designed to be a virtual filesystem, that is why the I/O part is so important.
+Keep reading the decode_syscall function (after decode_execve func)

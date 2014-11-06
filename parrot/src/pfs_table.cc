@@ -70,6 +70,9 @@ static const int _SENTINEL1 = 0;
 static const int _SENTINEL2 = 0;
 #define SPECIAL ((pfs_pointer *)&_SENTINEL2)
 
+/*NATIVE: special files
+ *currently there are only two SPECIAL pointers: /tmp/parrot.1000/parrot-channel.pFE61R (deleted) and /tmp/parrot.1000/parrot-fd.Mre2lo/
+ */
 #define PARROT_POINTER(pointer) (!(pointer == NATIVE || pointer == SPECIAL || pointer == NULL))
 
 #define VALID_FD(fd) (0 <= fd && fd <= pointer_count)
@@ -547,7 +550,7 @@ pfs_file * pfs_table::open_object( const char *lname, int flags, mode_t mode, in
 	// is not set, set we detect it here.
 
 	const char *basename = path_basename(lname);
-	if(!strcmp(basename,".") || !strcmp(basename,"..")) {
+	if(!strcmp(basename,".") || !strcmp(basename,"..")) { //basename is "." or ".."
 		flags |= O_DIRECTORY;
 	}
 

@@ -1,2 +1,4 @@
 Parrot is designed to be a virtual filesystem, that is why the I/O part is so important.
 Keep reading the decode_syscall function (after decode_execve func)
+
+the difference between NULL and zero: NULL is a pointer, and zero is a value.

@@ -1174,17 +1174,18 @@ static void decode_syscall( struct pfs_process *p, int entering )
 		case SYSCALL64_getuid:
 			/* Always return the dummy uids. */
 			if (entering)
-				divert_to_dummy(p,pfs_uid);
+				divert_to_dummy(p,pfs_uid); //pfs_uid is the uid of parrot (the tracer)
 			break;
 
 		case SYSCALL64_getegid:
 		case SYSCALL64_getgid:
 			if (entering)
-				divert_to_dummy(p,pfs_gid);
+				divert_to_dummy(p,pfs_gid); //pfs_gid is the gid of parrot (the tracer)
 			break;
 
 		case SYSCALL64_getresuid:
 			if (entering) {
+				//question? why we just set the pfs_uid to the three parameters of getresuid?
 				tracer_copy_out(p->tracer,&pfs_uid,POINTER(args[0]),sizeof(pfs_uid));
 				tracer_copy_out(p->tracer,&pfs_uid,POINTER(args[1]),sizeof(pfs_uid));
 				tracer_copy_out(p->tracer,&pfs_uid,POINTER(args[2]),sizeof(pfs_uid));
@@ -1228,7 +1229,7 @@ static void decode_syscall( struct pfs_process *p, int entering )
 		case SYSCALL64_open:
 		case SYSCALL64_creat:
 			if(entering) {
-				tracer_copy_in_string(p->tracer,path,POINTER(args[0]),sizeof(path));
+				tracer_copy_in_string(p->tracer,path,POINTER(args[0]),sizeof(path)); //args holds the original parameters of the user's application process
 				if(strlen(path) == 0) {
 					divert_to_dummy(p, -ENOENT);
 					break;
@@ -1238,7 +1239,7 @@ static void decode_syscall( struct pfs_process *p, int entering )
 				int mode;
 				char native_path[PATH_MAX];
 				if (p->syscall == SYSCALL64_creat) {
-					flags = O_CREAT|O_WRONLY|O_TRUNC;
+					flags = O_CREAT|O_WRONLY|O_TRUNC; //these flags are the flags for creat syscall
 					mode = args[1];
 				} else if (p->syscall == SYSCALL64_open) {
 					flags = args[1];

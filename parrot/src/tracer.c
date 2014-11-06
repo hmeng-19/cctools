@@ -438,7 +438,7 @@ static ssize_t tracer_copy_out_slow( struct tracer *t, const void *data, const v
 	return length;
 }
 
-/* copy the size of `length` data from `data` into the memory space of the tracee (`uaddr`). */
+/* copy the size of `length` data from `data` into the memory space of the tracee (`uaddr`) through ptrace POKEDATA. */
 ssize_t tracer_copy_out( struct tracer *t, const void *data, const void *uaddr, size_t length )
 {
 	static int has_fast_write=1;

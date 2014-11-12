@@ -878,6 +878,7 @@ int main( int argc, char *argv[] )
 				return 1;
 			}
 
+			pfs_resolve_manual_config("/var/run/nscd/socket=ENOENT");
 			break;
 		case 'R':
 			pfs_root_checksum = optarg;

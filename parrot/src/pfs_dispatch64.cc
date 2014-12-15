@@ -797,7 +797,7 @@ static void decode_execve( struct pfs_process *p, int entering, INT64_T syscall,
 		char *interp_exe = NULL, *interp_arg = NULL;
 		const uintptr_t old_user_argv = args[1];
 
-		tracer_copy_in_string(p->tracer,logical_name,POINTER(args[0]),sizeof(logical_name));
+		tracer_copy_in_string(p->tracer,logical_name,POINTER(args[0]),sizeof(logical_name)); //set logical_name to args[0]
 		strncpy(p->new_logical_name, logical_name, sizeof(p->new_logical_name)-1);
 
 		if(!is_executable(logical_name))
@@ -813,6 +813,10 @@ static void decode_execve( struct pfs_process *p, int entering, INT64_T syscall,
 				*c = 0;
 		}
 
+		/* hmeng-note the user_cmd: ./test.py and the first line of test.py is #!/usr/bin/env python
+		   execve: ./test.py (/afs/nd.edu/user20/hmeng/umbrella_test/29/test.py) is an interpreted executable
+		   execve: instead do /usr/bin/env "python" ./test.py
+		 */
 		if(pattern_match(firstline, "^#!%s*(%S+)%s*(.-)%s*$", &interp_exe, &interp_arg) >= 0) {
 			debug(D_PROCESS, "execve: %s (%s) is an interpreted executable", p->new_logical_name, physical_name);
 			if (strlen(interp_arg))

@@ -53,7 +53,7 @@ import platform
 import re
 import tarfile
 import StringIO
-from optparse import OptionParser
+import argparse #avaliable in Python 2.7 and later
 import os
 import hashlib
 import difflib
@@ -3572,73 +3572,90 @@ def spec_build(spec_json):
 				dep_build(sec[item], item)
 
 def main():
-	parser = OptionParser(usage="usage: %prog [options] run \"command\"",
-						version="%prog CCTOOLS_VERSION")
-	parser.add_option("--spec",
+	parser = argparse.ArgumentParser(description="A Portable Environment Creator for Reproducible Computing on Clusters, Clouds, and Grids")
+	parser.add_argument('-v', '--version', action='version', version="%(prog)s CCTOOLS_VERSION")
+	parser.add_argument("--spec",
 					action="store",
 					help="The specification json file.",)
-	parser.add_option("--meta",
+	parser.add_argument("--meta",
 					action="store",
 					help="The source of meta information, which can be a local file path (e.g., file:///tmp/meta.json) or url (e.g., http://...).\nIf this option is not provided, the specification will be treated a self-contained specification.",)
-	parser.add_option("-l", "--localdir",
+	parser.add_argument("-l", "--localdir",
 					action="store",
 					default="./umbrella_test",
 					help="The path of directory used for all the cached data and all the sandboxes, the directory can be an existing dir. (By default: ./umbrella_test)",)
-	parser.add_option("-o", "--output",
+	parser.add_argument("-o", "--output",
 					action="store",
 					help="The mappings of outputs in the format of container_path=local_path (i.e., /container/f1=/tmp/output/f1). Multiple mappings should be separated by comma. container_path should be consistent with the semantics of the application, local path must be non-existing.",)
-	parser.add_option("-s", "--sandbox_mode",
+	parser.add_argument("-s", "--sandbox_mode",
 					action="store",
 					default="parrot",
 					choices=['parrot', 'destructive', 'docker', 'ec2',],
 					help="sandbox mode, which can be parrot, destructive, docker, ec2.)",)
-	parser.add_option("-i", "--inputs",
+	parser.add_argument("-i", "--inputs",
 					action="store",
 					default='',
 					help="The path of input files in the format of access_path=actual_path. i.e, -i '/home/hmeng/file1=/tmp/file2'. access_path must be consistent with the semantics of the provided command, actual_path can be relative or absolute. (By default: '')",)
-	parser.add_option("-e", "--env",
+	parser.add_argument("-e", "--env",
 					action="store",
 					default='',
 					help="The environment variable. I.e., -e 'PWD=/tmp'. (By default: '')")
-	parser.add_option("--log",
+	parser.add_argument("--log",
 					action="store",
 					default="./umbrella.log",
 					help="The path of umbrella log file. (By default: ./umbrella.log)",)
-	parser.add_option("--cvmfs_http_proxy",
+	parser.add_argument("--cvmfs_http_proxy",
 					action="store",
 					help="HTTP_PROXY to access cvmfs (Used by Parrot)",)
-	parser.add_option("--ec2",
+	parser.add_argument("--ec2",
 					action="store",
 					help="The source of ec2 information.",)
-	parser.add_option("--condor_log",
+	parser.add_argument("--condor_log",
 					action="store",
 					help="The path of the condor umbrella log file. Required for condor execution engines.",)
-	parser.add_option("--ec2_log",
+	parser.add_argument("--ec2_log",
 					action="store",
 					help="The path of the ec2 umbrella log file. Required for ec2 execution engines.",)
-	parser.add_option("-g", "--ec2_group",
+	parser.add_argument("-g", "--ec2_group",
 					action="store",
 					help="the security group within which an Amazon EC2 instance should be run. (only for ec2)",)
-	parser.add_option("-k", "--ec2_key",
+	parser.add_argument("-k", "--ec2_key",
 					action="store",
 					help="the name of the key pair to use when launching an Amazon EC2 instance. (only for ec2)",)
-	parser.add_option("--ec2_sshkey",
+	parser.add_argument("--ec2_sshkey",
 					action="store",
 					help="the name of the private key file to use when connecting to an Amazon EC2 instance. (only for ec2)",)
-	parser.add_option("--ec2_instance_type",
+	parser.add_argument("--ec2_instance_type",
 					action="store",
 					help="the type of an Amazon EC2 instance. (only for ec2)",)
-	parser.add_option("--osf_user",
+	parser.add_argument("--osf_user",
 					action="store",
 					help="the OSF username",)
-	parser.add_option("--osf_pass",
+	parser.add_argument("--osf_pass",
 					action="store",
 					help="the OSF password",)
-	parser.add_option("--osf_userid",
+	parser.add_argument("--osf_userid",
 					action="store",
-					help="the OSF user id",)
+					help="the OSF user id")
 
-	(options, args) = parser.parse_args()
+	subparsers = parser.add_subparsers(help='commands')
+
+	# umbrella run
+	run_parser = subparsers.add_parser('run', help='Run the application in a sandbox.')
+	run_parser.add_argument('command',
+					action="store",
+					nargs='?',
+					default='',
+					help="the command to run. The argument can be ignore if the command is provided inside the Umbrella spec file.")
+	args = parser.parse_args()
+
+	print args
+	print type(args)
+
+	#run_args = run_parser.parse_args()
+	#print run_args
+	sys.exit()
+	options = None
 	logfilename = options.log
 	if os.path.exists(logfilename) and not os.path.isfile(logfilename):
 		sys.exit("The --log option <%s> is not a file!" % logfilename)

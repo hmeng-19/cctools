@@ -1,0 +1,88 @@
+# parrot execution engine
+umbrella \
+--spec /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/cms_simple_long/cms_simple.umbrella \
+--localdir /tmp/umbrella_test_cms_parrot/ \
+--output "/tmp/cmsjob=/tmp/umbrella_test_cms_parrot/parrot_cms_simple" \
+--sandbox_mode parrot \
+--log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/cms_simple_long/parrot_ccl.log \
+--cvmfs_http_proxy http://cache01.hep.wisc.edu:3128 \
+run
+
+# docker execution engine
+# Don't do the docker test under your afs, it will fail due to the ACL of your afs.
+umbrella \
+--spec /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/cms_simple_long/cms_simple.umbrella \
+--localdir /tmp/umbrella_test_cms_docker/ \
+--output "/tmp/cmsjob=/tmp/umbrella_test_cms_docker/docker_cms_simple" \
+--sandbox_mode docker \
+--log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/cms_simple_long/docker_ccl.log \
+--cvmfs_http_proxy http://cache01.hep.wisc.edu:3128 \
+run
+
+# ec2 execution engine
+umbrella \
+--spec /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/cms_simple_long/cms_simple.umbrella \
+--localdir /tmp/umbrella_test_cms_ec2/ \
+--output "/tmp/cmsjob=/tmp/umbrella_test_cms_ec2/ec2_cms_simple" \
+--sandbox_mode ec2 \
+--ec2_sshkey ~/bin/feb272015.pem \
+--ec2_key feb272015 \
+--ec2_instance_type m3.large \
+--ec2_log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/cms_simple_long/ec2_remote_ccl.log \
+--log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/cms_simple_long/ec2_local_ccl.log \
+--cvmfs_http_proxy http://cache01.hep.wisc.edu:3128 \
+run
+
+# docker execution engine
+umbrella \
+--spec /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/openmalaria_long/openmalaria.umbrella \
+--localdir /tmp/umbrella_test_openmalaria_docker/ \
+--output "/tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_docker/docker_openmalaria/ctsout.txt, /tmp/output.txt=/tmp/umbrella_test_openmalaria_docker/docker_openmalaria/output.txt" \
+--sandbox_mode docker \
+--log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/openmalaria_long/docker_ccl.log \
+run
+
+# ec2 execution engine
+# To test ec2 execution engine, you need to "Setting Up the Amazon EC2 Command Line Interface Tools on Linux/Unix" http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ec2-cli-linux.html
+umbrella \
+--spec /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/openmalaria_long/openmalaria.umbrella \
+--localdir /tmp/umbrella_test_openmalaria_ec2/ \
+--output "/tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt, /tmp/output.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt" \
+--sandbox_mode ec2 \
+--ec2_sshkey ~/bin/feb272015.pem \
+--ec2_key feb272015 \
+--ec2_instance_type m3.large \
+--ec2_log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/openmalaria_long/ec2_remote_ccl.log \
+--log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/openmalaria_long/ec2_local_ccl.log \
+run
+
+# parrot execution engine
+umbrella \
+--spec /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/povray_long/povray.umbrella \
+--localdir /tmp/umbrella_test_povray_parrot/ \
+--output "/tmp/frame000.png=/tmp/umbrella_test_povray_parrot/parrot_povray/output.png" \
+--sandbox_mode parrot \
+--log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/povray_long/parrot_ccl.log \
+run
+
+# docker execution engine
+umbrella \
+--spec /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/povray_long/povray.umbrella \
+--localdir /tmp/umbrella_test_povray_docker/ \
+--output "/tmp/frame000.png=/tmp/umbrella_test_povray_docker/docker_povray/output.png" \
+--sandbox_mode docker \
+--log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/povray_long/docker_ccl.log \
+run
+
+# ec2 execution engine
+umbrella \
+--spec /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/povray_long/povray.umbrella \
+--localdir /tmp/umbrella_test_povray_ec2/ \
+--output "/tmp/frame000.png=/tmp/umbrella_test_povray_ec2/ec2_povray/output.png" \
+--sandbox_mode ec2 \
+--ec2_sshkey ~/bin/feb272015.pem \
+--ec2_key feb272015 \
+--ec2_instance_type m3.large \
+--ec2_log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/povray_long/ec2_remote_ccl.log \
+--log /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/povray_long/ec2_local_ccl.log \
+run

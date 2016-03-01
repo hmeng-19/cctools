@@ -1,0 +1,468 @@
+2016-03-01 19:57:31.26 DEBUG umbrella - main: *******Welcome to Umbrella*******
+2016-03-01 19:57:31.27 DEBUG umbrella - main: Arguments: 
+2016-03-01 19:57:31.27 DEBUG umbrella - main: ['/afs/crc.nd.edu/user/h/hmeng/cctools/bin/umbrella', '--spec', '/afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/povray_long/povray.umbrella', '--localdir', '/tmp/umbrella_test_povray_parrot/', '--output', '/tmp/frame000.png=/tmp/umbrella_test_povray_parrot/parrot_povray/output.png', '--sandbox_mode', 'parrot', '--log', '/afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/povray_long/parrot_ccl.log', 'run']
+2016-03-01 19:57:31.27 DEBUG umbrella - main: Start time: 2016-03-01 19:57:31.027146
+2016-03-01 19:57:31.27 DEBUG umbrella - main: Check the validity of the command ....
+2016-03-01 19:57:31.27 DEBUG umbrella - main: Check the validity of the behavior: run
+2016-03-01 19:57:31.27 DEBUG umbrella - main: Check the localdir option: /tmp/umbrella_test_povray_parrot
+2016-03-01 19:57:31.27 DEBUG umbrella - main: create the localdir: /tmp/umbrella_test_povray_parrot
+2016-03-01 19:57:31.27 DEBUG umbrella - main: Create the sandbox_dir: /tmp/umbrella_test_povray_parrot/tmpj_hyiz
+2016-03-01 19:57:31.27 DEBUG umbrella - main: Check the sandbox_mode option: parrot
+2016-03-01 19:57:31.27 DEBUG umbrella - main: The env option is null
+2016-03-01 19:57:31.27 DEBUG umbrella - main: Start to read the specification file: /afs/crc.nd.edu/user/h/hmeng/git-development/cctools/umbrella/example/povray_long/povray.umbrella
+2016-03-01 19:57:31.28 DEBUG umbrella - main: The user's command is: [u'povray +I/tmp/4_cubes.pov +O/tmp/frame000.png +K.0  -H7500 -W7500']
+2016-03-01 19:57:31.28 DEBUG umbrella - main: The specification file has environ section, update env_para_dict ....
+2016-03-01 19:57:31.28 DEBUG umbrella - main: env_para_dict:
+2016-03-01 19:57:31.28 DEBUG umbrella - main: {u'PWD': u'/tmp'}
+2016-03-01 19:57:31.28 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-01 19:57:31.28 DEBUG umbrella - attr_check: {u'name': u'Redhat', u'format': u'tgz', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'version': u'6.5', u'ec2': {u'ami': u'ami-2cf8901c', u'region': u'us-west-2', u'user': u'ec2-user'}, u'size': u'633848940', u'id': u'669ab5ef94af84d273f8f92a86b7907a', u'uncompressed_size': u'1743656960'}
+2016-03-01 19:57:31.29 DEBUG umbrella - dep_build: The source of os is not a local path (http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz)!
+2016-03-01 19:57:31.29 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-01 19:57:31.29 DEBUG umbrella - attr_check: {u'format': u'plain', u'checksum': u'c65266cd2b672854b821ed93028a877a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/c65266cd2b672854b821ed93028a877a/4_cubes.pov', u's3+https://s3.amazonaws.com/umbrellapovray/4_cubes.pov', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febca9ad5a100b15598b7'], u'action': u'none', u'mountpoint': u'/tmp/4_cubes.pov', u'id': u'c65266cd2b672854b821ed93028a877a', u'size': u'1757'}
+2016-03-01 19:57:31.29 DEBUG umbrella - dep_build: The source of 4_cubes.pov is not a local path (http://ccl.cse.nd.edu/research/data/hep-case-study/c65266cd2b672854b821ed93028a877a/4_cubes.pov)!
+2016-03-01 19:57:31.29 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-01 19:57:31.29 DEBUG umbrella - attr_check: {u'format': u'plain', u'checksum': u'2f8afdd09fc3a6177c6f1977bb3bdae7', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc', u's3+https://s3.amazonaws.com/umbrellapovray/WRC_RubiksCube.inc', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febce9ad5a100b7559c3a'], u'action': u'none', u'mountpoint': u'/tmp/WRC_RubiksCube.inc', u'id': u'2f8afdd09fc3a6177c6f1977bb3bdae7', u'size': u'28499'}
+2016-03-01 19:57:31.29 DEBUG umbrella - dep_build: The source of WRC_RubiksCube.inc is not a local path (http://ccl.cse.nd.edu/research/data/hep-case-study/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc)!
+2016-03-01 19:57:31.29 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-01 19:57:31.29 DEBUG umbrella - attr_check: {u'format': u'tgz', u'checksum': u'b02ba86dd3081a703b4b01dc463e0499', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/povray-3.6.1-redhat6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febd3594d900074ae38fa'], u'mountpoint': u'/software/povray-3.6.1-redhat6-x86_64', u'size': u'1471452', u'id': u'b02ba86dd3081a703b4b01dc463e0499', u'uncompressed_size': u'3010560'}
+2016-03-01 19:57:31.29 DEBUG umbrella - dep_build: The source of povray-3.6.1-redhat6-x86_64 is not a local path (http://ccl.cse.nd.edu/research/data/hep-case-study/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz)!
+2016-03-01 19:57:31.29 DEBUG umbrella - main: PWD environment variable is set explicitly: /tmp
+2016-03-01 19:57:31.29 DEBUG umbrella - main: the inputs options is null
+2016-03-01 19:57:31.29 DEBUG umbrella - main: the output option: /tmp/frame000.png=/tmp/umbrella_test_povray_parrot/parrot_povray/output.png
+2016-03-01 19:57:31.30 DEBUG umbrella - main: create the output file: /tmp/umbrella_test_povray_parrot/parrot_povray/output.png
+2016-03-01 19:57:31.30 DEBUG umbrella - attr_check: check the hardware attr of the following item:
+2016-03-01 19:57:31.30 DEBUG umbrella - attr_check: {u'comment': u'A ray-tracing application which creates video frames.', u'kernel': {u'version': u'>=2.6.18', u'name': u'linux'}, u'data': {u'4_cubes.pov': {u'format': u'plain', u'checksum': u'c65266cd2b672854b821ed93028a877a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/c65266cd2b672854b821ed93028a877a/4_cubes.pov', u's3+https://s3.amazonaws.com/umbrellapovray/4_cubes.pov', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febca9ad5a100b15598b7'], u'action': u'none', u'mountpoint': u'/tmp/4_cubes.pov', u'id': u'c65266cd2b672854b821ed93028a877a', u'size': u'1757'}, u'WRC_RubiksCube.inc': {u'format': u'plain', u'checksum': u'2f8afdd09fc3a6177c6f1977bb3bdae7', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc', u's3+https://s3.amazonaws.com/umbrellapovray/WRC_RubiksCube.inc', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febce9ad5a100b7559c3a'], u'action': u'none', u'mountpoint': u'/tmp/WRC_RubiksCube.inc', u'id': u'2f8afdd09fc3a6177c6f1977bb3bdae7', u'size': u'28499'}}, u'cmd': u'povray +I/tmp/4_cubes.pov +O/tmp/frame000.png +K.0  -H7500 -W7500', u'hardware': {u'cores': u'1', u'disk': u'2GB', u'arch': u'x86_64', u'memory': u'1GB'}, u'environ': {u'PWD': u'/tmp'}, u'output': {u'files': [u'/tmp/frame000.png'], u'dirs': []}, u'os': {u'name': u'Redhat', u'format': u'tgz', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'version': u'6.5', u'ec2': {u'ami': u'ami-2cf8901c', u'region': u'us-west-2', u'user': u'ec2-user'}, u'size': u'633848940', u'id': u'669ab5ef94af84d273f8f92a86b7907a', u'uncompressed_size': u'1743656960'}, u'software': {u'povray-3.6.1-redhat6-x86_64': {u'format': u'tgz', u'checksum': u'b02ba86dd3081a703b4b01dc463e0499', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/povray-3.6.1-redhat6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febd3594d900074ae38fa'], u'mountpoint': u'/software/povray-3.6.1-redhat6-x86_64', u'size': u'1471452', u'id': u'b02ba86dd3081a703b4b01dc463e0499', u'uncompressed_size': u'3010560'}}}
+2016-03-01 19:57:31.30 DEBUG umbrella - attr_check: check the arch attr of the following item:
+2016-03-01 19:57:31.30 DEBUG umbrella - attr_check: {u'cores': u'1', u'disk': u'2GB', u'arch': u'x86_64', u'memory': u'1GB'}
+2016-03-01 19:57:31.30 DEBUG umbrella - attr_check: check the os attr of the following item:
+2016-03-01 19:57:31.30 DEBUG umbrella - attr_check: {u'comment': u'A ray-tracing application which creates video frames.', u'kernel': {u'version': u'>=2.6.18', u'name': u'linux'}, u'data': {u'4_cubes.pov': {u'format': u'plain', u'checksum': u'c65266cd2b672854b821ed93028a877a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/c65266cd2b672854b821ed93028a877a/4_cubes.pov', u's3+https://s3.amazonaws.com/umbrellapovray/4_cubes.pov', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febca9ad5a100b15598b7'], u'action': u'none', u'mountpoint': u'/tmp/4_cubes.pov', u'id': u'c65266cd2b672854b821ed93028a877a', u'size': u'1757'}, u'WRC_RubiksCube.inc': {u'format': u'plain', u'checksum': u'2f8afdd09fc3a6177c6f1977bb3bdae7', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc', u's3+https://s3.amazonaws.com/umbrellapovray/WRC_RubiksCube.inc', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febce9ad5a100b7559c3a'], u'action': u'none', u'mountpoint': u'/tmp/WRC_RubiksCube.inc', u'id': u'2f8afdd09fc3a6177c6f1977bb3bdae7', u'size': u'28499'}}, u'cmd': u'povray +I/tmp/4_cubes.pov +O/tmp/frame000.png +K.0  -H7500 -W7500', u'hardware': {u'cores': u'1', u'disk': u'2GB', u'arch': u'x86_64', u'memory': u'1GB'}, u'environ': {u'PWD': u'/tmp'}, u'output': {u'files': [u'/tmp/frame000.png'], u'dirs': []}, u'os': {u'name': u'Redhat', u'format': u'tgz', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'version': u'6.5', u'ec2': {u'ami': u'ami-2cf8901c', u'region': u'us-west-2', u'user': u'ec2-user'}, u'size': u'633848940', u'id': u'669ab5ef94af84d273f8f92a86b7907a', u'uncompressed_size': u'1743656960'}, u'software': {u'povray-3.6.1-redhat6-x86_64': {u'format': u'tgz', u'checksum': u'b02ba86dd3081a703b4b01dc463e0499', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/povray-3.6.1-redhat6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febd3594d900074ae38fa'], u'mountpoint': u'/software/povray-3.6.1-redhat6-x86_64', u'size': u'1471452', u'id': u'b02ba86dd3081a703b4b01dc463e0499', u'uncompressed_size': u'3010560'}}}
+2016-03-01 19:57:31.30 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-01 19:57:31.30 DEBUG umbrella - attr_check: {u'name': u'Redhat', u'format': u'tgz', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'version': u'6.5', u'ec2': {u'ami': u'ami-2cf8901c', u'region': u'us-west-2', u'user': u'ec2-user'}, u'size': u'633848940', u'id': u'669ab5ef94af84d273f8f92a86b7907a', u'uncompressed_size': u'1743656960'}
+2016-03-01 19:57:31.30 DEBUG umbrella - attr_check: check the version attr of the following item:
+2016-03-01 19:57:31.30 DEBUG umbrella - attr_check: {u'name': u'Redhat', u'format': u'tgz', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'version': u'6.5', u'ec2': {u'ami': u'ami-2cf8901c', u'region': u'us-west-2', u'user': u'ec2-user'}, u'size': u'633848940', u'id': u'669ab5ef94af84d273f8f92a86b7907a', u'uncompressed_size': u'1743656960'}
+2016-03-01 19:57:31.31 DEBUG umbrella - abstract_metadata: dump the metadata information from the umbrella spec to /tmp/umbrella_test_povray_parrot/tmpj_hyiz/meta.json
+2016-03-01 19:57:31.31 DEBUG umbrella - validate_spec: Starting validating the spec file ....
+
+2016-03-01 19:57:31.31 DEBUG umbrella - attr_check: check the arch attr of the following item:
+2016-03-01 19:57:31.31 DEBUG umbrella - attr_check: {u'cores': u'1', u'disk': u'2GB', u'arch': u'x86_64', u'memory': u'1GB'}
+2016-03-01 19:57:31.31 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-01 19:57:31.31 DEBUG umbrella - attr_check: {u'version': u'>=2.6.18', u'name': u'linux'}
+2016-03-01 19:57:31.31 DEBUG umbrella - attr_check: check the version attr of the following item:
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: {u'version': u'>=2.6.18', u'name': u'linux'}
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: {u'name': u'Redhat', u'format': u'tgz', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'version': u'6.5', u'ec2': {u'ami': u'ami-2cf8901c', u'region': u'us-west-2', u'user': u'ec2-user'}, u'size': u'633848940', u'id': u'669ab5ef94af84d273f8f92a86b7907a', u'uncompressed_size': u'1743656960'}
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: check the version attr of the following item:
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: {u'name': u'Redhat', u'format': u'tgz', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'version': u'6.5', u'ec2': {u'ami': u'ami-2cf8901c', u'region': u'us-west-2', u'user': u'ec2-user'}, u'size': u'633848940', u'id': u'669ab5ef94af84d273f8f92a86b7907a', u'uncompressed_size': u'1743656960'}
+2016-03-01 19:57:31.32 DEBUG umbrella - validate_spec: Finish validating the spec file ....
+
+2016-03-01 19:57:31.32 DEBUG umbrella - specification_process: Setting the environment parameters (hardware, kernel and os) according to the specification file ....
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: check the arch attr of the following item:
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: {u'cores': u'1', u'disk': u'2GB', u'arch': u'x86_64', u'memory': u'1GB'}
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: {u'version': u'>=2.6.18', u'name': u'linux'}
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: check the version attr of the following item:
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: {u'version': u'>=2.6.18', u'name': u'linux'}
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-01 19:57:31.32 DEBUG umbrella - attr_check: {u'name': u'Redhat', u'format': u'tgz', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'version': u'6.5', u'ec2': {u'ami': u'ami-2cf8901c', u'region': u'us-west-2', u'user': u'ec2-user'}, u'size': u'633848940', u'id': u'669ab5ef94af84d273f8f92a86b7907a', u'uncompressed_size': u'1743656960'}
+2016-03-01 19:57:31.33 DEBUG umbrella - attr_check: check the version attr of the following item:
+2016-03-01 19:57:31.33 DEBUG umbrella - attr_check: {u'name': u'Redhat', u'format': u'tgz', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'version': u'6.5', u'ec2': {u'ami': u'ami-2cf8901c', u'region': u'us-west-2', u'user': u'ec2-user'}, u'size': u'633848940', u'id': u'669ab5ef94af84d273f8f92a86b7907a', u'uncompressed_size': u'1743656960'}
+2016-03-01 19:57:31.36 DEBUG umbrella - env_check: Hardware platform checking ...
+2016-03-01 19:57:31.36 DEBUG umbrella - env_check: CPU cores checking ...
+2016-03-01 19:57:31.36 DEBUG umbrella - env_check: Memory size checking ...
+2016-03-01 19:57:31.36 DEBUG umbrella - func_call: Start to execute command: free -tg|grep Total|sed 's/\s\+/ /g'|cut -d' ' -f2
+2016-03-01 19:57:31.40 DEBUG umbrella - func_call: returncode: 0
+stdout: 94
+
+stderr: None
+2016-03-01 19:57:31.40 DEBUG umbrella - env_check: Disk space checking ...
+2016-03-01 19:57:31.40 DEBUG umbrella - env_check: Kernel checking ...
+2016-03-01 19:57:31.40 DEBUG umbrella - verify_kernel: The kernel version matches!
+2016-03-01 19:57:31.41 DEBUG umbrella - env_check: The hardware information of the local machine:
+2016-03-01 19:57:31.41 DEBUG umbrella - env_check: ('redhat', '6.7', 'Santiago')
+2016-03-01 19:57:31.41 DEBUG umbrella - env_check: The OS distribution information of the local machine: redhat6
+2016-03-01 19:57:31.41 DEBUG umbrella - specification_process: To use parrot sandbox mode, cctools binary is needed
+2016-03-01 19:57:31.41 DEBUG umbrella - dependency_download: Download software from http://ccl.cse.nd.edu/software/files/cctools-5.2.0-x86_64-redhat6.tar.gz into the umbrella local cache (/tmp/umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6)
+2016-03-01 19:57:31.41 DEBUG umbrella - url_download: Start to download http://ccl.cse.nd.edu/software/files/cctools-5.2.0-x86_64-redhat6.tar.gz to /tmp/umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6.tar.gz ....
+2016-03-01 19:57:31.248 DEBUG umbrella - dependency_download: the checksum of http://ccl.cse.nd.edu/software/files/cctools-5.2.0-x86_64-redhat6.tar.gz is not provided!
+2016-03-01 19:57:31.248 DEBUG umbrella - dependency_download: Uncompressing /tmp/umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6.tar.gz into /tmp/umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6 ....
+2016-03-01 19:57:31.946 DEBUG umbrella - specification_process: Add mountpoint (/tmp/umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6:/tmp/umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6) into mount_dict
+2016-03-01 19:57:31.946 DEBUG umbrella - parrotize_user_cmd: The parrotized user_cmd: /tmp/umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6/bin/parrot_run --no-set-foreground /bin/sh -c 'cd /tmp; povray +I/tmp/4_cubes.pov +O/tmp/frame000.png +K.0  -H7500 -W7500'
+2016-03-01 19:57:31.946 DEBUG umbrella - specification_process: A separate OS (/tmp/umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64) is needed!
+2016-03-01 19:57:31.946 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-01 19:57:31.946 DEBUG umbrella - attr_check: {u'uncompressed_size': u'1743656960', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'format': u'tgz', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'size': u'633848940'}
+2016-03-01 19:57:31.946 DEBUG umbrella - dependency_process: http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz is chosen to deliver redhat-6.5-x86_64
+2016-03-01 19:57:31.947 DEBUG umbrella - attr_check: check the checksum attr of the following item:
+2016-03-01 19:57:31.947 DEBUG umbrella - attr_check: {u'uncompressed_size': u'1743656960', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'format': u'tgz', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'size': u'633848940'}
+2016-03-01 19:57:31.947 DEBUG umbrella - attr_check: check the format attr of the following item:
+2016-03-01 19:57:31.947 DEBUG umbrella - attr_check: {u'uncompressed_size': u'1743656960', u'checksum': u'669ab5ef94af84d273f8f92a86b7907a', u'format': u'tgz', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/redhat-6.5-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febc6594d90006fae3975'], u'size': u'633848940'}
+2016-03-01 19:57:31.947 DEBUG umbrella - dependency_download: Download software from http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz into the umbrella local cache (/tmp/umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64)
+2016-03-01 19:57:31.947 DEBUG umbrella - url_download: Start to download http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz to /tmp/umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz ....
+2016-03-01 19:57:38.678 DEBUG umbrella - dependency_download: The checksum of /tmp/umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz is: 669ab5ef94af84d273f8f92a86b7907a
+2016-03-01 19:57:38.678 DEBUG umbrella - dependency_download: Uncompressing /tmp/umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz into /tmp/umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64 ....
+2016-03-01 19:58:03.528 DEBUG umbrella - specification_process: Add mountpoint (/:/tmp/umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64) into mount_dict for /.
+2016-03-01 19:58:03.533 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-01 19:58:03.534 DEBUG umbrella - attr_check: {u'uncompressed_size': u'3010560', u'checksum': u'b02ba86dd3081a703b4b01dc463e0499', u'format': u'tgz', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/povray-3.6.1-redhat6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febd3594d900074ae38fa'], u'size': u'1471452'}
+2016-03-01 19:58:03.534 DEBUG umbrella - dependency_process: http://ccl.cse.nd.edu/research/data/hep-case-study/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz is chosen to deliver povray-3.6.1-redhat6-x86_64
+2016-03-01 19:58:03.534 DEBUG umbrella - attr_check: check the checksum attr of the following item:
+2016-03-01 19:58:03.534 DEBUG umbrella - attr_check: {u'uncompressed_size': u'3010560', u'checksum': u'b02ba86dd3081a703b4b01dc463e0499', u'format': u'tgz', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/povray-3.6.1-redhat6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febd3594d900074ae38fa'], u'size': u'1471452'}
+2016-03-01 19:58:03.534 DEBUG umbrella - attr_check: check the format attr of the following item:
+2016-03-01 19:58:03.534 DEBUG umbrella - attr_check: {u'uncompressed_size': u'3010560', u'checksum': u'b02ba86dd3081a703b4b01dc463e0499', u'format': u'tgz', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellapovray/povray-3.6.1-redhat6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febd3594d900074ae38fa'], u'size': u'1471452'}
+2016-03-01 19:58:03.534 DEBUG umbrella - dependency_download: Download software from http://ccl.cse.nd.edu/research/data/hep-case-study/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz into the umbrella local cache (/tmp/umbrella_test_povray_parrot/cache/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64)
+2016-03-01 19:58:03.534 DEBUG umbrella - url_download: Start to download http://ccl.cse.nd.edu/research/data/hep-case-study/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz to /tmp/umbrella_test_povray_parrot/cache/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz ....
+2016-03-01 19:58:03.587 DEBUG umbrella - dependency_download: The checksum of /tmp/umbrella_test_povray_parrot/cache/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz is: b02ba86dd3081a703b4b01dc463e0499
+2016-03-01 19:58:03.587 DEBUG umbrella - dependency_download: Uncompressing /tmp/umbrella_test_povray_parrot/cache/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz into /tmp/umbrella_test_povray_parrot/cache/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64 ....
+2016-03-01 19:58:03.623 DEBUG umbrella - software_install: Add mountpoint (/software/povray-3.6.1-redhat6-x86_64:/tmp/umbrella_test_povray_parrot/cache/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64) into mount_dict
+2016-03-01 19:58:03.623 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-01 19:58:03.623 DEBUG umbrella - attr_check: {u'checksum': u'c65266cd2b672854b821ed93028a877a', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/c65266cd2b672854b821ed93028a877a/4_cubes.pov', u's3+https://s3.amazonaws.com/umbrellapovray/4_cubes.pov', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febca9ad5a100b15598b7'], u'size': u'1757'}
+2016-03-01 19:58:03.623 DEBUG umbrella - attr_check: check the checksum attr of the following item:
+2016-03-01 19:58:03.623 DEBUG umbrella - attr_check: {u'checksum': u'c65266cd2b672854b821ed93028a877a', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/c65266cd2b672854b821ed93028a877a/4_cubes.pov', u's3+https://s3.amazonaws.com/umbrellapovray/4_cubes.pov', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febca9ad5a100b15598b7'], u'size': u'1757'}
+2016-03-01 19:58:03.623 DEBUG umbrella - attr_check: check the format attr of the following item:
+2016-03-01 19:58:03.623 DEBUG umbrella - attr_check: {u'checksum': u'c65266cd2b672854b821ed93028a877a', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/c65266cd2b672854b821ed93028a877a/4_cubes.pov', u's3+https://s3.amazonaws.com/umbrellapovray/4_cubes.pov', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febca9ad5a100b15598b7'], u'size': u'1757'}
+2016-03-01 19:58:03.624 DEBUG umbrella - dependency_download: Download software from http://ccl.cse.nd.edu/research/data/hep-case-study/c65266cd2b672854b821ed93028a877a/4_cubes.pov into the umbrella local cache (/tmp/umbrella_test_povray_parrot/cache/c65266cd2b672854b821ed93028a877a/4_cubes.pov)
+2016-03-01 19:58:03.624 DEBUG umbrella - url_download: Start to download http://ccl.cse.nd.edu/research/data/hep-case-study/c65266cd2b672854b821ed93028a877a/4_cubes.pov to /tmp/umbrella_test_povray_parrot/cache/c65266cd2b672854b821ed93028a877a/4_cubes.pov ....
+2016-03-01 19:58:03.630 DEBUG umbrella - dependency_download: The checksum of /tmp/umbrella_test_povray_parrot/cache/c65266cd2b672854b821ed93028a877a/4_cubes.pov is: c65266cd2b672854b821ed93028a877a
+2016-03-01 19:58:03.630 DEBUG umbrella - data_install: Add mountpoint (/tmp/4_cubes.pov:/tmp/umbrella_test_povray_parrot/cache/c65266cd2b672854b821ed93028a877a/4_cubes.pov) into mount_dict
+2016-03-01 19:58:03.630 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-01 19:58:03.630 DEBUG umbrella - attr_check: {u'checksum': u'2f8afdd09fc3a6177c6f1977bb3bdae7', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc', u's3+https://s3.amazonaws.com/umbrellapovray/WRC_RubiksCube.inc', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febce9ad5a100b7559c3a'], u'size': u'28499'}
+2016-03-01 19:58:03.630 DEBUG umbrella - attr_check: check the checksum attr of the following item:
+2016-03-01 19:58:03.630 DEBUG umbrella - attr_check: {u'checksum': u'2f8afdd09fc3a6177c6f1977bb3bdae7', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc', u's3+https://s3.amazonaws.com/umbrellapovray/WRC_RubiksCube.inc', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febce9ad5a100b7559c3a'], u'size': u'28499'}
+2016-03-01 19:58:03.630 DEBUG umbrella - attr_check: check the format attr of the following item:
+2016-03-01 19:58:03.630 DEBUG umbrella - attr_check: {u'checksum': u'2f8afdd09fc3a6177c6f1977bb3bdae7', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc', u's3+https://s3.amazonaws.com/umbrellapovray/WRC_RubiksCube.inc', u'osf+https://files.osf.io/v1/resources/c5jyn/providers/osfstorage/569febce9ad5a100b7559c3a'], u'size': u'28499'}
+2016-03-01 19:58:03.631 DEBUG umbrella - dependency_download: Download software from http://ccl.cse.nd.edu/research/data/hep-case-study/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc into the umbrella local cache (/tmp/umbrella_test_povray_parrot/cache/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc)
+2016-03-01 19:58:03.631 DEBUG umbrella - url_download: Start to download http://ccl.cse.nd.edu/research/data/hep-case-study/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc to /tmp/umbrella_test_povray_parrot/cache/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc ....
+2016-03-01 19:58:03.639 DEBUG umbrella - dependency_download: The checksum of /tmp/umbrella_test_povray_parrot/cache/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc is: 2f8afdd09fc3a6177c6f1977bb3bdae7
+2016-03-01 19:58:03.639 DEBUG umbrella - data_install: Add mountpoint (/tmp/WRC_RubiksCube.inc:/tmp/umbrella_test_povray_parrot/cache/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc) into mount_dict
+2016-03-01 19:58:03.639 DEBUG umbrella - workflow_repeat: chdir(/tmp/umbrella_test_povray_parrot/tmpj_hyiz)
+2016-03-01 19:58:03.639 DEBUG umbrella - workflow_repeat: execution engine: parrot
+2016-03-01 19:58:03.639 DEBUG umbrella - workflow_repeat: need_separate_rootfs: 1
+2016-03-01 19:58:03.639 DEBUG umbrella - workflow_repeat: Construct environment variables ....
+2016-03-01 19:58:03.640 DEBUG umbrella - workflow_repeat: Construct mounfile ....
+2016-03-01 19:58:03.640 DEBUG umbrella - construct_mountfile_full: Adding items from mount_dict into /tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist
+2016-03-01 19:58:03.640 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: /tmp
+2016-03-01 19:58:03.640 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: /software
+2016-03-01 19:58:03.640 DEBUG umbrella - create_fake_mount: The mountpoint (/software) does not exist, create a fake mountpoint (/tmp/umbrella_test_povray_parrot/tmpj_hyiz/fake_mount/software) for it!
+2016-03-01 19:58:03.640 DEBUG umbrella - construct_mountfile_full: Adding fake mount items (/software /tmp/umbrella_test_povray_parrot/tmpj_hyiz/fake_mount/software
+) into /tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist
+2016-03-01 19:58:03.640 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: /tmp
+2016-03-01 19:58:03.640 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: /tmp
+2016-03-01 19:58:03.640 DEBUG umbrella - construct_mountfile_full: Adding items from /tmp/umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64/common-mountlist into /tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist
+2016-03-01 19:58:03.641 DEBUG umbrella - construct_mountfile_full: Add sandbox_dir(/tmp/umbrella_test_povray_parrot/tmpj_hyiz) into /tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist
+2016-03-01 19:58:03.641 DEBUG umbrella - construct_mountfile_full: Add /etc/hosts and /etc/resolv.conf into /tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist
+2016-03-01 19:58:03.641 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: /etc
+2016-03-01 19:58:03.641 DEBUG umbrella - create_fake_mount: The mountpoint (/etc) already exists, do nothing!
+2016-03-01 19:58:03.641 DEBUG umbrella - in_local_passwd: hmeng is included in /etc/passwd!
+2016-03-01 19:58:03.641 DEBUG umbrella - construct_mountfile_full: Add /etc/passwd into /tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist
+2016-03-01 19:58:03.641 DEBUG umbrella - in_local_group: campus is included in /etc/group!
+2016-03-01 19:58:03.641 DEBUG umbrella - construct_mountfile_full: Add /etc/group into /tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist
+2016-03-01 19:58:03.641 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: /var
+2016-03-01 19:58:03.641 DEBUG umbrella - create_fake_mount: The mountpoint (/var) already exists, do nothing!
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: /var/run
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: The mountpoint (/var/run) already exists, do nothing!
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: /var/run/nscd
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: The mountpoint (/var/run/nscd) does not exist, create a fake mountpoint (/tmp/umbrella_test_povray_parrot/tmpj_hyiz/fake_mount/var/run/nscd) for it!
+2016-03-01 19:58:03.642 DEBUG umbrella - construct_mountfile_full: Adding fake mount items (/var/run/nscd /tmp/umbrella_test_povray_parrot/tmpj_hyiz/fake_mount/var/run/nscd
+) into /tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist
+2016-03-01 19:58:03.642 DEBUG umbrella - construct_mountfile_full: Add /tmp/umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64/special_files into /tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.642 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.643 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.644 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.645 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.646 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.647 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.648 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.649 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.650 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.651 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.652 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.653 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.654 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.655 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.656 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.657 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.658 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.659 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //dev
+2016-03-01 19:58:03.660 DEBUG umbrella - create_fake_mount: The mountpoint (//dev) already exists, do nothing!
+2016-03-01 19:58:03.661 DEBUG umbrella - create_fake_mount: Judge whether the following mountpoint exists: //selinux
+2016-03-01 19:58:03.661 DEBUG umbrella - create_fake_mount: The mountpoint (//selinux) already exists, do nothing!
+2016-03-01 19:58:03.661 DEBUG umbrella - construct_mountfile_full: Add items from input_dict into /tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist
+2016-03-01 19:58:03.661 DEBUG umbrella - construct_mountfile_full: cvmfs_cms_siteconf_mountpoint is null
+2016-03-01 19:58:03.661 DEBUG umbrella - workflow_repeat: Construct dynamic linker path ....
+2016-03-01 19:58:03.661 DEBUG umbrella - workflow_repeat: Add software binary into PATH
+2016-03-01 19:58:03.661 DEBUG umbrella - func_call_withenv: Start to execute command: /tmp/umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6/bin/parrot_run --no-set-foreground /bin/sh -c 'cd /tmp; povray +I/tmp/4_cubes.pov +O/tmp/frame000.png +K.0  -H7500 -W7500'
+2016-03-01 19:58:03.661 DEBUG umbrella - func_call_withenv: The environment variables for executing the command is:
+2016-03-01 19:58:03.661 DEBUG umbrella - func_call_withenv: {'LESSOPEN': '|/usr/bin/lesspipe.sh %s', 'SSH_CLIENT': '129.74.154.36 46540 22', 'SELINUX_USE_CURRENT_RANGE': '', 'LOGNAME': 'ec2-user', 'USER': 'hmeng', 'QTDIR': '/usr/lib64/qt-3.3', 'PATH': u'/software/povray-3.6.1-redhat6-x86_64/bin:/tmp/umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6/bin:/tmp/umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/ec2-user/bin', 'LANG': 'en_US.UTF-8', 'QTLIB': '/usr/lib64/qt-3.3/lib', 'TERM': 'xterm-color', 'SHELL': '/bin/bash', 'QTINC': '/usr/lib64/qt-3.3/include', 'G_BROKEN_FILENAMES': '1', 'HISTSIZE': '1000', 'PARROT_MOUNT_FILE': '/tmp/umbrella_test_povray_parrot/tmpj_hyiz/.__mountlist', 'HOME': '/home/ec2-user', 'SELINUX_ROLE_REQUESTED': '', 'PARROT_LDSO_PATH': u'/tmp/umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64/lib64/ld-linux-x86-64.so.2', '_': '/bin/env', 'SSH_CONNECTION': '129.74.154.36 46540 172.31.9.6 22', 'SSH_TTY': '/dev/pts/1', 'OLDPWD': '/home/ec2-user', 'HOSTNAME': 'ip-172-31-9-6', 'SELINUX_LEVEL_REQUESTED': '', 'HISTCONTROL': 'ignoredups', 'SHLVL': '1', 'PWD': u'/tmp', 'CVS_RSH': 'ssh', 'MAIL': '/var/spool/mail/ec2-user', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=01;05;37;41:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lz=01;31:*.xz=01;31:*.bz2=01;31:*.tbz=01;31:*.tbz2=01;31:*.bz=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=01;36:*.au=01;36:*.flac=01;36:*.mid=01;36:*.midi=01;36:*.mka=01;36:*.mp3=01;36:*.mpc=01;36:*.ogg=01;36:*.ra=01;36:*.wav=01;36:*.axa=01;36:*.oga=01;36:*.spx=01;36:*.xspf=01;36:'}
+2016-03-01 21:03:01.686 DEBUG umbrella - func_call_withenv: returncode: 0
+stdout: 
+stderr: None
+2016-03-01 21:03:01.686 DEBUG umbrella - cleanup: cleanup temporary dir: /tmp/umbrella_test_povray_parrot/tmpj_hyiz
+2016-03-01 21:03:01.687 DEBUG umbrella - main: End time: 2016-03-01 21:03:01.686994
+2016-03-01 21:03:01.687 DEBUG umbrella - main: execution time: 3930 seconds

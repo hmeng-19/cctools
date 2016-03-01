@@ -1,0 +1,146 @@
+365    umbrella_test_cms_docker/cache/2d691a8ab42903d28525d74ab72f5f9f/cms_simple.sh
+
+1.8G    umbrella_test_cms_docker/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64
+605M    umbrella_test_cms_docker/cache/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz
+
+28K     umbrella_test_cms_docker/cache/cms_siteconf/SITECONF
+935    umbrella_test_cms_docker/cache/cms_siteconf/SITECONF.tar.gz.tar.gz
+
+28K     umbrella_test_openmalaria_docker/cache/17537ae1d72910cab24a307445e71434/scenario.xml
+
+957    umbrella_test_openmalaria_docker/cache/4cd77946d1b5176987036e8fb382ce2d/epel.repo
+
+40K     umbrella_test_openmalaria_docker/cache/54ea34d38d96c311122642aec045bc40/densities.csv
+
+218M    umbrella_test_openmalaria_docker/cache/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64
+69M     umbrella_test_openmalaria_docker/cache/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz
+
+13M     umbrella_test_openmalaria_docker/cache/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64
+2.9M    umbrella_test_openmalaria_docker/cache/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz
+
+196K    umbrella_test_openmalaria_docker/cache/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd
+
+427M    umbrella_test_openmalaria_docker/cache/e755dc6fdd074aa5c02809859771513a/centos-6.6-x86_64
+391M    umbrella_test_openmalaria_docker/cache/e755dc6fdd074aa5c02809859771513a/centos-6.6-x86_64.tar
+
+
+28K     umbrella_test_povray_docker/cache/2f8afdd09fc3a6177c6f1977bb3bdae7/WRC_RubiksCube.inc
+
+2.9M    umbrella_test_povray_docker/cache/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64
+1.5M    umbrella_test_povray_docker/cache/b02ba86dd3081a703b4b01dc463e0499/povray-3.6.1-redhat6-x86_64.tar.gz
+
+1.8K    umbrella_test_povray_docker/cache/c65266cd2b672854b821ed93028a877a/4_cubes.pov
+
+
+
+2.4G    umbrella_test_cms_docker
+2.4G    umbrella_test_cms_parrot
+16K     umbrella_test_cms_ec2
+
+8.0K    umbrella_test_cms_docker/cache/2d691a8ab42903d28525d74ab72f5f9f
+2.4G    umbrella_test_cms_docker/cache/669ab5ef94af84d273f8f92a86b7907a
+71M     umbrella_test_cms_docker/cache/cctools-5.2.0-x86_64-redhat6
+23M     umbrella_test_cms_docker/cache/cctools-5.2.0-x86_64-redhat6.tar.gz
+36K     umbrella_test_cms_docker/cache/cms_siteconf
+
+8.0K    umbrella_test_cms_parrot/cache/2d691a8ab42903d28525d74ab72f5f9f
+2.4G    umbrella_test_cms_parrot/cache/669ab5ef94af84d273f8f92a86b7907a
+71M     umbrella_test_cms_parrot/cache/cctools-5.2.0-x86_64-redhat6
+23M     umbrella_test_cms_parrot/cache/cctools-5.2.0-x86_64-redhat6.tar.gz
+36K     umbrella_test_cms_parrot/cache/cms_siteconf
+
+1.1G    umbrella_test_openmalaria_docker
+
+32K     umbrella_test_openmalaria_docker/cache/17537ae1d72910cab24a307445e71434
+8.0K    umbrella_test_openmalaria_docker/cache/4cd77946d1b5176987036e8fb382ce2d
+44K     umbrella_test_openmalaria_docker/cache/54ea34d38d96c311122642aec045bc40
+287M    umbrella_test_openmalaria_docker/cache/902703f016e0f930a870eaf9cb31640b
+16M     umbrella_test_openmalaria_docker/cache/97cff84e58a4172fd8e9d1cb25c6047c
+200K    umbrella_test_openmalaria_docker/cache/bef8a475dbd3765b61995f36b11b0672
+817M    umbrella_test_openmalaria_docker/cache/e755dc6fdd074aa5c02809859771513a
+
+
+4.0K    umbrella_test_openmalaria_ec2
+
+
+2.4G    umbrella_test_povray_docker
+2.5G    umbrella_test_povray_parrot
+16K     umbrella_test_povray_ec2
+
+32K     umbrella_test_povray_docker/cache/2f8afdd09fc3a6177c6f1977bb3bdae7
+2.4G    umbrella_test_povray_docker/cache/669ab5ef94af84d273f8f92a86b7907a
+4.3M    umbrella_test_povray_docker/cache/b02ba86dd3081a703b4b01dc463e0499
+8.0K    umbrella_test_povray_docker/cache/c65266cd2b672854b821ed93028a877a
+
+32K     umbrella_test_povray_parrot/cache/2f8afdd09fc3a6177c6f1977bb3bdae7
+2.4G    umbrella_test_povray_parrot/cache/669ab5ef94af84d273f8f92a86b7907a
+4.3M    umbrella_test_povray_parrot/cache/b02ba86dd3081a703b4b01dc463e0499
+8.0K    umbrella_test_povray_parrot/cache/c65266cd2b672854b821ed93028a877a
+71M     umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6
+23M     umbrella_test_povray_parrot/cache/cctools-5.2.0-x86_64-redhat6.tar.gz
+
+hmeng@daspos1 ~/git-development/cctools/umbrella/example/cms_simple_long/output$ find . -name CMS_GEN_SIM.root | xargs md5sum
+e4b75ae98e302ab88721d8ca461ca907  ./docker_ccl/1/docker_cms_simple/CMS_GEN_SIM.root
+b78c49d484183d77452c2b36a610cebe  ./parrot_ccl/3/parrot_cms_simple/CMS_GEN_SIM.root
+3ff2e46bb04b7288908a240131e8ee70  ./parrot_ccl/1/parrot_cms_simple/CMS_GEN_SIM.root
+5a107215fc893ab48d4a5d4f7efdcb70  ./parrot_ccl/2/parrot_cms_simple/CMS_GEN_SIM.root
+hmeng@daspos1 ~/git-development/cctools/umbrella/example/cms_simple_long/output$ find . -name TTbar_Tauola_7TeV_cfi_GEN_SIM.py | xargs md5sum
+0e9e695ddcca759c5888d9c534294865  ./docker_ccl/1/docker_cms_simple/TTbar_Tauola_7TeV_cfi_GEN_SIM.py
+0e9e695ddcca759c5888d9c534294865  ./parrot_ccl/3/parrot_cms_simple/TTbar_Tauola_7TeV_cfi_GEN_SIM.py
+0e9e695ddcca759c5888d9c534294865  ./parrot_ccl/1/parrot_cms_simple/TTbar_Tauola_7TeV_cfi_GEN_SIM.py
+0e9e695ddcca759c5888d9c534294865  ./parrot_ccl/2/parrot_cms_simple/TTbar_Tauola_7TeV_cfi_GEN_SIM.py
+
+hmeng@daspos1 ~/git-development/cctools/umbrella/example/cms_simple_long/output$ du -hs */*/*cms_simple/*
+96M     docker_ccl/1/docker_cms_simple/CMS_GEN_SIM.root
+511K    docker_ccl/1/docker_cms_simple/CMSSW_5_3_11
+6.0K    docker_ccl/1/docker_cms_simple/TTbar_Tauola_7TeV_cfi_GEN_SIM.py
+96M     parrot_ccl/1/parrot_cms_simple/CMS_GEN_SIM.root
+511K    parrot_ccl/1/parrot_cms_simple/CMSSW_5_3_11
+6.0K    parrot_ccl/1/parrot_cms_simple/TTbar_Tauola_7TeV_cfi_GEN_SIM.py
+96M     parrot_ccl/2/parrot_cms_simple/CMS_GEN_SIM.root
+511K    parrot_ccl/2/parrot_cms_simple/CMSSW_5_3_11
+6.0K    parrot_ccl/2/parrot_cms_simple/TTbar_Tauola_7TeV_cfi_GEN_SIM.py
+96M     parrot_ccl/3/parrot_cms_simple/CMS_GEN_SIM.root
+511K    parrot_ccl/3/parrot_cms_simple/CMSSW_5_3_11
+6.0K    parrot_ccl/3/parrot_cms_simple/TTbar_Tauola_7TeV_cfi_GEN_SIM.py
+
+hmeng@daspos1 ~/git-development/cctools/umbrella/example/openmalaria_long/output$ find . -name *txt | xargs md5sum | sort
+2ffd683e6ccb1eb31ed07b645a70c7a2  ./docker_ccl/1/docker_openmalaria/output.txt
+2ffd683e6ccb1eb31ed07b645a70c7a2  ./docker_ccl/2/docker_openmalaria/output.txt
+2ffd683e6ccb1eb31ed07b645a70c7a2  ./ec2_ccl/1/ec2_openmalaria/output.txt
+ce3df60799ff0ed941267434360143c8  ./docker_ccl/1/docker_openmalaria/ctsout.txt
+ce3df60799ff0ed941267434360143c8  ./docker_ccl/2/docker_openmalaria/ctsout.txt
+ce3df60799ff0ed941267434360143c8  ./ec2_ccl/1/ec2_openmalaria/ctsout.txt
+hmeng@daspos1 ~/git-development/cctools/umbrella/example/openmalaria_long/output$ find . -name *txt | xargs ls -alh
+-rw-r--r-- 1 hmeng campus 39K Mar  1 16:19 ./docker_ccl/1/docker_openmalaria/ctsout.txt
+-rw-r--r-- 1 hmeng campus 51K Mar  1 16:19 ./docker_ccl/1/docker_openmalaria/output.txt
+-rw-r--r-- 1 hmeng campus 39K Mar  1 20:53 ./docker_ccl/2/docker_openmalaria/ctsout.txt
+-rw-r--r-- 1 hmeng campus 51K Mar  1 20:53 ./docker_ccl/2/docker_openmalaria/output.txt
+-rw-r--r-- 1 hmeng campus 39K Mar  1 21:51 ./ec2_ccl/1/ec2_openmalaria/ctsout.txt
+-rw-r--r-- 1 hmeng campus 51K Mar  1 21:51 ./ec2_ccl/1/ec2_openmalaria/output.txt
+
+hmeng@daspos1 ~/git-development/cctools/umbrella/example/povray_long$ find . -name output.png|xargs md5sum
+690f3b8878d38c3497a98003c230e94b  ./output/parrot_ccl/1/parrot_povray/output.png
+690f3b8878d38c3497a98003c230e94b  ./output/docker_ccl/1/docker_povray/output.png
+690f3b8878d38c3497a98003c230e94b  ./output/ec2_ccl/1/ec2_povray/output.png
+hmeng@daspos1 ~/git-development/cctools/umbrella/example/povray_long$ ll -h ./output/docker_ccl/1/docker_povray/output.png
+-rw-r--r-- 1 hmeng campus 16M Mar  1 21:03 ./output/docker_ccl/1/docker_povray/output.png
+
+
+hmeng@daspos1 /tmp$ du -hs parrot.198023/
+1.3G    parrot.198023/
+
+hmeng@daspos1 /tmp/parrot.198023$ ls
+00/  09/  12/  1b/  24/  2d/  36/  3f/  48/  51/  5a/  63/  6c/  75/  7e/  87/  90/  99/  a2/  ab/  b4/  bd/  c6/  cf/     d7/  e0/  e9/  f2/  fb/
+01/  0a/  13/  1c/  25/  2e/  37/  40/  49/  52/  5b/  64/  6d/  76/  7f/  88/  91/  9a/  a3/  ac/  b5/  be/  c7/  cvmfs/  d8/  e1/  ea/  f3/  fc/
+02/  0b/  14/  1d/  26/  2f/  38/  41/  4a/  53/  5c/  65/  6e/  77/  80/  89/  92/  9b/  a4/  ad/  b6/  bf/  c8/  d0/     d9/  e2/  eb/  f4/  fd/
+03/  0c/  15/  1e/  27/  30/  39/  42/  4b/  54/  5d/  66/  6f/  78/  81/  8a/  93/  9c/  a5/  ae/  b7/  c0/  c9/  d1/     da/  e3/  ec/  f5/  fe/
+04/  0d/  16/  1f/  28/  31/  3a/  43/  4c/  55/  5e/  67/  70/  79/  82/  8b/  94/  9d/  a6/  af/  b8/  c1/  ca/  d2/     db/  e4/  ed/  f6/  ff/
+05/  0e/  17/  20/  29/  32/  3b/  44/  4d/  56/  5f/  68/  71/  7a/  83/  8c/  95/  9e/  a7/  b0/  b9/  c2/  cb/  d3/     dc/  e5/  ee/  f7/  txn/
+06/  0f/  18/  21/  2a/  33/  3c/  45/  4e/  57/  60/  69/  72/  7b/  84/  8d/  96/  9f/  a8/  b1/  ba/  c3/  cc/  d4/     dd/  e6/  ef/  f8/
+07/  10/  19/  22/  2b/  34/  3d/  46/  4f/  58/  61/  6a/  73/  7c/  85/  8e/  97/  a0/  a9/  b2/  bb/  c4/  cd/  d5/     de/  e7/  f0/  f9/
+08/  11/  1a/  23/  2c/  35/  3e/  47/  50/  59/  62/  6b/  74/  7d/  86/  8f/  98/  a1/  aa/  b3/  bc/  c5/  ce/  d6/     df/  e8/  f1/  fa/
+
+hmeng@daspos1 /tmp/parrot.198023$ du -hs cvmfs/
+1.3G    cvmfs/
+

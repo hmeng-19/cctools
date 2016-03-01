@@ -1,0 +1,32 @@
+The document illustrates how to use different execution engines of Umbrella to execute a ray-tracing application.
+
+# parrot execution engine
+umbrella \
+--spec povray.umbrella \
+--localdir /tmp/umbrella_test/ \
+--output "/tmp/frame000.png=/tmp/umbrella_test/parrot_povray/output.png" \
+--sandbox_mode parrot \
+--log umbrella.log \
+run
+
+# docker execution engine
+umbrella \
+--spec povray.umbrella \
+--localdir /tmp/umbrella_test/ \
+--output "/tmp/frame000.png=/tmp/umbrella_test/docker_povray/output.png" \
+--sandbox_mode docker \
+--log umbrella.log \
+run
+
+# ec2 execution engine
+umbrella \
+--spec povray.umbrella \
+--localdir /tmp/umbrella_test/ \
+--output "/tmp/frame000.png=/tmp/umbrella_test/ec2_povray/output.png" \
+--sandbox_mode ec2 \
+--ec2_log umbrella.log.ec2 \
+--ec2_sshkey ~/bin/feb272015.pem \
+--ec2_key feb272015 \
+--ec2_instance_type m3.medium \
+--log umbrella.log \
+run

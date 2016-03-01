@@ -1,0 +1,24 @@
+The document illustrates how to use different execution engines of Umbrella to execute an OpenMalaria application.
+
+# docker execution engine
+umbrella \
+--spec openmalaria.umbrella \
+--localdir /tmp/umbrella_test/ \
+--output "/tmp/ctsout.txt=/tmp/umbrella_test/docker_openmalaria/ctsout.txt, /tmp/output.txt=/tmp/umbrella_test/docker_openmalaria/output.txt" \
+--sandbox_mode docker \
+--log umbrella.log \
+run
+
+# ec2 execution engine
+# To test ec2 execution engine, you need to "Setting Up the Amazon EC2 Command Line Interface Tools on Linux/Unix" http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ec2-cli-linux.html
+umbrella \
+--spec openmalaria.umbrella \
+--localdir /tmp/umbrella_test/ \
+--output "/tmp/ctsout.txt=/tmp/umbrella_test/ec2_openmalaria/ctsout.txt, /tmp/output.txt=/tmp/umbrella_test/ec2_openmalaria/output.txt" \
+--sandbox_mode ec2 \
+--ec2_sshkey ~/bin/feb272015.pem \
+--ec2_key feb272015 \
+--ec2_instance_type m3.medium \
+--ec2_log umbrella.log.ec2 \
+--log umbrella.log \
+run

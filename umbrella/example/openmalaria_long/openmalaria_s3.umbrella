@@ -1,0 +1,98 @@
+{
+    "comment": "OpenMalaria application", 
+    "kernel": {
+        "version": ">=2.6.18", 
+        "name": "linux"
+    }, 
+    "package_manager": {
+        "list": "python cmake xerces-c-devel gsl-devel xsd boost-devel zlib zlib-devel", 
+        "config": {
+            "epel.repo": {
+                "format": "plain", 
+                "checksum": "4cd77946d1b5176987036e8fb382ce2d", 
+                "source": [
+                    "s3+https://s3.amazonaws.com/umbrellaopenmalaria/epel.repo"
+                ], 
+                "mountpoint": "/etc/yum.repo.d/epel.repo", 
+                "id": "4cd77946d1b5176987036e8fb382ce2d", 
+                "size": "957"
+            }
+        }, 
+        "name": "yum"
+    }, 
+    "os": {
+        "name": "CentOS", 
+        "format": "tgz", 
+        "checksum": "902703f016e0f930a870eaf9cb31640b", 
+        "source": [
+            "s3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz"
+        ], 
+        "version": "6.6", 
+        "uncompressed_size": "212684800", 
+        "id": "902703f016e0f930a870eaf9cb31640b", 
+        "size": "72213624"
+    }, 
+    "cmd": "/software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml", 
+    "hardware": {
+        "cores": "1", 
+        "disk": "3GB", 
+        "arch": "x86_64", 
+        "memory": "2GB"
+    }, 
+    "note": "this a self-contained umbrella spec.", 
+    "environ": {
+        "PWD": "/tmp"
+    }, 
+    "output": {
+        "files": [
+            "/tmp/ctsout.txt", 
+            "/tmp/output.txt"
+        ], 
+        "dirs": []
+    }, 
+    "data": {
+        "scenario.xml": {
+            "format": "plain", 
+            "checksum": "17537ae1d72910cab24a307445e71434", 
+            "source": [
+                "s3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario.xml"
+            ], 
+            "mountpoint": "/tmp/scenario.xml", 
+            "id": "17537ae1d72910cab24a307445e71434", 
+            "size": "27941"
+        }, 
+        "scenario_32.xsd": {
+            "format": "plain", 
+            "checksum": "bef8a475dbd3765b61995f36b11b0672", 
+            "source": [
+                "s3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario_32.xsd"
+            ], 
+            "mountpoint": "/tmp/scenario_32.xsd", 
+            "id": "bef8a475dbd3765b61995f36b11b0672", 
+            "size": "200376"
+        }, 
+        "densities.csv": {
+            "format": "plain", 
+            "checksum": "54ea34d38d96c311122642aec045bc40", 
+            "source": [
+                "s3+https://s3.amazonaws.com/umbrellaopenmalaria/densities.csv"
+            ], 
+            "mountpoint": "/tmp/densities.csv", 
+            "id": "54ea34d38d96c311122642aec045bc40", 
+            "size": "38132"
+        }
+    }, 
+    "software": {
+        "openMalaria-32-centos6-x86_64": {
+            "format": "tgz", 
+            "checksum": "97cff84e58a4172fd8e9d1cb25c6047c", 
+            "source": [
+                "s3+https://s3.amazonaws.com/umbrellaopenmalaria/openMalaria-32-centos6-x86_64.tar.gz"
+            ], 
+            "mountpoint": "/software/openMalaria-32-centos6-x86_64", 
+            "uncompressed_size": "12881920", 
+            "id": "97cff84e58a4172fd8e9d1cb25c6047c", 
+            "size": "2968452"
+        }
+    }
+}

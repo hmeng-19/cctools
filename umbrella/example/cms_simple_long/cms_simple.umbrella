@@ -1,0 +1,68 @@
+{
+    "comment": "a simple CMS application whose software and data dependencies are all from CVMFS.", 
+    "kernel": {
+        "version": ">=2.6.32", 
+        "name": "linux"
+    }, 
+    "data": {
+        "cms_simple.sh": {
+            "format": "plain", 
+            "checksum": "2d691a8ab42903d28525d74ab72f5f9f", 
+            "source": [
+                "https://curate.nd.edu/downloads/8910js9785t"
+            ], 
+            "action": "none", 
+            "mountpoint": "/tmp/cms_simple.sh", 
+            "id": "2d691a8ab42903d28525d74ab72f5f9f", 
+            "size": "365"
+        }
+    }, 
+    "cmd": "/bin/sh /tmp/cms_simple.sh", 
+    "hardware": {
+        "cores": "1", 
+        "disk": "3GB", 
+        "arch": "x86_64", 
+        "memory": "1GB"
+    }, 
+    "environ": {
+        "PWD": "/tmp", 
+        "CMS_VERSION": "CMSSW_5_3_11", 
+        "SCRAM_ARCH": "slc5_amd64_gcc462"
+    }, 
+    "output": {
+        "files": [], 
+        "dirs": [
+            "/tmp/cmsjob"
+        ]
+    }, 
+    "output-verification": {
+        "cms_result.tar.gz": "https://curate.nd.edu/downloads/9k41zc79w84"
+    },
+    "os": {
+        "ec2": {
+            "ami": "ami-2cf8901c",
+            "region": "us-west-2",
+            "user": "ec2-user"
+        },
+        "name": "Redhat", 
+        "format": "tgz", 
+        "checksum": "669ab5ef94af84d273f8f92a86b7907a", 
+        "source": [
+            "https://curate.nd.edu/downloads/9g54xg96m7q"
+        ], 
+        "version": "6.5", 
+        "size": "633848940", 
+        "id": "669ab5ef94af84d273f8f92a86b7907a", 
+        "uncompressed_size": "1743656960"
+    }, 
+    "software": {
+        "cmssw-5.3.11-slc5-amd64": {
+            "mountpoint": "/cvmfs/cms.cern.ch", 
+            "mount_env": "CMS_DIR", 
+            "id": "cvmfs://cvmfs/cms.cern.ch", 
+            "source": [
+                "cvmfs://cvmfs/cms.cern.ch"
+            ]
+        }
+    }
+}

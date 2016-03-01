@@ -1,0 +1,113 @@
+{
+    "comment": "OpenMalaria application",
+    "hardware": {
+        "cores": "1",
+        "disk": "3GB",
+        "arch": "x86_64",
+        "memory": "2GB"
+    },
+    "package_manager": {
+        "config": {
+            "epel.repo": {
+                "format": "plain",
+                "checksum": "4cd77946d1b5176987036e8fb382ce2d",
+                "source": [
+                    "http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo",
+                    "s3+https://s3.amazonaws.com/umbrellaopenmalaria/epel.repo",
+                    "osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603186c613b017e87c750"
+                ],
+                "mountpoint": "/etc/yum.repo.d/epel.repo",
+                "id": "4cd77946d1b5176987036e8fb382ce2d",
+                "size": "957"
+            }
+        },
+        "list": "python cmake xerces-c-devel gsl-devel xsd boost-devel zlib zlib-devel",
+        "name": "yum"
+    },
+    "kernel": {
+        "version": ">=2.6.18",
+        "name": "linux"
+    },
+    "data": {
+        "scenario.xml": {
+            "format": "plain",
+            "checksum": "17537ae1d72910cab24a307445e71434",
+            "source": [
+                "http://ccl.cse.nd.edu/research/data/hep-case-study/17537ae1d72910cab24a307445e71434/scenario.xml",
+                "s3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario.xml",
+                "osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603076c613b017c87c74b"
+            ],
+            "mountpoint": "/tmp/scenario.xml",
+            "id": "17537ae1d72910cab24a307445e71434",
+            "size": "27941"
+        },
+        "scenario_32.xsd": {
+            "format": "plain",
+            "checksum": "bef8a475dbd3765b61995f36b11b0672",
+            "source": [
+                "http://ccl.cse.nd.edu/research/data/hep-case-study/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd",
+                "s3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario_32.xsd",
+                "osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030b594d900184c0f1f5"
+            ],
+            "mountpoint": "/tmp/scenario_32.xsd",
+            "id": "bef8a475dbd3765b61995f36b11b0672",
+            "size": "200376"
+        },
+        "densities.csv": {
+            "format": "plain",
+            "checksum": "54ea34d38d96c311122642aec045bc40",
+            "source": [
+                "http://ccl.cse.nd.edu/research/data/hep-case-study/54ea34d38d96c311122642aec045bc40/densities.csv",
+                "s3+https://s3.amazonaws.com/umbrellaopenmalaria/densities.csv",
+                "osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030f594d90018bc0f256"
+            ],
+            "mountpoint": "/tmp/densities.csv",
+            "id": "54ea34d38d96c311122642aec045bc40",
+            "size": "38132"
+        }
+    },
+    "cmd": "/software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml",
+    "note": "this a self-contained umbrella spec.",
+    "environ": {
+        "PWD": "/tmp"
+    },
+    "output": {
+        "files": ["/tmp/ctsout.txt",
+        "/tmp/output.txt"],
+        "dirs": []
+    },
+    "os": {
+        "ec2": {
+            "ami": "ami-0b06483b",
+            "region": "us-west-2",
+            "user": "root"
+        },
+        "name": "CentOS",
+        "format": "tgz",
+        "checksum": "902703f016e0f930a870eaf9cb31640b",
+        "source": [
+            "http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz",
+            "s3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz",
+            "osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60303594d90018ac0f1f7"
+        ],
+        "version": "6.6",
+        "size": "72213624",
+        "id": "902703f016e0f930a870eaf9cb31640b",
+        "uncompressed_size": "212684800"
+    },
+    "software": {
+        "openMalaria-32-centos6-x86_64": {
+            "format": "tgz",
+            "checksum": "97cff84e58a4172fd8e9d1cb25c6047c",
+            "source": [
+                "http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz",
+                "s3+https://s3.amazonaws.com/umbrellaopenmalaria/openMalaria-32-centos6-x86_64.tar.gz",
+                "osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60314b83f6901821ac9ce"
+            ],
+            "mountpoint": "/software/openMalaria-32-centos6-x86_64",
+            "size": "2968452",
+            "id": "97cff84e58a4172fd8e9d1cb25c6047c",
+            "uncompressed_size": "12881920"
+        }
+    }
+}

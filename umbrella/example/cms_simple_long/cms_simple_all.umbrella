@@ -1,0 +1,69 @@
+{
+    "comment": "a simple CMS application whose software and data dependencies are all from CVMFS.", 
+    "kernel": {
+        "version": ">=2.6.32", 
+        "name": "linux"
+    }, 
+    "data": {
+        "cms_simple.sh": {
+            "format": "plain", 
+            "checksum": "2d691a8ab42903d28525d74ab72f5f9f", 
+            "source": [
+                "http://ccl.cse.nd.edu/research/data/hep-case-study/2d691a8ab42903d28525d74ab72f5f9f/cms_simple.sh",
+                "s3+https://s3.amazonaws.com/umbrellacms/cms_simple.sh",
+                "osf+https://files.osf.io/v1/resources/7gqct/providers/osfstorage/56d5f9b9594d900187c0f22c"
+            ], 
+            "action": "none", 
+            "mountpoint": "/tmp/cms_simple.sh", 
+            "id": "2d691a8ab42903d28525d74ab72f5f9f", 
+            "size": "365"
+        }
+    }, 
+    "cmd": "/bin/sh /tmp/cms_simple.sh", 
+    "hardware": {
+        "cores": "1", 
+        "disk": "3GB", 
+        "arch": "x86_64", 
+        "memory": "1GB"
+    }, 
+    "environ": {
+        "PWD": "/tmp", 
+        "CMS_VERSION": "CMSSW_5_3_11", 
+        "SCRAM_ARCH": "slc5_amd64_gcc462"
+    }, 
+    "output": {
+        "files": [], 
+        "dirs": [
+            "/tmp/cmsjob"
+        ]
+    }, 
+    "os": {
+        "ec2": {
+            "ami": "ami-2cf8901c",
+            "region": "us-west-2",
+            "user": "ec2-user"
+        },
+        "name": "Redhat", 
+        "format": "tgz", 
+        "checksum": "669ab5ef94af84d273f8f92a86b7907a", 
+        "source": [
+            "http://ccl.cse.nd.edu/research/data/hep-case-study/669ab5ef94af84d273f8f92a86b7907a/redhat-6.5-x86_64.tar.gz",
+            "s3+https://s3.amazonaws.com/umbrellacms/redhat-6.5-x86_64.tar.gz",
+            "osf+https://files.osf.io/v1/resources/7gqct/providers/osfstorage/56d5f9b6594d900189c0f212"
+        ], 
+        "version": "6.5", 
+        "size": "633848940", 
+        "id": "669ab5ef94af84d273f8f92a86b7907a", 
+        "uncompressed_size": "1743656960"
+    }, 
+    "software": {
+        "cmssw-5.3.11-slc5-amd64": {
+            "mountpoint": "/cvmfs/cms.cern.ch", 
+            "mount_env": "CMS_DIR", 
+            "id": "cvmfs://cvmfs/cms.cern.ch", 
+            "source": [
+                "cvmfs://cvmfs/cms.cern.ch"
+            ]
+        }
+    }
+}

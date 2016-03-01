@@ -1,0 +1,565 @@
+2016-03-02 04:48:23.218 DEBUG umbrella - main: *******Welcome to Umbrella*******
+2016-03-02 04:48:23.218 DEBUG umbrella - main: Arguments: 
+2016-03-02 04:48:23.218 DEBUG umbrella - main: ['/root/umbrella', '-s', 'destructive', '--spec', '/root/openmalaria.umbrella', '--log', '/root/ec2_umbrella.log', '-l', 'ec2_umbrella', '-o', '/tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt,/tmp/output.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt', 'run', '/software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml']
+2016-03-02 04:48:23.219 DEBUG umbrella - main: Start time: 2016-03-02 04:48:23.218973
+2016-03-02 04:48:23.219 DEBUG umbrella - main: Check the validity of the command ....
+2016-03-02 04:48:23.219 DEBUG umbrella - main: Check the validity of the behavior: run
+2016-03-02 04:48:23.219 DEBUG umbrella - main: Check the localdir option: /root/ec2_umbrella
+2016-03-02 04:48:23.219 DEBUG umbrella - main: create the localdir: /root/ec2_umbrella
+2016-03-02 04:48:23.219 DEBUG umbrella - main: Create the sandbox_dir: /root/ec2_umbrella/tmpayWKAP
+2016-03-02 04:48:23.219 DEBUG umbrella - main: Check the sandbox_mode option: destructive
+2016-03-02 04:48:23.219 DEBUG umbrella - main: The env option is null
+2016-03-02 04:48:23.219 DEBUG umbrella - main: Start to read the specification file: /root/openmalaria.umbrella
+2016-03-02 04:48:23.221 DEBUG umbrella - main: The user's command is: ['/software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml']
+2016-03-02 04:48:23.221 DEBUG umbrella - main: The specification file has environ section, update env_para_dict ....
+2016-03-02 04:48:23.221 DEBUG umbrella - main: env_para_dict:
+2016-03-02 04:48:23.221 DEBUG umbrella - main: {u'PWD': u'/tmp'}
+2016-03-02 04:48:23.221 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:48:23.221 DEBUG umbrella - attr_check: {u'name': u'CentOS', u'format': u'tgz', u'checksum': u'902703f016e0f930a870eaf9cb31640b', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60303594d90018ac0f1f7'], u'version': u'6.6', u'ec2': {u'ami': u'ami-0b06483b', u'region': u'us-west-2', u'user': u'root'}, u'uncompressed_size': u'212684800', u'id': u'902703f016e0f930a870eaf9cb31640b', u'size': u'72213624'}
+2016-03-02 04:48:23.221 DEBUG umbrella - dep_build: The source of os is not a local path (http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz)!
+2016-03-02 04:48:23.221 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:48:23.221 DEBUG umbrella - attr_check: {u'format': u'plain', u'checksum': u'17537ae1d72910cab24a307445e71434', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/17537ae1d72910cab24a307445e71434/scenario.xml', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario.xml', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603076c613b017c87c74b'], u'mountpoint': u'/tmp/scenario.xml', u'id': u'17537ae1d72910cab24a307445e71434', u'size': u'27941'}
+2016-03-02 04:48:23.222 DEBUG umbrella - dep_build: The source of scenario.xml is not a local path (http://ccl.cse.nd.edu/research/data/hep-case-study/17537ae1d72910cab24a307445e71434/scenario.xml)!
+2016-03-02 04:48:23.222 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:48:23.222 DEBUG umbrella - attr_check: {u'format': u'plain', u'checksum': u'bef8a475dbd3765b61995f36b11b0672', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario_32.xsd', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030b594d900184c0f1f5'], u'mountpoint': u'/tmp/scenario_32.xsd', u'id': u'bef8a475dbd3765b61995f36b11b0672', u'size': u'200376'}
+2016-03-02 04:48:23.222 DEBUG umbrella - dep_build: The source of scenario_32.xsd is not a local path (http://ccl.cse.nd.edu/research/data/hep-case-study/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd)!
+2016-03-02 04:48:23.222 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:48:23.222 DEBUG umbrella - attr_check: {u'format': u'plain', u'checksum': u'54ea34d38d96c311122642aec045bc40', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/54ea34d38d96c311122642aec045bc40/densities.csv', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/densities.csv', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030f594d90018bc0f256'], u'mountpoint': u'/tmp/densities.csv', u'id': u'54ea34d38d96c311122642aec045bc40', u'size': u'38132'}
+2016-03-02 04:48:23.222 DEBUG umbrella - dep_build: The source of densities.csv is not a local path (http://ccl.cse.nd.edu/research/data/hep-case-study/54ea34d38d96c311122642aec045bc40/densities.csv)!
+2016-03-02 04:48:23.222 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:48:23.222 DEBUG umbrella - attr_check: {u'format': u'tgz', u'checksum': u'97cff84e58a4172fd8e9d1cb25c6047c', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/openMalaria-32-centos6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60314b83f6901821ac9ce'], u'mountpoint': u'/software/openMalaria-32-centos6-x86_64', u'uncompressed_size': u'12881920', u'id': u'97cff84e58a4172fd8e9d1cb25c6047c', u'size': u'2968452'}
+2016-03-02 04:48:23.222 DEBUG umbrella - dep_build: The source of openMalaria-32-centos6-x86_64 is not a local path (http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz)!
+2016-03-02 04:48:23.222 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:48:23.223 DEBUG umbrella - attr_check: {u'format': u'plain', u'checksum': u'4cd77946d1b5176987036e8fb382ce2d', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/epel.repo', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603186c613b017e87c750'], u'mountpoint': u'/etc/yum.repo.d/epel.repo', u'id': u'4cd77946d1b5176987036e8fb382ce2d', u'size': u'957'}
+2016-03-02 04:48:23.223 DEBUG umbrella - dep_build: The source of epel.repo is not a local path (http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo)!
+2016-03-02 04:48:23.223 DEBUG umbrella - main: PWD environment variable is set explicitly: /tmp
+2016-03-02 04:48:23.223 DEBUG umbrella - main: the inputs options is null
+2016-03-02 04:48:23.223 DEBUG umbrella - main: the output option: /tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt,/tmp/output.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt
+2016-03-02 04:48:23.223 DEBUG umbrella - main: create the output file: /tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt
+2016-03-02 04:48:23.223 DEBUG umbrella - main: create the output file: /tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt
+2016-03-02 04:48:23.223 DEBUG umbrella - attr_check: check the hardware attr of the following item:
+2016-03-02 04:48:23.224 DEBUG umbrella - attr_check: {u'comment': u'OpenMalaria application', u'kernel': {u'version': u'>=2.6.18', u'name': u'linux'}, u'package_manager': {u'list': u'python cmake xerces-c-devel gsl-devel xsd boost-devel zlib zlib-devel', u'config': {u'epel.repo': {u'format': u'plain', u'checksum': u'4cd77946d1b5176987036e8fb382ce2d', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/epel.repo', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603186c613b017e87c750'], u'mountpoint': u'/etc/yum.repo.d/epel.repo', u'id': u'4cd77946d1b5176987036e8fb382ce2d', u'size': u'957'}}, u'name': u'yum'}, u'os': {u'name': u'CentOS', u'format': u'tgz', u'checksum': u'902703f016e0f930a870eaf9cb31640b', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60303594d90018ac0f1f7'], u'version': u'6.6', u'ec2': {u'ami': u'ami-0b06483b', u'region': u'us-west-2', u'user': u'root'}, u'uncompressed_size': u'212684800', u'id': u'902703f016e0f930a870eaf9cb31640b', u'size': u'72213624'}, u'cmd': u'/software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml', u'hardware': {u'cores': u'1', u'disk': u'3GB', u'arch': u'x86_64', u'memory': u'2GB'}, u'note': u'this a self-contained umbrella spec.', u'environ': {u'PWD': u'/tmp'}, u'output': {u'files': [u'/tmp/ctsout.txt', u'/tmp/output.txt'], u'dirs': []}, u'data': {u'scenario.xml': {u'format': u'plain', u'checksum': u'17537ae1d72910cab24a307445e71434', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/17537ae1d72910cab24a307445e71434/scenario.xml', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario.xml', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603076c613b017c87c74b'], u'mountpoint': u'/tmp/scenario.xml', u'id': u'17537ae1d72910cab24a307445e71434', u'size': u'27941'}, u'scenario_32.xsd': {u'format': u'plain', u'checksum': u'bef8a475dbd3765b61995f36b11b0672', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario_32.xsd', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030b594d900184c0f1f5'], u'mountpoint': u'/tmp/scenario_32.xsd', u'id': u'bef8a475dbd3765b61995f36b11b0672', u'size': u'200376'}, u'densities.csv': {u'format': u'plain', u'checksum': u'54ea34d38d96c311122642aec045bc40', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/54ea34d38d96c311122642aec045bc40/densities.csv', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/densities.csv', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030f594d90018bc0f256'], u'mountpoint': u'/tmp/densities.csv', u'id': u'54ea34d38d96c311122642aec045bc40', u'size': u'38132'}}, u'software': {u'openMalaria-32-centos6-x86_64': {u'format': u'tgz', u'checksum': u'97cff84e58a4172fd8e9d1cb25c6047c', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/openMalaria-32-centos6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60314b83f6901821ac9ce'], u'mountpoint': u'/software/openMalaria-32-centos6-x86_64', u'uncompressed_size': u'12881920', u'id': u'97cff84e58a4172fd8e9d1cb25c6047c', u'size': u'2968452'}}}
+2016-03-02 04:48:23.224 DEBUG umbrella - attr_check: check the arch attr of the following item:
+2016-03-02 04:48:23.224 DEBUG umbrella - attr_check: {u'cores': u'1', u'disk': u'3GB', u'arch': u'x86_64', u'memory': u'2GB'}
+2016-03-02 04:48:23.224 DEBUG umbrella - attr_check: check the os attr of the following item:
+2016-03-02 04:48:23.224 DEBUG umbrella - attr_check: {u'comment': u'OpenMalaria application', u'kernel': {u'version': u'>=2.6.18', u'name': u'linux'}, u'package_manager': {u'list': u'python cmake xerces-c-devel gsl-devel xsd boost-devel zlib zlib-devel', u'config': {u'epel.repo': {u'format': u'plain', u'checksum': u'4cd77946d1b5176987036e8fb382ce2d', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/epel.repo', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603186c613b017e87c750'], u'mountpoint': u'/etc/yum.repo.d/epel.repo', u'id': u'4cd77946d1b5176987036e8fb382ce2d', u'size': u'957'}}, u'name': u'yum'}, u'os': {u'name': u'CentOS', u'format': u'tgz', u'checksum': u'902703f016e0f930a870eaf9cb31640b', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60303594d90018ac0f1f7'], u'version': u'6.6', u'ec2': {u'ami': u'ami-0b06483b', u'region': u'us-west-2', u'user': u'root'}, u'uncompressed_size': u'212684800', u'id': u'902703f016e0f930a870eaf9cb31640b', u'size': u'72213624'}, u'cmd': u'/software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml', u'hardware': {u'cores': u'1', u'disk': u'3GB', u'arch': u'x86_64', u'memory': u'2GB'}, u'note': u'this a self-contained umbrella spec.', u'environ': {u'PWD': u'/tmp'}, u'output': {u'files': [u'/tmp/ctsout.txt', u'/tmp/output.txt'], u'dirs': []}, u'data': {u'scenario.xml': {u'format': u'plain', u'checksum': u'17537ae1d72910cab24a307445e71434', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/17537ae1d72910cab24a307445e71434/scenario.xml', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario.xml', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603076c613b017c87c74b'], u'mountpoint': u'/tmp/scenario.xml', u'id': u'17537ae1d72910cab24a307445e71434', u'size': u'27941'}, u'scenario_32.xsd': {u'format': u'plain', u'checksum': u'bef8a475dbd3765b61995f36b11b0672', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario_32.xsd', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030b594d900184c0f1f5'], u'mountpoint': u'/tmp/scenario_32.xsd', u'id': u'bef8a475dbd3765b61995f36b11b0672', u'size': u'200376'}, u'densities.csv': {u'format': u'plain', u'checksum': u'54ea34d38d96c311122642aec045bc40', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/54ea34d38d96c311122642aec045bc40/densities.csv', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/densities.csv', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030f594d90018bc0f256'], u'mountpoint': u'/tmp/densities.csv', u'id': u'54ea34d38d96c311122642aec045bc40', u'size': u'38132'}}, u'software': {u'openMalaria-32-centos6-x86_64': {u'format': u'tgz', u'checksum': u'97cff84e58a4172fd8e9d1cb25c6047c', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/openMalaria-32-centos6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60314b83f6901821ac9ce'], u'mountpoint': u'/software/openMalaria-32-centos6-x86_64', u'uncompressed_size': u'12881920', u'id': u'97cff84e58a4172fd8e9d1cb25c6047c', u'size': u'2968452'}}}
+2016-03-02 04:48:23.224 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-02 04:48:23.224 DEBUG umbrella - attr_check: {u'name': u'CentOS', u'format': u'tgz', u'checksum': u'902703f016e0f930a870eaf9cb31640b', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60303594d90018ac0f1f7'], u'version': u'6.6', u'ec2': {u'ami': u'ami-0b06483b', u'region': u'us-west-2', u'user': u'root'}, u'uncompressed_size': u'212684800', u'id': u'902703f016e0f930a870eaf9cb31640b', u'size': u'72213624'}
+2016-03-02 04:48:23.224 DEBUG umbrella - attr_check: check the version attr of the following item:
+2016-03-02 04:48:23.224 DEBUG umbrella - attr_check: {u'name': u'CentOS', u'format': u'tgz', u'checksum': u'902703f016e0f930a870eaf9cb31640b', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60303594d90018ac0f1f7'], u'version': u'6.6', u'ec2': {u'ami': u'ami-0b06483b', u'region': u'us-west-2', u'user': u'root'}, u'uncompressed_size': u'212684800', u'id': u'902703f016e0f930a870eaf9cb31640b', u'size': u'72213624'}
+2016-03-02 04:48:23.225 DEBUG umbrella - abstract_metadata: dump the metadata information from the umbrella spec to /root/ec2_umbrella/tmpayWKAP/meta.json
+2016-03-02 04:48:23.226 DEBUG umbrella - validate_spec: Starting validating the spec file ....
+
+2016-03-02 04:48:23.226 DEBUG umbrella - attr_check: check the arch attr of the following item:
+2016-03-02 04:48:23.226 DEBUG umbrella - attr_check: {u'cores': u'1', u'disk': u'3GB', u'arch': u'x86_64', u'memory': u'2GB'}
+2016-03-02 04:48:23.226 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-02 04:48:23.226 DEBUG umbrella - attr_check: {u'version': u'>=2.6.18', u'name': u'linux'}
+2016-03-02 04:48:23.226 DEBUG umbrella - attr_check: check the version attr of the following item:
+2016-03-02 04:48:23.226 DEBUG umbrella - attr_check: {u'version': u'>=2.6.18', u'name': u'linux'}
+2016-03-02 04:48:23.226 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-02 04:48:23.226 DEBUG umbrella - attr_check: {u'name': u'CentOS', u'format': u'tgz', u'checksum': u'902703f016e0f930a870eaf9cb31640b', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60303594d90018ac0f1f7'], u'version': u'6.6', u'ec2': {u'ami': u'ami-0b06483b', u'region': u'us-west-2', u'user': u'root'}, u'uncompressed_size': u'212684800', u'id': u'902703f016e0f930a870eaf9cb31640b', u'size': u'72213624'}
+2016-03-02 04:48:23.227 DEBUG umbrella - attr_check: check the version attr of the following item:
+2016-03-02 04:48:23.227 DEBUG umbrella - attr_check: {u'name': u'CentOS', u'format': u'tgz', u'checksum': u'902703f016e0f930a870eaf9cb31640b', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60303594d90018ac0f1f7'], u'version': u'6.6', u'ec2': {u'ami': u'ami-0b06483b', u'region': u'us-west-2', u'user': u'root'}, u'uncompressed_size': u'212684800', u'id': u'902703f016e0f930a870eaf9cb31640b', u'size': u'72213624'}
+2016-03-02 04:48:23.227 DEBUG umbrella - validate_spec: Finish validating the spec file ....
+
+2016-03-02 04:48:23.227 DEBUG umbrella - specification_process: Setting the environment parameters (hardware, kernel and os) according to the specification file ....
+2016-03-02 04:48:23.227 DEBUG umbrella - attr_check: check the arch attr of the following item:
+2016-03-02 04:48:23.227 DEBUG umbrella - attr_check: {u'cores': u'1', u'disk': u'3GB', u'arch': u'x86_64', u'memory': u'2GB'}
+2016-03-02 04:48:23.227 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-02 04:48:23.227 DEBUG umbrella - attr_check: {u'version': u'>=2.6.18', u'name': u'linux'}
+2016-03-02 04:48:23.227 DEBUG umbrella - attr_check: check the version attr of the following item:
+2016-03-02 04:48:23.227 DEBUG umbrella - attr_check: {u'version': u'>=2.6.18', u'name': u'linux'}
+2016-03-02 04:48:23.227 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-02 04:48:23.227 DEBUG umbrella - attr_check: {u'name': u'CentOS', u'format': u'tgz', u'checksum': u'902703f016e0f930a870eaf9cb31640b', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60303594d90018ac0f1f7'], u'version': u'6.6', u'ec2': {u'ami': u'ami-0b06483b', u'region': u'us-west-2', u'user': u'root'}, u'uncompressed_size': u'212684800', u'id': u'902703f016e0f930a870eaf9cb31640b', u'size': u'72213624'}
+2016-03-02 04:48:23.228 DEBUG umbrella - attr_check: check the version attr of the following item:
+2016-03-02 04:48:23.228 DEBUG umbrella - attr_check: {u'name': u'CentOS', u'format': u'tgz', u'checksum': u'902703f016e0f930a870eaf9cb31640b', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/902703f016e0f930a870eaf9cb31640b/centos-6.6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/centos-6.6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60303594d90018ac0f1f7'], u'version': u'6.6', u'ec2': {u'ami': u'ami-0b06483b', u'region': u'us-west-2', u'user': u'root'}, u'uncompressed_size': u'212684800', u'id': u'902703f016e0f930a870eaf9cb31640b', u'size': u'72213624'}
+2016-03-02 04:48:23.235 DEBUG umbrella - env_check: Hardware platform checking ...
+2016-03-02 04:48:23.235 DEBUG umbrella - env_check: CPU cores checking ...
+2016-03-02 04:48:23.236 DEBUG umbrella - env_check: Memory size checking ...
+2016-03-02 04:48:23.236 DEBUG umbrella - func_call: Start to execute command: free -tg|grep Total|sed 's/\s\+/ /g'|cut -d' ' -f2
+2016-03-02 04:48:23.389 DEBUG umbrella - func_call: returncode: 0
+stdout: 7
+
+stderr: None
+2016-03-02 04:48:23.390 DEBUG umbrella - env_check: Disk space checking ...
+2016-03-02 04:48:23.390 DEBUG umbrella - env_check: Kernel checking ...
+2016-03-02 04:48:23.390 DEBUG umbrella - verify_kernel: The kernel version matches!
+2016-03-02 04:48:23.391 DEBUG umbrella - env_check: The hardware information of the local machine:
+2016-03-02 04:48:23.391 DEBUG umbrella - env_check: ('centos', '6.5', 'Final')
+2016-03-02 04:48:23.391 DEBUG umbrella - env_check: The OS distribution information of the local machine: centos6
+2016-03-02 04:48:23.391 DEBUG umbrella - specification_process: The spec needs to use yum install packages.
+2016-03-02 04:48:23.391 DEBUG umbrella - attr_check: check the name attr of the following item:
+2016-03-02 04:48:23.391 DEBUG umbrella - attr_check: {u'list': u'python cmake xerces-c-devel gsl-devel xsd boost-devel zlib zlib-devel', u'config': {u'epel.repo': {u'format': u'plain', u'checksum': u'4cd77946d1b5176987036e8fb382ce2d', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/epel.repo', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603186c613b017e87c750'], u'mountpoint': u'/etc/yum.repo.d/epel.repo', u'id': u'4cd77946d1b5176987036e8fb382ce2d', u'size': u'957'}}, u'name': u'yum'}
+2016-03-02 04:48:23.391 DEBUG umbrella - specification_process: Installing the package into the image (), and create a new image: /root/ec2_umbrella/cache/e755dc6fdd074aa5c02809859771513a/centos-6.6-x86_64 ...
+2016-03-02 04:48:23.392 DEBUG umbrella - specification_process: the new os image does not exist!
+2016-03-02 04:48:23.392 DEBUG umbrella - specification_process: Install dependency specified in the spec_json["package_manager"]["config"] section.
+2016-03-02 04:48:23.392 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:48:23.392 DEBUG umbrella - attr_check: {u'checksum': u'4cd77946d1b5176987036e8fb382ce2d', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/epel.repo', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603186c613b017e87c750'], u'size': u'957'}
+2016-03-02 04:48:23.392 DEBUG umbrella - dependency_process: http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo is chosen to deliver epel.repo
+2016-03-02 04:48:23.392 DEBUG umbrella - attr_check: check the checksum attr of the following item:
+2016-03-02 04:48:23.392 DEBUG umbrella - attr_check: {u'checksum': u'4cd77946d1b5176987036e8fb382ce2d', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/epel.repo', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603186c613b017e87c750'], u'size': u'957'}
+2016-03-02 04:48:23.392 DEBUG umbrella - attr_check: check the format attr of the following item:
+2016-03-02 04:48:23.392 DEBUG umbrella - attr_check: {u'checksum': u'4cd77946d1b5176987036e8fb382ce2d', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/epel.repo', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603186c613b017e87c750'], u'size': u'957'}
+2016-03-02 04:48:23.393 DEBUG umbrella - dependency_download: Download software from http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo into the umbrella local cache (/root/ec2_umbrella/cache/4cd77946d1b5176987036e8fb382ce2d/epel.repo)
+2016-03-02 04:48:23.393 DEBUG umbrella - url_download: Start to download http://ccl.cse.nd.edu/research/data/hep-case-study/4cd77946d1b5176987036e8fb382ce2d/epel.repo to /root/ec2_umbrella/cache/4cd77946d1b5176987036e8fb382ce2d/epel.repo ....
+2016-03-02 04:48:23.529 DEBUG umbrella - dependency_download: The checksum of /root/ec2_umbrella/cache/4cd77946d1b5176987036e8fb382ce2d/epel.repo is: 4cd77946d1b5176987036e8fb382ce2d
+2016-03-02 04:48:23.529 DEBUG umbrella - software_install: Add mountpoint (/etc/yum.repo.d/epel.repo:/root/ec2_umbrella/cache/4cd77946d1b5176987036e8fb382ce2d/epel.repo) into mount_dict
+2016-03-02 04:48:23.529 DEBUG umbrella - func_call: Start to execute command: mv -f /root/ec2_umbrella/cache/4cd77946d1b5176987036e8fb382ce2d/epel.repo /etc/yum.repo.d/
+2016-03-02 04:48:24.119 DEBUG umbrella - func_call: returncode: 0
+stdout: 
+stderr: None
+2016-03-02 04:48:24.120 DEBUG umbrella - func_call: Start to execute command: [u'yum -y install boost-devel cmake gsl-devel python xerces-c-devel xsd zlib zlib-devel']
+2016-03-02 04:49:16.528 DEBUG umbrella - func_call: returncode: 0
+stdout: Loaded plugins: security
+Setting up Install Process
+Package zlib-1.2.3-29.el6.x86_64 already installed and latest version
+Resolving Dependencies
+--> Running transaction check
+---> Package boost-devel.x86_64 0:1.41.0-27.el6 will be installed
+--> Processing Dependency: boost(x86-64) = 1.41.0-27.el6 for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_wserialization.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_wserialization-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_wave-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_unit_test_framework.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_unit_test_framework-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_thread-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_system.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_system-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_signals.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_signals-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_serialization.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_serialization-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_regex.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_regex-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_python.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_python-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_program_options.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_program_options-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_prg_exec_monitor.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_prg_exec_monitor-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_tr1l.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_tr1l-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_tr1f.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_tr1f-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_tr1.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_tr1-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_c99l.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_c99l-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_c99f.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_c99f-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_c99.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_math_c99-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_iostreams.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_iostreams-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_graph.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_graph-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_filesystem.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_filesystem-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_date_time.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+--> Processing Dependency: libboost_date_time-mt.so.5()(64bit) for package: boost-devel-1.41.0-27.el6.x86_64
+---> Package cmake.x86_64 0:2.8.12.2-4.el6 will be installed
+---> Package gsl-devel.x86_64 0:1.13-1.el6 will be installed
+--> Processing Dependency: gsl = 1.13-1.el6 for package: gsl-devel-1.13-1.el6.x86_64
+--> Processing Dependency: automake for package: gsl-devel-1.13-1.el6.x86_64
+--> Processing Dependency: libgslcblas.so.0()(64bit) for package: gsl-devel-1.13-1.el6.x86_64
+--> Processing Dependency: libgsl.so.0()(64bit) for package: gsl-devel-1.13-1.el6.x86_64
+---> Package python.x86_64 0:2.6.6-52.el6 will be updated
+---> Package python.x86_64 0:2.6.6-64.el6 will be an update
+--> Processing Dependency: python-libs(x86-64) = 2.6.6-64.el6 for package: python-2.6.6-64.el6.x86_64
+---> Package xerces-c-devel.x86_64 0:3.0.1-20.el6 will be installed
+--> Processing Dependency: xerces-c = 3.0.1-20.el6 for package: xerces-c-devel-3.0.1-20.el6.x86_64
+--> Processing Dependency: libxerces-c-3.0.so()(64bit) for package: xerces-c-devel-3.0.1-20.el6.x86_64
+---> Package xsd.x86_64 0:4.0.0-14.el6 will be installed
+--> Processing Dependency: boost148 for package: xsd-4.0.0-14.el6.x86_64
+--> Processing Dependency: libcutl-1.8.so()(64bit) for package: xsd-4.0.0-14.el6.x86_64
+---> Package zlib-devel.x86_64 0:1.2.3-29.el6 will be installed
+--> Running transaction check
+---> Package automake.noarch 0:1.11.1-4.el6 will be installed
+--> Processing Dependency: autoconf >= 2.62 for package: automake-1.11.1-4.el6.noarch
+---> Package boost.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-date-time.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-filesystem.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-graph.x86_64 0:1.41.0-27.el6 will be installed
+--> Processing Dependency: libicuuc.so.42()(64bit) for package: boost-graph-1.41.0-27.el6.x86_64
+--> Processing Dependency: libicui18n.so.42()(64bit) for package: boost-graph-1.41.0-27.el6.x86_64
+---> Package boost-iostreams.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-math.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-program-options.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-python.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-regex.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-serialization.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-signals.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-system.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-test.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-thread.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost-wave.x86_64 0:1.41.0-27.el6 will be installed
+---> Package boost148.x86_64 0:1.48.0-7.el6 will be installed
+--> Processing Dependency: boost148-wave(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-timer(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-thread(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-test(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-system(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-signals(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-serialization(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-regex(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-random(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-python(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-program-options(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-math(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-locale(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-iostreams(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-graph(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-filesystem(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-date-time(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+--> Processing Dependency: boost148-chrono(x86-64) = 1.48.0-7.el6 for package: boost148-1.48.0-7.el6.x86_64
+---> Package gsl.x86_64 0:1.13-1.el6 will be installed
+---> Package libcutl.x86_64 0:1.8.1-1.el6 will be installed
+---> Package python-libs.x86_64 0:2.6.6-52.el6 will be updated
+---> Package python-libs.x86_64 0:2.6.6-64.el6 will be an update
+---> Package xerces-c.x86_64 0:3.0.1-20.el6 will be installed
+--> Running transaction check
+---> Package autoconf.noarch 0:2.63-5.1.el6 will be installed
+---> Package boost148-chrono.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-date-time.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-filesystem.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-graph.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-iostreams.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-locale.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-math.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-program-options.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-python.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-random.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-regex.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-serialization.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-signals.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-system.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-test.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-thread.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-timer.x86_64 0:1.48.0-7.el6 will be installed
+---> Package boost148-wave.x86_64 0:1.48.0-7.el6 will be installed
+---> Package libicu.x86_64 0:4.2.1-12.el6 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package                       Arch        Version              Repository
+                                                                           Size
+================================================================================
+Installing:
+ boost-devel                   x86_64      1.41.0-27.el6        base      5.3 M
+ cmake                         x86_64      2.8.12.2-4.el6       base      8.0 M
+ gsl-devel                     x86_64      1.13-1.el6           base      437 k
+ xerces-c-devel                x86_64      3.0.1-20.el6         base      520 k
+ xsd                           x86_64      4.0.0-14.el6         epel      1.3 M
+ zlib-devel                    x86_64      1.2.3-29.el6         base       44 k
+Updating:
+ python                        x86_64      2.6.6-64.el6         base       76 k
+Installing for dependencies:
+ autoconf                      noarch      2.63-5.1.el6         base      781 k
+ automake                      noarch      1.11.1-4.el6         base      550 k
+ boost                         x86_64      1.41.0-27.el6        base       20 k
+ boost-date-time               x86_64      1.41.0-27.el6        base       40 k
+ boost-filesystem              x86_64      1.41.0-27.el6        base       47 k
+ boost-graph                   x86_64      1.41.0-27.el6        base       84 k
+ boost-iostreams               x86_64      1.41.0-27.el6        base       39 k
+ boost-math                    x86_64      1.41.0-27.el6        base      271 k
+ boost-program-options         x86_64      1.41.0-27.el6        base      108 k
+ boost-python                  x86_64      1.41.0-27.el6        base      120 k
+ boost-regex                   x86_64      1.41.0-27.el6        base      477 k
+ boost-serialization           x86_64      1.41.0-27.el6        base      165 k
+ boost-signals                 x86_64      1.41.0-27.el6        base       45 k
+ boost-system                  x86_64      1.41.0-27.el6        base       26 k
+ boost-test                    x86_64      1.41.0-27.el6        base      392 k
+ boost-thread                  x86_64      1.41.0-27.el6        base       43 k
+ boost-wave                    x86_64      1.41.0-27.el6        base      201 k
+ boost148                      x86_64      1.48.0-7.el6         epel      6.3 k
+ boost148-chrono               x86_64      1.48.0-7.el6         epel       17 k
+ boost148-date-time            x86_64      1.48.0-7.el6         epel       23 k
+ boost148-filesystem           x86_64      1.48.0-7.el6         epel       49 k
+ boost148-graph                x86_64      1.48.0-7.el6         epel       73 k
+ boost148-iostreams            x86_64      1.48.0-7.el6         epel       35 k
+ boost148-locale               x86_64      1.48.0-7.el6         epel      235 k
+ boost148-math                 x86_64      1.48.0-7.el6         epel      274 k
+ boost148-program-options      x86_64      1.48.0-7.el6         epel      101 k
+ boost148-python               x86_64      1.48.0-7.el6         epel      115 k
+ boost148-random               x86_64      1.48.0-7.el6         epel       11 k
+ boost148-regex                x86_64      1.48.0-7.el6         epel      554 k
+ boost148-serialization        x86_64      1.48.0-7.el6         epel      153 k
+ boost148-signals              x86_64      1.48.0-7.el6         epel       31 k
+ boost148-system               x86_64      1.48.0-7.el6         epel       10 k
+ boost148-test                 x86_64      1.48.0-7.el6         epel      390 k
+ boost148-thread               x86_64      1.48.0-7.el6         epel       32 k
+ boost148-timer                x86_64      1.48.0-7.el6         epel       13 k
+ boost148-wave                 x86_64      1.48.0-7.el6         epel      193 k
+ gsl                           x86_64      1.13-1.el6           base      787 k
+ libcutl                       x86_64      1.8.1-1.el6          epel       76 k
+ libicu                        x86_64      4.2.1-12.el6         base      4.9 M
+ xerces-c                      x86_64      3.0.1-20.el6         base      866 k
+Updating for dependencies:
+ python-libs                   x86_64      2.6.6-64.el6         base      5.3 M
+
+Transaction Summary
+================================================================================
+Install      46 Package(s)
+Upgrade       2 Package(s)
+
+Total download size: 33 M
+Downloading Packages:
+--------------------------------------------------------------------------------
+Total                                           2.7 MB/s |  33 MB     00:12     
+Running rpm_check_debug
+Running Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Installing : libicu-4.2.1-12.el6.x86_64                                  1/50 
+  Installing : boost-system-1.41.0-27.el6.x86_64                           2/50 
+  Installing : boost-regex-1.41.0-27.el6.x86_64                            3/50 
+  Installing : boost-filesystem-1.41.0-27.el6.x86_64                       4/50 
+  Updating   : python-2.6.6-64.el6.x86_64                                  5/50 
+  Updating   : python-libs-2.6.6-64.el6.x86_64                             6/50 
+  Installing : boost-thread-1.41.0-27.el6.x86_64                           7/50 
+  Installing : boost-date-time-1.41.0-27.el6.x86_64                        8/50 
+  Installing : boost148-thread-1.48.0-7.el6.x86_64                         9/50 
+  Installing : boost148-system-1.48.0-7.el6.x86_64                        10/50 
+  Installing : boost148-filesystem-1.48.0-7.el6.x86_64                    11/50 
+  Installing : boost-wave-1.41.0-27.el6.x86_64                            12/50 
+  Installing : boost-python-1.41.0-27.el6.x86_64                          13/50 
+  Installing : boost-graph-1.41.0-27.el6.x86_64                           14/50 
+  Installing : boost148-regex-1.48.0-7.el6.x86_64                         15/50 
+  Installing : boost-iostreams-1.41.0-27.el6.x86_64                       16/50 
+  Installing : boost-test-1.41.0-27.el6.x86_64                            17/50 
+  Installing : xerces-c-3.0.1-20.el6.x86_64                               18/50 
+  Installing : boost-program-options-1.41.0-27.el6.x86_64                 19/50 
+  Installing : boost148-date-time-1.48.0-7.el6.x86_64                     20/50 
+  Installing : boost-serialization-1.41.0-27.el6.x86_64                   21/50 
+  Installing : boost-signals-1.41.0-27.el6.x86_64                         22/50 
+  Installing : boost-1.41.0-27.el6.x86_64                                 23/50 
+  Installing : boost148-wave-1.48.0-7.el6.x86_64                          24/50 
+  Installing : boost148-graph-1.48.0-7.el6.x86_64                         25/50 
+  Installing : boost148-locale-1.48.0-7.el6.x86_64                        26/50 
+  Installing : boost148-python-1.48.0-7.el6.x86_64                        27/50 
+  Installing : libcutl-1.8.1-1.el6.x86_64                                 28/50 
+  Installing : boost148-iostreams-1.48.0-7.el6.x86_64                     29/50 
+  Installing : boost148-chrono-1.48.0-7.el6.x86_64                        30/50 
+  Installing : boost148-serialization-1.48.0-7.el6.x86_64                 31/50 
+  Installing : gsl-1.13-1.el6.x86_64                                      32/50 
+  Installing : boost148-timer-1.48.0-7.el6.x86_64                         33/50 
+  Installing : boost148-math-1.48.0-7.el6.x86_64                          34/50 
+  Installing : autoconf-2.63-5.1.el6.noarch                               35/50 
+  Installing : automake-1.11.1-4.el6.noarch                               36/50 
+  Installing : boost148-signals-1.48.0-7.el6.x86_64                       37/50 
+  Installing : boost-math-1.41.0-27.el6.x86_64                            38/50 
+  Installing : boost148-random-1.48.0-7.el6.x86_64                        39/50 
+  Installing : boost148-program-options-1.48.0-7.el6.x86_64               40/50 
+  Installing : boost148-test-1.48.0-7.el6.x86_64                          41/50 
+  Installing : boost148-1.48.0-7.el6.x86_64                               42/50 
+  Installing : xsd-4.0.0-14.el6.x86_64                                    43/50 
+  Installing : boost-devel-1.41.0-27.el6.x86_64                           44/50 
+  Installing : gsl-devel-1.13-1.el6.x86_64                                45/50 
+  Installing : xerces-c-devel-3.0.1-20.el6.x86_64                         46/50 
+  Installing : zlib-devel-1.2.3-29.el6.x86_64                             47/50 
+  Installing : cmake-2.8.12.2-4.el6.x86_64                                48/50 
+  Cleanup    : python-2.6.6-52.el6.x86_64                                 49/50 
+  Cleanup    : python-libs-2.6.6-52.el6.x86_64                            50/50 
+  Verifying  : boost148-test-1.48.0-7.el6.x86_64                           1/50 
+  Verifying  : boost148-program-options-1.48.0-7.el6.x86_64                2/50 
+  Verifying  : boost-signals-1.41.0-27.el6.x86_64                          3/50 
+  Verifying  : boost-wave-1.41.0-27.el6.x86_64                             4/50 
+  Verifying  : boost148-random-1.48.0-7.el6.x86_64                         5/50 
+  Verifying  : boost148-system-1.48.0-7.el6.x86_64                         6/50 
+  Verifying  : cmake-2.8.12.2-4.el6.x86_64                                 7/50 
+  Verifying  : boost148-thread-1.48.0-7.el6.x86_64                         8/50 
+  Verifying  : boost-1.41.0-27.el6.x86_64                                  9/50 
+  Verifying  : automake-1.11.1-4.el6.noarch                               10/50 
+  Verifying  : boost-date-time-1.41.0-27.el6.x86_64                       11/50 
+  Verifying  : python-libs-2.6.6-64.el6.x86_64                            12/50 
+  Verifying  : xerces-c-devel-3.0.1-20.el6.x86_64                         13/50 
+  Verifying  : boost-regex-1.41.0-27.el6.x86_64                           14/50 
+  Verifying  : boost-math-1.41.0-27.el6.x86_64                            15/50 
+  Verifying  : python-2.6.6-64.el6.x86_64                                 16/50 
+  Verifying  : zlib-devel-1.2.3-29.el6.x86_64                             17/50 
+  Verifying  : boost148-python-1.48.0-7.el6.x86_64                        18/50 
+  Verifying  : boost-system-1.41.0-27.el6.x86_64                          19/50 
+  Verifying  : boost148-1.48.0-7.el6.x86_64                               20/50 
+  Verifying  : boost148-signals-1.48.0-7.el6.x86_64                       21/50 
+  Verifying  : boost-python-1.41.0-27.el6.x86_64                          22/50 
+  Verifying  : boost148-wave-1.48.0-7.el6.x86_64                          23/50 
+  Verifying  : boost-serialization-1.41.0-27.el6.x86_64                   24/50 
+  Verifying  : autoconf-2.63-5.1.el6.noarch                               25/50 
+  Verifying  : gsl-devel-1.13-1.el6.x86_64                                26/50 
+  Verifying  : boost148-date-time-1.48.0-7.el6.x86_64                     27/50 
+  Verifying  : boost148-math-1.48.0-7.el6.x86_64                          28/50 
+  Verifying  : boost-program-options-1.41.0-27.el6.x86_64                 29/50 
+  Verifying  : boost148-timer-1.48.0-7.el6.x86_64                         30/50 
+  Verifying  : boost-devel-1.41.0-27.el6.x86_64                           31/50 
+  Verifying  : boost148-regex-1.48.0-7.el6.x86_64                         32/50 
+  Verifying  : xsd-4.0.0-14.el6.x86_64                                    33/50 
+  Verifying  : gsl-1.13-1.el6.x86_64                                      34/50 
+  Verifying  : boost148-locale-1.48.0-7.el6.x86_64                        35/50 
+  Verifying  : boost148-serialization-1.48.0-7.el6.x86_64                 36/50 
+  Verifying  : xerces-c-3.0.1-20.el6.x86_64                               37/50 
+  Verifying  : boost148-graph-1.48.0-7.el6.x86_64                         38/50 
+  Verifying  : boost-thread-1.41.0-27.el6.x86_64                          39/50 
+  Verifying  : libicu-4.2.1-12.el6.x86_64                                 40/50 
+  Verifying  : boost-test-1.41.0-27.el6.x86_64                            41/50 
+  Verifying  : boost-filesystem-1.41.0-27.el6.x86_64                      42/50 
+  Verifying  : boost-iostreams-1.41.0-27.el6.x86_64                       43/50 
+  Verifying  : boost148-chrono-1.48.0-7.el6.x86_64                        44/50 
+  Verifying  : boost148-iostreams-1.48.0-7.el6.x86_64                     45/50 
+  Verifying  : boost148-filesystem-1.48.0-7.el6.x86_64                    46/50 
+  Verifying  : boost-graph-1.41.0-27.el6.x86_64                           47/50 
+  Verifying  : libcutl-1.8.1-1.el6.x86_64                                 48/50 
+  Verifying  : python-libs-2.6.6-52.el6.x86_64                            49/50 
+  Verifying  : python-2.6.6-52.el6.x86_64                                 50/50 
+
+Installed:
+  boost-devel.x86_64 0:1.41.0-27.el6    cmake.x86_64 0:2.8.12.2-4.el6          
+  gsl-devel.x86_64 0:1.13-1.el6         xerces-c-devel.x86_64 0:3.0.1-20.el6   
+  xsd.x86_64 0:4.0.0-14.el6             zlib-devel.x86_64 0:1.2.3-29.el6       
+
+Dependency Installed:
+  autoconf.noarch 0:2.63-5.1.el6                                                
+  automake.noarch 0:1.11.1-4.el6                                                
+  boost.x86_64 0:1.41.0-27.el6                                                  
+  boost-date-time.x86_64 0:1.41.0-27.el6                                        
+  boost-filesystem.x86_64 0:1.41.0-27.el6                                       
+  boost-graph.x86_64 0:1.41.0-27.el6                                            
+  boost-iostreams.x86_64 0:1.41.0-27.el6                                        
+  boost-math.x86_64 0:1.41.0-27.el6                                             
+  boost-program-options.x86_64 0:1.41.0-27.el6                                  
+  boost-python.x86_64 0:1.41.0-27.el6                                           
+  boost-regex.x86_64 0:1.41.0-27.el6                                            
+  boost-serialization.x86_64 0:1.41.0-27.el6                                    
+  boost-signals.x86_64 0:1.41.0-27.el6                                          
+  boost-system.x86_64 0:1.41.0-27.el6                                           
+  boost-test.x86_64 0:1.41.0-27.el6                                             
+  boost-thread.x86_64 0:1.41.0-27.el6                                           
+  boost-wave.x86_64 0:1.41.0-27.el6                                             
+  boost148.x86_64 0:1.48.0-7.el6                                                
+  boost148-chrono.x86_64 0:1.48.0-7.el6                                         
+  boost148-date-time.x86_64 0:1.48.0-7.el6                                      
+  boost148-filesystem.x86_64 0:1.48.0-7.el6                                     
+  boost148-graph.x86_64 0:1.48.0-7.el6                                          
+  boost148-iostreams.x86_64 0:1.48.0-7.el6                                      
+  boost148-locale.x86_64 0:1.48.0-7.el6                                         
+  boost148-math.x86_64 0:1.48.0-7.el6                                           
+  boost148-program-options.x86_64 0:1.48.0-7.el6                                
+  boost148-python.x86_64 0:1.48.0-7.el6                                         
+  boost148-random.x86_64 0:1.48.0-7.el6                                         
+  boost148-regex.x86_64 0:1.48.0-7.el6                                          
+  boost148-serialization.x86_64 0:1.48.0-7.el6                                  
+  boost148-signals.x86_64 0:1.48.0-7.el6                                        
+  boost148-system.x86_64 0:1.48.0-7.el6                                         
+  boost148-test.x86_64 0:1.48.0-7.el6                                           
+  boost148-thread.x86_64 0:1.48.0-7.el6                                         
+  boost148-timer.x86_64 0:1.48.0-7.el6                                          
+  boost148-wave.x86_64 0:1.48.0-7.el6                                           
+  gsl.x86_64 0:1.13-1.el6                                                       
+  libcutl.x86_64 0:1.8.1-1.el6                                                  
+  libicu.x86_64 0:4.2.1-12.el6                                                  
+  xerces-c.x86_64 0:3.0.1-20.el6                                                
+
+Updated:
+  python.x86_64 0:2.6.6-64.el6                                                  
+
+Dependency Updated:
+  python-libs.x86_64 0:2.6.6-64.el6                                             
+
+Complete!
+
+stderr: None
+2016-03-02 04:49:16.529 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:49:16.529 DEBUG umbrella - attr_check: {u'uncompressed_size': u'12881920', u'checksum': u'97cff84e58a4172fd8e9d1cb25c6047c', u'format': u'tgz', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/openMalaria-32-centos6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60314b83f6901821ac9ce'], u'size': u'2968452'}
+2016-03-02 04:49:16.529 DEBUG umbrella - dependency_process: http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz is chosen to deliver openMalaria-32-centos6-x86_64
+2016-03-02 04:49:16.529 DEBUG umbrella - attr_check: check the checksum attr of the following item:
+2016-03-02 04:49:16.529 DEBUG umbrella - attr_check: {u'uncompressed_size': u'12881920', u'checksum': u'97cff84e58a4172fd8e9d1cb25c6047c', u'format': u'tgz', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/openMalaria-32-centos6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60314b83f6901821ac9ce'], u'size': u'2968452'}
+2016-03-02 04:49:16.529 DEBUG umbrella - attr_check: check the format attr of the following item:
+2016-03-02 04:49:16.529 DEBUG umbrella - attr_check: {u'uncompressed_size': u'12881920', u'checksum': u'97cff84e58a4172fd8e9d1cb25c6047c', u'format': u'tgz', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/openMalaria-32-centos6-x86_64.tar.gz', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d60314b83f6901821ac9ce'], u'size': u'2968452'}
+2016-03-02 04:49:16.529 DEBUG umbrella - dependency_download: Download software from http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz into the umbrella local cache (/root/ec2_umbrella/cache/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64)
+2016-03-02 04:49:16.530 DEBUG umbrella - url_download: Start to download http://ccl.cse.nd.edu/research/data/hep-case-study/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz to /root/ec2_umbrella/cache/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz ....
+2016-03-02 04:49:18.135 DEBUG umbrella - dependency_download: The checksum of /root/ec2_umbrella/cache/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz is: 97cff84e58a4172fd8e9d1cb25c6047c
+2016-03-02 04:49:18.135 DEBUG umbrella - dependency_download: Uncompressing /root/ec2_umbrella/cache/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64.tar.gz into /root/ec2_umbrella/cache/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64 ....
+2016-03-02 04:49:18.247 DEBUG umbrella - software_install: Add mountpoint (/software/openMalaria-32-centos6-x86_64:/root/ec2_umbrella/cache/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64) into mount_dict
+2016-03-02 04:49:18.247 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:49:18.247 DEBUG umbrella - attr_check: {u'checksum': u'17537ae1d72910cab24a307445e71434', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/17537ae1d72910cab24a307445e71434/scenario.xml', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario.xml', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603076c613b017c87c74b'], u'size': u'27941'}
+2016-03-02 04:49:18.247 DEBUG umbrella - attr_check: check the checksum attr of the following item:
+2016-03-02 04:49:18.248 DEBUG umbrella - attr_check: {u'checksum': u'17537ae1d72910cab24a307445e71434', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/17537ae1d72910cab24a307445e71434/scenario.xml', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario.xml', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603076c613b017c87c74b'], u'size': u'27941'}
+2016-03-02 04:49:18.248 DEBUG umbrella - attr_check: check the format attr of the following item:
+2016-03-02 04:49:18.248 DEBUG umbrella - attr_check: {u'checksum': u'17537ae1d72910cab24a307445e71434', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/17537ae1d72910cab24a307445e71434/scenario.xml', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario.xml', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d603076c613b017c87c74b'], u'size': u'27941'}
+2016-03-02 04:49:18.248 DEBUG umbrella - dependency_download: Download software from http://ccl.cse.nd.edu/research/data/hep-case-study/17537ae1d72910cab24a307445e71434/scenario.xml into the umbrella local cache (/root/ec2_umbrella/cache/17537ae1d72910cab24a307445e71434/scenario.xml)
+2016-03-02 04:49:18.337 DEBUG umbrella - url_download: Start to download http://ccl.cse.nd.edu/research/data/hep-case-study/17537ae1d72910cab24a307445e71434/scenario.xml to /root/ec2_umbrella/cache/17537ae1d72910cab24a307445e71434/scenario.xml ....
+2016-03-02 04:49:18.604 DEBUG umbrella - dependency_download: The checksum of /root/ec2_umbrella/cache/17537ae1d72910cab24a307445e71434/scenario.xml is: 17537ae1d72910cab24a307445e71434
+2016-03-02 04:49:18.605 DEBUG umbrella - data_install: Add mountpoint (/tmp/scenario.xml:/root/ec2_umbrella/cache/17537ae1d72910cab24a307445e71434/scenario.xml) into mount_dict
+2016-03-02 04:49:18.605 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:49:18.605 DEBUG umbrella - attr_check: {u'checksum': u'bef8a475dbd3765b61995f36b11b0672', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario_32.xsd', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030b594d900184c0f1f5'], u'size': u'200376'}
+2016-03-02 04:49:18.605 DEBUG umbrella - attr_check: check the checksum attr of the following item:
+2016-03-02 04:49:18.605 DEBUG umbrella - attr_check: {u'checksum': u'bef8a475dbd3765b61995f36b11b0672', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario_32.xsd', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030b594d900184c0f1f5'], u'size': u'200376'}
+2016-03-02 04:49:18.605 DEBUG umbrella - attr_check: check the format attr of the following item:
+2016-03-02 04:49:18.605 DEBUG umbrella - attr_check: {u'checksum': u'bef8a475dbd3765b61995f36b11b0672', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/scenario_32.xsd', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030b594d900184c0f1f5'], u'size': u'200376'}
+2016-03-02 04:49:18.605 DEBUG umbrella - dependency_download: Download software from http://ccl.cse.nd.edu/research/data/hep-case-study/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd into the umbrella local cache (/root/ec2_umbrella/cache/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd)
+2016-03-02 04:49:18.605 DEBUG umbrella - url_download: Start to download http://ccl.cse.nd.edu/research/data/hep-case-study/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd to /root/ec2_umbrella/cache/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd ....
+2016-03-02 04:49:19.205 DEBUG umbrella - dependency_download: The checksum of /root/ec2_umbrella/cache/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd is: bef8a475dbd3765b61995f36b11b0672
+2016-03-02 04:49:19.205 DEBUG umbrella - data_install: Add mountpoint (/tmp/scenario_32.xsd:/root/ec2_umbrella/cache/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd) into mount_dict
+2016-03-02 04:49:19.205 DEBUG umbrella - attr_check: check the source attr of the following item:
+2016-03-02 04:49:19.206 DEBUG umbrella - attr_check: {u'checksum': u'54ea34d38d96c311122642aec045bc40', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/54ea34d38d96c311122642aec045bc40/densities.csv', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/densities.csv', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030f594d90018bc0f256'], u'size': u'38132'}
+2016-03-02 04:49:19.206 DEBUG umbrella - attr_check: check the checksum attr of the following item:
+2016-03-02 04:49:19.206 DEBUG umbrella - attr_check: {u'checksum': u'54ea34d38d96c311122642aec045bc40', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/54ea34d38d96c311122642aec045bc40/densities.csv', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/densities.csv', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030f594d90018bc0f256'], u'size': u'38132'}
+2016-03-02 04:49:19.206 DEBUG umbrella - attr_check: check the format attr of the following item:
+2016-03-02 04:49:19.206 DEBUG umbrella - attr_check: {u'checksum': u'54ea34d38d96c311122642aec045bc40', u'format': u'plain', u'source': [u'http://ccl.cse.nd.edu/research/data/hep-case-study/54ea34d38d96c311122642aec045bc40/densities.csv', u's3+https://s3.amazonaws.com/umbrellaopenmalaria/densities.csv', u'osf+https://files.osf.io/v1/resources/zs43e/providers/osfstorage/56d6030f594d90018bc0f256'], u'size': u'38132'}
+2016-03-02 04:49:19.206 DEBUG umbrella - dependency_download: Download software from http://ccl.cse.nd.edu/research/data/hep-case-study/54ea34d38d96c311122642aec045bc40/densities.csv into the umbrella local cache (/root/ec2_umbrella/cache/54ea34d38d96c311122642aec045bc40/densities.csv)
+2016-03-02 04:49:19.206 DEBUG umbrella - url_download: Start to download http://ccl.cse.nd.edu/research/data/hep-case-study/54ea34d38d96c311122642aec045bc40/densities.csv to /root/ec2_umbrella/cache/54ea34d38d96c311122642aec045bc40/densities.csv ....
+2016-03-02 04:49:19.470 DEBUG umbrella - dependency_download: The checksum of /root/ec2_umbrella/cache/54ea34d38d96c311122642aec045bc40/densities.csv is: 54ea34d38d96c311122642aec045bc40
+2016-03-02 04:49:19.470 DEBUG umbrella - data_install: Add mountpoint (/tmp/densities.csv:/root/ec2_umbrella/cache/54ea34d38d96c311122642aec045bc40/densities.csv) into mount_dict
+2016-03-02 04:49:19.471 DEBUG umbrella - workflow_repeat: chdir(/root/ec2_umbrella/tmpayWKAP)
+2016-03-02 04:49:19.471 DEBUG umbrella - workflow_repeat: execution engine: destructive
+2016-03-02 04:49:19.471 DEBUG umbrella - workflow_repeat: need_separate_rootfs: 1
+2016-03-02 04:49:19.471 DEBUG umbrella - workflow_repeat: Add env_para_dict into environment variables
+2016-03-02 04:49:19.471 DEBUG umbrella - workflow_repeat: Add software binary into PATH
+2016-03-02 04:49:19.471 DEBUG umbrella - func_call_withenv: Start to execute command: mv -f /root/ec2_umbrella/cache/bef8a475dbd3765b61995f36b11b0672/scenario_32.xsd /tmp/
+2016-03-02 04:49:19.471 DEBUG umbrella - func_call_withenv: The environment variables for executing the command is:
+2016-03-02 04:49:19.471 DEBUG umbrella - func_call_withenv: {'LANG': 'en_US.UTF-8', 'USERNAME': 'root', 'TERM': 'screen', 'SHELL': '/bin/bash', 'SUDO_COMMAND': 'python-2.6.9-centos6-x86_64/bin/python /root/umbrella -s destructive --spec /root/openmalaria.umbrella --log /root/ec2_umbrella.log -l ec2_umbrella -o /tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt,/tmp/output.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt run /software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml', 'SUDO_UID': '0', 'SUDO_GID': '0', u'PWD': u'/tmp', 'LOGNAME': 'root', 'USER': 'root', 'PATH': u'/sbin:/bin:/usr/sbin:/usr/bin:/software/openMalaria-32-centos6-x86_64/bin', 'MAIL': '/var/mail/root', 'SUDO_USER': 'root', 'HOME': '/root'}
+2016-03-02 04:49:19.480 DEBUG umbrella - func_call_withenv: returncode: 0
+stdout: 
+stderr: None
+2016-03-02 04:49:19.481 DEBUG umbrella - func_call_withenv: Start to execute command: mv -f /root/ec2_umbrella/cache/17537ae1d72910cab24a307445e71434/scenario.xml /tmp/
+2016-03-02 04:49:19.481 DEBUG umbrella - func_call_withenv: The environment variables for executing the command is:
+2016-03-02 04:49:19.481 DEBUG umbrella - func_call_withenv: {'LANG': 'en_US.UTF-8', 'USERNAME': 'root', 'TERM': 'screen', 'SHELL': '/bin/bash', 'SUDO_COMMAND': 'python-2.6.9-centos6-x86_64/bin/python /root/umbrella -s destructive --spec /root/openmalaria.umbrella --log /root/ec2_umbrella.log -l ec2_umbrella -o /tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt,/tmp/output.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt run /software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml', 'SUDO_UID': '0', 'SUDO_GID': '0', u'PWD': u'/tmp', 'LOGNAME': 'root', 'USER': 'root', 'PATH': u'/sbin:/bin:/usr/sbin:/usr/bin:/software/openMalaria-32-centos6-x86_64/bin', 'MAIL': '/var/mail/root', 'SUDO_USER': 'root', 'HOME': '/root'}
+2016-03-02 04:49:19.489 DEBUG umbrella - func_call_withenv: returncode: 0
+stdout: 
+stderr: None
+2016-03-02 04:49:19.587 DEBUG umbrella - func_call_withenv: Start to execute command: mv -f /root/ec2_umbrella/cache/97cff84e58a4172fd8e9d1cb25c6047c/openMalaria-32-centos6-x86_64 /software/
+2016-03-02 04:49:19.588 DEBUG umbrella - func_call_withenv: The environment variables for executing the command is:
+2016-03-02 04:49:19.588 DEBUG umbrella - func_call_withenv: {'LANG': 'en_US.UTF-8', 'USERNAME': 'root', 'TERM': 'screen', 'SHELL': '/bin/bash', 'SUDO_COMMAND': 'python-2.6.9-centos6-x86_64/bin/python /root/umbrella -s destructive --spec /root/openmalaria.umbrella --log /root/ec2_umbrella.log -l ec2_umbrella -o /tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt,/tmp/output.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt run /software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml', 'SUDO_UID': '0', 'SUDO_GID': '0', u'PWD': u'/tmp', 'LOGNAME': 'root', 'USER': 'root', 'PATH': u'/sbin:/bin:/usr/sbin:/usr/bin:/software/openMalaria-32-centos6-x86_64/bin', 'MAIL': '/var/mail/root', 'SUDO_USER': 'root', 'HOME': '/root'}
+2016-03-02 04:49:19.597 DEBUG umbrella - func_call_withenv: returncode: 0
+stdout: 
+stderr: None
+2016-03-02 04:49:19.597 DEBUG umbrella - func_call_withenv: Start to execute command: mv -f /root/ec2_umbrella/cache/54ea34d38d96c311122642aec045bc40/densities.csv /tmp/
+2016-03-02 04:49:19.597 DEBUG umbrella - func_call_withenv: The environment variables for executing the command is:
+2016-03-02 04:49:19.597 DEBUG umbrella - func_call_withenv: {'LANG': 'en_US.UTF-8', 'USERNAME': 'root', 'TERM': 'screen', 'SHELL': '/bin/bash', 'SUDO_COMMAND': 'python-2.6.9-centos6-x86_64/bin/python /root/umbrella -s destructive --spec /root/openmalaria.umbrella --log /root/ec2_umbrella.log -l ec2_umbrella -o /tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt,/tmp/output.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt run /software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml', 'SUDO_UID': '0', 'SUDO_GID': '0', u'PWD': u'/tmp', 'LOGNAME': 'root', 'USER': 'root', 'PATH': u'/sbin:/bin:/usr/sbin:/usr/bin:/software/openMalaria-32-centos6-x86_64/bin', 'MAIL': '/var/mail/root', 'SUDO_USER': 'root', 'HOME': '/root'}
+2016-03-02 04:49:19.605 DEBUG umbrella - func_call_withenv: returncode: 0
+stdout: 
+stderr: None
+2016-03-02 04:49:19.606 DEBUG umbrella - func_call_withenv: Start to execute command: cd /tmp; /software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml
+2016-03-02 04:49:19.606 DEBUG umbrella - func_call_withenv: The environment variables for executing the command is:
+2016-03-02 04:49:19.606 DEBUG umbrella - func_call_withenv: {'LANG': 'en_US.UTF-8', 'USERNAME': 'root', 'TERM': 'screen', 'SHELL': '/bin/bash', 'SUDO_COMMAND': 'python-2.6.9-centos6-x86_64/bin/python /root/umbrella -s destructive --spec /root/openmalaria.umbrella --log /root/ec2_umbrella.log -l ec2_umbrella -o /tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt,/tmp/output.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt run /software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml', 'SUDO_UID': '0', 'SUDO_GID': '0', u'PWD': u'/tmp', 'LOGNAME': 'root', 'USER': 'root', 'PATH': u'/sbin:/bin:/usr/sbin:/usr/bin:/software/openMalaria-32-centos6-x86_64/bin', 'MAIL': '/var/mail/root', 'SUDO_USER': 'root', 'HOME': '/root'}
+2016-03-02 05:44:47.966 DEBUG umbrella - func_call_withenv: returncode: 0
+stdout: BoincWrapper: not using BOINC
+[  1%]	[  2%]	[  3%]	[  4%]	[  5%]	[  6%]	[  7%]	[  8%]	[  9%]	[ 10%]	[ 11%]	[ 12%]	[ 13%]	[ 14%]	[ 15%]	[ 16%]	[ 17%]	[ 18%]	[ 19%]	[ 20%]	[ 21%]	[ 22%]	[ 23%]	[ 24%]	[ 25%]	[ 26%]	[ 27%]	[ 28%]	[ 29%]	[ 30%]	[ 31%]	[ 32%]	[ 33%]	[ 34%]	[ 35%]	[ 36%]	[ 37%]	[ 38%]	[ 39%]	[ 40%]	[ 41%]	[ 42%]	[ 43%]	[ 44%]	[ 45%]	[ 46%]	[ 47%]	[ 48%]	[ 49%]	[ 50%]	[ 51%]	[ 52%]	[ 53%]	[ 54%]	[ 55%]	[ 56%]	[ 57%]	[ 58%]	[ 59%]	[ 60%]	[ 61%]	[ 62%]	[ 63%]	[ 64%]	[ 65%]	[ 66%]	[ 67%]	[ 68%]	[ 69%]	[ 67%]	[ 68%]	[ 69%]	[ 70%]	[ 71%]	[ 68%]	[ 69%]	[ 70%]	[ 71%]	[ 72%]	[ 69%]	[ 70%]	[ 71%]	[ 72%]	[ 73%]	[ 71%]	[ 72%]	[ 73%]	[ 74%]	[ 75%]	[ 74%]	[ 75%]	[ 76%]	[ 77%]	[ 78%]	[ 79%]	[ 80%]	[ 81%]	[ 82%]	[ 83%]	[ 84%]	[ 85%]	[ 86%]	[ 87%]	[ 88%]	[ 89%]	[ 90%]	[ 91%]	[ 92%]	[ 93%]	[ 94%]	[ 95%]	[ 96%]	[ 97%]	[ 98%]	[ 99%]	[100%]	
+stderr: None
+2016-03-02 05:44:47.967 DEBUG umbrella - workflow_repeat: Moving the outputs to the expected locations ...
+2016-03-02 05:44:47.967 DEBUG umbrella - func_call_withenv: Start to execute command: mv -f /tmp/ctsout.txt /tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt
+2016-03-02 05:44:47.967 DEBUG umbrella - func_call_withenv: The environment variables for executing the command is:
+2016-03-02 05:44:47.967 DEBUG umbrella - func_call_withenv: {'LANG': 'en_US.UTF-8', 'USERNAME': 'root', 'TERM': 'screen', 'SHELL': '/bin/bash', 'SUDO_COMMAND': 'python-2.6.9-centos6-x86_64/bin/python /root/umbrella -s destructive --spec /root/openmalaria.umbrella --log /root/ec2_umbrella.log -l ec2_umbrella -o /tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt,/tmp/output.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt run /software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml', 'SUDO_UID': '0', 'SUDO_GID': '0', u'PWD': u'/tmp', 'LOGNAME': 'root', 'USER': 'root', 'PATH': u'/sbin:/bin:/usr/sbin:/usr/bin:/software/openMalaria-32-centos6-x86_64/bin', 'MAIL': '/var/mail/root', 'SUDO_USER': 'root', 'HOME': '/root'}
+2016-03-02 05:44:47.976 DEBUG umbrella - func_call_withenv: returncode: 0
+stdout: 
+stderr: None
+2016-03-02 05:44:47.976 DEBUG umbrella - func_call_withenv: Start to execute command: mv -f /tmp/output.txt /tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt
+2016-03-02 05:44:47.976 DEBUG umbrella - func_call_withenv: The environment variables for executing the command is:
+2016-03-02 05:44:47.977 DEBUG umbrella - func_call_withenv: {'LANG': 'en_US.UTF-8', 'USERNAME': 'root', 'TERM': 'screen', 'SHELL': '/bin/bash', 'SUDO_COMMAND': 'python-2.6.9-centos6-x86_64/bin/python /root/umbrella -s destructive --spec /root/openmalaria.umbrella --log /root/ec2_umbrella.log -l ec2_umbrella -o /tmp/ctsout.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/ctsout.txt,/tmp/output.txt=/tmp/umbrella_test_openmalaria_ec2/ec2_openmalaria/output.txt run /software/openMalaria-32-centos6-x86_64/bin/openMalaria -s /tmp/scenario.xml', 'SUDO_UID': '0', 'SUDO_GID': '0', u'PWD': u'/tmp', 'LOGNAME': 'root', 'USER': 'root', 'PATH': u'/sbin:/bin:/usr/sbin:/usr/bin:/software/openMalaria-32-centos6-x86_64/bin', 'MAIL': '/var/mail/root', 'SUDO_USER': 'root', 'HOME': '/root'}
+2016-03-02 05:44:47.984 DEBUG umbrella - func_call_withenv: returncode: 0
+stdout: 
+stderr: None
+2016-03-02 05:44:47.985 DEBUG umbrella - cleanup: cleanup temporary dir: /root/ec2_umbrella/tmpayWKAP
+2016-03-02 05:44:47.985 DEBUG umbrella - main: End time: 2016-03-02 05:44:47.985756
+2016-03-02 05:44:47.985 DEBUG umbrella - main: execution time: 3384 seconds

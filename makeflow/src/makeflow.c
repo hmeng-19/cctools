@@ -9,6 +9,7 @@ See the file COPYING for details.
 #include "batch_job.h"
 #include "cctools.h"
 #include "copy_stream.h"
+#include "create_dir.h"
 #include "debug.h"
 #include "getopt_aux.h"
 #include "hash_table.h"
@@ -36,11 +37,13 @@ See the file COPYING for details.
 #include "makeflow_wrapper.h"
 #include "makeflow_wrapper_docker.h"
 #include "makeflow_wrapper_monitor.h"
+#include "mountfile.h"
 #include "parser.h"
 
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <libgen.h>
 
 #include <errno.h>
 #include <signal.h>
@@ -128,6 +131,8 @@ static int log_verbose_mode = 0;
  *  * files. */
 static struct makeflow_wrapper *wrapper = 0;
 static struct makeflow_monitor *monitor = 0;
+
+static char *mountfile = NULL;
 
 /* Generates file list for node based on node files, wrapper
  *  * input files, and monitor input files. Relies on %% nodeid
@@ -915,6 +920,7 @@ static void show_help_run(const char *cmd)
 	printf(" %-30s Use this file for the makeflow log.		 (default is X.makeflowlog)\n", "-l,--makeflow-log=<logfile>");
 	printf(" %-30s Use this file for the batch system log.	 (default is X.<type>log)\n", "-L,--batch-log=<logfile>");
 	printf(" %-30s Send summary of workflow to this email address upon success or failure.\n", "-m,--email=<email>");
+	printf(" %-30s Use this file as a mountlist.\n", "   --mounts=<mountfile>");
 	printf(" %-30s Set the project name to <project>\n", "-N,--project-name=<project>");
 	printf(" %-30s Send debugging to this file. (can also be :stderr, :stdout, :syslog, or :journal)\n", "-o,--debug-file=<file>");
 	printf(" %-30s Rotate debug file once it reaches this size.\n", "   --debug-rotate-max=<bytes>");
@@ -1024,6 +1030,7 @@ int main(int argc, char *argv[])
 		LONG_OPT_MONITOR_LOG_NAME,
 		LONG_OPT_MONITOR_OPENED_FILES,
 		LONG_OPT_MONITOR_TIME_SERIES,
+		LONG_OPT_MOUNTS,
 		LONG_OPT_PASSWORD,
 		LONG_OPT_TICKETS,
 		LONG_OPT_VERBOSE_PARSING,
@@ -1069,6 +1076,7 @@ int main(int argc, char *argv[])
 		{"monitor-log-name", required_argument, 0, LONG_OPT_MONITOR_LOG_NAME},
 		{"monitor-with-opened-files", no_argument, 0, LONG_OPT_MONITOR_OPENED_FILES},
 		{"monitor-with-time-series",  no_argument, 0, LONG_OPT_MONITOR_TIME_SERIES},
+		{"mounts",  required_argument, 0, LONG_OPT_MOUNTS},
 		{"password", required_argument, 0, LONG_OPT_PASSWORD},
 		{"port", required_argument, 0, 'p'},
 		{"port-file", required_argument, 0, 'Z'},
@@ -1220,6 +1228,9 @@ int main(int argc, char *argv[])
 				if (!monitor) monitor = makeflow_monitor_create();
 				if(log_format) free(log_format);
 				log_format = xxstrdup(optarg);
+				break;
+			case LONG_OPT_MOUNTS:
+				mountfile = xxstrdup(optarg);
 				break;
 			case LONG_OPT_AMAZON_CREDENTIALS:
 				amazon_credentials = xxstrdup(optarg);
@@ -1393,6 +1404,16 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	/* Prepare the input files specified in the mountfile. */
+	if(mountfile && !clean_mode) {
+		if(mountfile_parse(mountfile, 1)) {
+			fprintf(stderr, "Fails to prepare the mountfiles!\n");
+			free(mountfile);
+			return -1;
+		}
+		free(mountfile);
+	}
+
 	if(!logfilename)
 		logfilename = string_format("%s.makeflowlog", dagfile);
 
@@ -1547,10 +1568,19 @@ int main(int argc, char *argv[])
 		makeflow_clean(d, remote_queue, clean_mode);
 		if(clean_mode == MAKEFLOW_CLEAN_ALL) {
 			unlink(logfilename);
+
+			/* Clean up all the targets referenced inside the mountfile. */
+			if(mountfile) {
+				if(mountfile_parse(mountfile, 0)) {
+					fprintf(stderr, "Fails to clean up the mountfiles!\n");
+					free(mountfile);
+					return -1;
+				}
+				free(mountfile);
+			}
 		}
 		exit(0);
 	}
-
 
 	printf("starting workflow....\n");
 

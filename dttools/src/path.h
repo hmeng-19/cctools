@@ -44,4 +44,18 @@ Returns NULL if none is found.
 */
 char *path_which(const char *exec);
 
+/* path_concat concatenates two file paths, with a slash as the separator.
+ * @param p1: a file path
+ * @param p2: a file path
+ * @return p: return the concatenated string on success, return NULL on failure.
+ * The caller should free the returned string.
+ */
+char *path_concat(const char *p1, const char *p2);
+
+
+/* path_has_doubledots checks whether s includes double dots to reference a parent directory.
+ * if s looks like "a/../b", return 1; if s looks like "a/b..b/c", return 0.
+ */
+int path_has_doubledots(const char *s);
+
 #endif

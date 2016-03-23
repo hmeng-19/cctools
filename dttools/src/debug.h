@@ -243,4 +243,7 @@ void debug_rename(const char *suffix);
 */
 void debug_reopen(void);
 
+/* LDEBUG likes debug, but also print the code location. */
+#define LDEBUG(fmt, ...) debug(D_DEBUG, "%s:%s:%d[%s]: " fmt, __func__, __FILE__, __LINE__, CCTOOLS_SOURCE, __VA_ARGS__)
+
 #endif

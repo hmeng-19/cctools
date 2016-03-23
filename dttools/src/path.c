@@ -11,6 +11,7 @@
 #include "stringtools.h"
 #include "xxmalloc.h"
 
+#include <assert.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <fnmatch.h>
@@ -460,6 +461,42 @@ char *path_which(const char *exec) {
 	else {
 		return NULL;
 	}
+}
+
+char *path_concat(const char *p1, const char *p2) {
+	char *p = NULL;
+	size_t s1, s2;
+
+	assert(p1);
+	assert(p2);
+
+	s1 = strlen(p1);
+	s2 = strlen(p2);
+
+	p = malloc(sizeof(char) * (s1 + s2 + 2));
+	if(!p) {
+		fprintf(stderr, "path_concat malloc failed: %s!\n", strerror(errno));
+		return NULL;
+	}
+
+	snprintf(p, s1+s2+2, "%s/%s", p1, p2);
+	return p;
+}
+
+int path_has_doubledots(const char *s) {
+	assert(s);
+
+	while(*s) {
+		size_t i;
+
+		s += strspn(s, "/");
+		i = strcspn(s, "/");
+
+		if(i == 2 && *s == '.' && *(s+1) == '.') return 1;
+
+		s += i;
+	}
+	return 0;
 }
 
 /* vim: set noexpandtab tabstop=4: */

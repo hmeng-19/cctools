@@ -6,7 +6,7 @@ include ../../rules.mk
 LOCAL_LINKAGE=$(CCTOOLS_GLOBUS_LDFLAGS)
 
 EXTERNAL_DEPENDENCIES = ../../batch_job/src/libbatch_job.a ../../work_queue/src/libwork_queue.a ../../chirp/src/libchirp.a ../../dttools/src/libdttools.a
-OBJECTS = dag.o dag_node.o dag_file.o dag_variable.o dag_visitors.o dag_resources.o lexer.o parser.o
+OBJECTS = dag.o dag_node.o dag_file.o dag_variable.o dag_visitors.o dag_resources.o lexer.o parser.o mountfile.o
 PROGRAMS = makeflow makeflow_viz makeflow_analyze makeflow_linker
 SCRIPTS = condor_submit_makeflow makeflow_graph_log makeflow_monitor starch makeflow_linker_perl_driver makeflow_linker_python_driver
 TARGETS = $(PROGRAMS)
@@ -15,7 +15,7 @@ all: $(TARGETS)
 
 makeflow makeflow_viz makeflow_analyze: $(OBJECTS)
 
-makeflow: makeflow_summary.o makeflow_gc.o makeflow_log.o makeflow_wrapper.o makeflow_wrapper_monitor.o makeflow_wrapper_docker.o
+makeflow: makeflow_summary.o makeflow_gc.o makeflow_log.o makeflow_wrapper.o makeflow_wrapper_monitor.o makeflow_wrapper_docker.o mountfile.o
 
 $(PROGRAMS): $(EXTERNAL_DEPENDENCIES)
 

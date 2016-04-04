@@ -548,6 +548,52 @@ makeflow ...
 <tr><td> analysis </td> <td> 4 </td> <td> 800  (from environment)</td> <td> 600 </td> </tr>
 </table>
 
+<h2 id="linking">Mountfile Support<a class="sectionlink" href="#mountfile" title="Link to this section.">&#x21d7;</a></h2>
+
+<p><tt>Makeflow</tt> allows the user to specify the source and target of each input dependency for a makeflow through
+<tt>--mounts mountfile</tt> option. Every line of <tt>mountfile</tt> should be in the format of <tt>target source</tt>. </p>
+
+<p>Here is an example of a mountfile:</p>
+<code>curl /usr/bin/curl
+convert ../bin/convert
+data/file1 /home/bob/input1
+</code>
+
+<p>The <tt>target</tt> field should satisfy the following requirements:</p>
+<ul>
+  <li>the target path should be non-existing;</li>
+  <li>the target path should be relative;</li>
+  <li>the target path should not include doubledots (<tt>..</tt>) to limit the
+  behavoir of the makeflow within the current working directory.  For example, <tt>a/../b</tt>
+  is an invalid target, however, <tt>a/b..c/d</tt> is a valid target. </li> </ul>
+
+<p>The <tt>source</tt> field should satisfy the following requirements:</p>
+<ul>
+  <li>the source path should exist;</li>
+  <li>the source path can be relative or absolute;</li>
+  <li>the source path can include doubledots (<tt>..</tt>);</li>
+  <li>the source path should not be any ancestor directory of the target to avoid infinite loop;</li>
+  <li>the source path should only be regular files, directories, and symbolic links;</li>
+</ul>
+
+<p>To execute a makeflow with a mountfile, named <tt>mountfile</tt>, specifying its input dependencies:</p>
+
+<code>makeflow --mounts mountfile example.makeflow</code>
+
+<p>Before starting parsing the DAG, Makeflow first parses each line of the mountfile, and copies the specified dependency from the location specified by <tt>source</tt> field to the location specified by the <tt>target</tt> field.</p>
+
+<p>To cleanup a makeflow together with the input dependencies installed through the <tt>--mounts</tt> option:</p>
+<code>makeflow --mounts mountfile -c example.makeflow</code>
+
+<p>The input dependencies set up by the <tt>--mounts</tt> option can only be cleaned up when the makeflow clean mode is set to all.
+After Makeflow cleans up the outputs and intermediate files, each <tt>target</tt> specified in the mountfile will be removed.</p>
+
+<ul>
+  <li>If the target is a regular file, remove it directly;</li>
+  <li>If the target is a symlink, remove the symlink itself.</li>
+  <li>If the target is a directory, remove the directory recursively.</li>
+</li>
+
 <h2 id="linking">Linking Dependencies<a class="sectionlink" href="#linking" title="Link to this section.">&#x21d7;</a></h2>
 
 <p><tt>Makeflow</tt> provides a tool to collect all of the dependencies for a

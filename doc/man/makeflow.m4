@@ -109,6 +109,11 @@ LONGCODE_END
 OPTION_PAIR(--amazon-ami, image-id) Specify an amazon machine image.
 OPTIONS_END
 
+SUBSECTION(Mountfile Support)
+OPTIONS_BEGIN
+OPTION_PAIR(--mounts, mountfile)Use this file as a mountlist. Every line of a mountfile can be used to specify the source and target of each input dependency in the format of BOLD(target source) (Note there should be a space between target and source.).
+OPTIONS_END
+
 SUBSECTION(Other Options)
 OPTIONS_BEGIN
 OPTION_ITEM(`-A, --disable-afs-check')Disable the check for AFS. (experts only)

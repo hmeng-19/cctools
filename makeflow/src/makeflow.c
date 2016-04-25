@@ -133,6 +133,8 @@ static struct makeflow_wrapper *wrapper = 0;
 static struct makeflow_monitor *monitor = 0;
 
 static char *mountfile = NULL;
+static char *mount_cache = NULL;
+static int use_mountfile = 0;
 
 /* Generates file list for node based on node files, wrapper
  *  * input files, and monitor input files. Relies on %% nodeid
@@ -755,6 +757,11 @@ static int makeflow_check(struct dag *d)
 			if(skip_file_check || batch_fs_stat(remote_queue, f->filename, &buf) >= 0) {
 				continue;
 			}
+
+			if(f->source) {
+				continue;
+			}
+
 			fprintf(stderr, "makeflow: %s does not exist, and is not created by any rule.\n", f->filename);
 			error++;
 		}
@@ -921,6 +928,7 @@ static void show_help_run(const char *cmd)
 	printf(" %-30s Use this file for the batch system log.	 (default is X.<type>log)\n", "-L,--batch-log=<logfile>");
 	printf(" %-30s Send summary of workflow to this email address upon success or failure.\n", "-m,--email=<email>");
 	printf(" %-30s Use this file as a mountlist.\n", "   --mounts=<mountfile>");
+	printf(" %-30s Use this dir as the cache for file dependencies.\n", "   --cache=<cache_dir>");
 	printf(" %-30s Set the project name to <project>\n", "-N,--project-name=<project>");
 	printf(" %-30s Send debugging to this file. (can also be :stderr, :stdout, :syslog, or :journal)\n", "-o,--debug-file=<file>");
 	printf(" %-30s Rotate debug file once it reaches this size.\n", "   --debug-rotate-max=<bytes>");
@@ -1020,6 +1028,7 @@ int main(int argc, char *argv[])
 
 	enum {
 		LONG_OPT_AUTH = UCHAR_MAX+1,
+		LONG_OPT_CACHE,
 		LONG_OPT_DEBUG_ROTATE_MAX,
 		LONG_OPT_DISABLE_BATCH_CACHE,
 		LONG_OPT_DOT_CONDENSE,
@@ -1054,6 +1063,7 @@ int main(int argc, char *argv[])
 		{"batch-log", required_argument, 0, 'L'},
 		{"batch-options", required_argument, 0, 'B'},
 		{"batch-type", required_argument, 0, 'T'},
+		{"cache", required_argument, 0, LONG_OPT_CACHE},
 		{"catalog-server", required_argument, 0, 'C'},
 		{"clean", optional_argument, 0, 'c'},
 		{"debug", required_argument, 0, 'd'},
@@ -1131,6 +1141,8 @@ int main(int argc, char *argv[])
 						clean_mode = MAKEFLOW_CLEAN_INTERMEDIATES;
 					} else if(strcasecmp(optarg, "outputs") == 0){
 						clean_mode = MAKEFLOW_CLEAN_OUTPUTS;
+					} else if(strcasecmp(optarg, "cache") == 0){
+						clean_mode = MAKEFLOW_CLEAN_CACHE;
 					} else if(strcasecmp(optarg, "all") != 0){
 						fprintf(stderr, "makeflow: unknown clean option %s", optarg);
 						exit(1);
@@ -1228,6 +1240,9 @@ int main(int argc, char *argv[])
 				if (!monitor) monitor = makeflow_monitor_create();
 				if(log_format) free(log_format);
 				log_format = xxstrdup(optarg);
+				break;
+			case LONG_OPT_CACHE:
+				mount_cache = xxstrdup(optarg);
 				break;
 			case LONG_OPT_MOUNTS:
 				mountfile = xxstrdup(optarg);
@@ -1404,16 +1419,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	/* Prepare the input files specified in the mountfile. */
-	if(mountfile && !clean_mode) {
-		if(mountfile_parse(mountfile, 1)) {
-			fprintf(stderr, "Fails to prepare the mountfiles!\n");
-			free(mountfile);
-			return -1;
-		}
-		free(mountfile);
-	}
-
 	if(!logfilename)
 		logfilename = string_format("%s.makeflowlog", dagfile);
 
@@ -1545,6 +1550,19 @@ int main(int argc, char *argv[])
 	if (change_dir)
 		chdir(change_dir);
 
+	/* Prepare the input files specified in the mountfile. */
+	if(mountfile && !clean_mode) {
+		/* check the validity of the mountfile and load the info from the mountfile into the dag */
+		printf("checking the consistency of the mountfile ...\n");
+		if(mountfile_parse(mountfile, d)) {
+			fprintf(stderr, "Fails to parse the mountfile (%s)!\n", mountfile);
+			free(mountfile);
+			return -1;
+		}
+		free(mountfile);
+		use_mountfile = 1;
+	}
+
 	printf("checking %s for consistency...\n",dagfile);
 	if(!makeflow_check(d)) {
 		exit(EXIT_FAILURE);
@@ -1560,27 +1578,53 @@ int main(int argc, char *argv[])
 
 	makeflow_log_recover(d, logfilename, log_verbose_mode, remote_queue, clean_mode, skip_file_check );
 
+	/* In case when the user uses --cache option to specify the mount cache dir and the log file also has
+	 * a cache dir logged, the dir specified by the --cache option wins.
+	 */
+	if(mount_cache) {
+		if(d->cache_dir) {
+			free(d->cache_dir);
+		}
+		d->cache_dir = mount_cache;
+	}
+
+	if(use_mountfile && !clean_mode) {
+		if(mount_install_all(d)) {
+			fprintf(stderr, "Fails to install the dependencies specified in the mountfile!\n");
+			dag_file_mount_clean(d);
+			return -1;
+		}
+		dag_file_mount_clean(d);
+	}
+
 	struct dag_file *f = dag_file_lookup_or_create(d, batchlogfilename);
 	makeflow_log_file_state_change(d, f, DAG_FILE_STATE_EXPECT);
 
 	if(clean_mode != MAKEFLOW_CLEAN_NONE) {
 		printf("cleaning filesystem...\n");
 		makeflow_clean(d, remote_queue, clean_mode);
+
+		if(clean_mode == MAKEFLOW_CLEAN_CACHE || clean_mode == MAKEFLOW_CLEAN_ALL) {
+			/* Clean up all the targets referenced inside the mountfile. */
+			if(mount_uninstall_all(d)) {
+				fprintf(stderr, "Fails to clean up the dependencies specified in the mountfile!\n");
+				dag_file_mount_clean(d);
+				return -1;
+			}
+			dag_file_mount_clean(d);
+		}
+
 		if(clean_mode == MAKEFLOW_CLEAN_ALL) {
 			unlink(logfilename);
-
-			/* Clean up all the targets referenced inside the mountfile. */
-			if(mountfile) {
-				if(mountfile_parse(mountfile, 0)) {
-					fprintf(stderr, "Fails to clean up the mountfiles!\n");
-					free(mountfile);
-					return -1;
-				}
-				free(mountfile);
-			}
 		}
+
 		exit(0);
 	}
+
+	/* this func call guarantees the mount fields set up from the info of the makeflow log file are cleaned up
+     * even if the user does not use --mounts or -c option.
+	 */
+	dag_file_mount_clean(d);
 
 	printf("starting workflow....\n");
 

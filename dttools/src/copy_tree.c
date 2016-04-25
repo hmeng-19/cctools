@@ -77,7 +77,9 @@ int copy_direntry(const char *s, const char *t) {
 	}
 }
 
-/* target already exists.
+/* copy_dir_real copies from source to target.
+ * @param source: a file path.
+ * @param target: a file path which already exists.
  * return 0 on success, return -1 on failure.
  */
 int copy_dir_real(const char *source, const char *target) {
@@ -202,8 +204,17 @@ file_type check_file_type(const char *source) {
 }
 
 char *get_exist_ancestor_dir(const char *s) {
-	char *p = (char *)s; /* declare a new char * variable p to change *p. */
+	char *p, *q;
 	char *r;
+
+	/* the function needs to modify the string, so make a copy and modify the copied version */
+	q = xxstrdup(s);
+	if(!q) {
+		LDEBUG("xxstrdup(%s) failed: %s!\n", s, strerror(errno));
+		return NULL;
+	}
+
+	p = q;
 
 	while(*p) {
 		char old_p;
@@ -213,7 +224,7 @@ char *get_exist_ancestor_dir(const char *s) {
 		old_p = *p;
 		*p = '\0';
 
-		if(access(s, F_OK)) {
+		if(access(q, F_OK)) {
 			*p = old_p;
 			p -= n;
 			break;
@@ -222,13 +233,15 @@ char *get_exist_ancestor_dir(const char *s) {
 		*p = old_p;
 	}
 
-	r = malloc(sizeof(char) * (p-s+1));
+	r = malloc(sizeof(char) * (p-q+1));
 	if(!r) {
 		LDEBUG("malloc failed: %s!\n", strerror(errno));
+		free(q);
 		return NULL;
 	}
 
-	snprintf(r, p-s+1, "%s", s);
+	snprintf(r, p-q+1, "%s", q);
+	free(q);
 	return r;
 }
 

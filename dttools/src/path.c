@@ -483,6 +483,53 @@ char *path_concat(const char *p1, const char *p2) {
 	return p;
 }
 
+int path_has_symlink(const char *s) {
+	char *p, *q;
+
+	/* the function needs to modify the string, so make a copy and modify the copied version */
+	q = xxstrdup(s);
+	if(!q) {
+		LDEBUG("xxstrdup(%s) failed: %s!\n", s, strerror(errno));
+		return -1;
+	}
+
+	p = q;
+
+	while(*p) {
+		char old_p;
+		size_t n = strspn(p, "/") + strcspn(p, "/");
+
+		p += n;
+		old_p = *p;
+		*p = '\0';
+
+		if(access(q, F_OK)) {
+			*p = old_p;
+			p -= n;
+			break;
+		} else {
+			struct stat st;
+			if(lstat(q, &st)) {
+				LDEBUG("lstat(%s) failed: %s!\n", q, strerror(errno));
+				free(q);
+				return -1;
+			}
+
+			if(S_ISLNK(st.st_mode)) {
+				LDEBUG("%s includes symbolic link(%s)!\n", s, q);
+				free(q);
+				return -1;
+			}
+		}
+
+		*p = old_p;
+	}
+
+	free(q);
+	return 0;
+}
+
+
 int path_has_doubledots(const char *s) {
 	assert(s);
 
@@ -497,6 +544,37 @@ int path_has_doubledots(const char *s) {
 		s += i;
 	}
 	return 0;
+}
+
+int path_depth(const char *s) {
+	int r = 0;
+	char *t;
+
+	assert(s);
+
+	t = s;
+
+	while(*s) {
+		size_t i;
+
+		s += strspn(s, "/");
+		i = strcspn(s, "/");
+
+		if(i == 2 && *s == '.' && *(s+1) == '.') {
+			LDEBUG("path_depth does not support the path (%s) including double dots!\n", t);
+			return -1;
+		}
+
+		if(i == 1 && *s == '.') {
+			s += i;
+			continue;
+		}
+
+		if(i > 0) r++;
+
+		s += i;
+	}
+	return r;
 }
 
 /* vim: set noexpandtab tabstop=4: */

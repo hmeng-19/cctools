@@ -26,6 +26,12 @@ typedef enum {
 	DAG_FILE_STATE_UP
 } dag_file_state_t;
 
+/* the type of a dependency specified in the mountfile */
+typedef enum {
+	SOURCE_LOCAL,
+	SOURCE_HTTP,
+	SOURCE_UNSUPPORTED
+} source_type;
 
 struct dag_file {
 	const char *filename;
@@ -34,6 +40,9 @@ struct dag_file {
 	int    ref_count;                        /* How many nodes still to run need this file */
 	time_t creation_logged;                  /* Time that file creation is logged */
 	dag_file_state_t state;                  /* Enum: DAG_FILE_STATE_{INTIAL,EXPECT,...} */
+	char *source;                            /* the source of the file specified in the mountfile, by default is NULL */
+	char *cache_name;                        /* the name of a file dependency in the cache, by default is NULL */
+	source_type type;                        /* the type of the source of a dependency */
 };
 
 struct dag_file *dag_file_create( const char *filename );
@@ -43,5 +52,10 @@ int dag_file_is_source( const struct dag_file *f );
 int dag_file_is_sink( const struct dag_file *f );
 int dag_file_should_exist( const struct dag_file *f );
 int dag_file_in_trans( const struct dag_file *f );
+
+/* dag_file_mount_clean cleans up the mem space allocated for dag_file->source and dag_file->cache_name
+ * return 0 on success, return non-zero on failure.
+ */
+int dag_file_mount_clean( struct dag *d );
 
 #endif

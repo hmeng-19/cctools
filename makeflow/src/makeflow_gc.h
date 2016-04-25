@@ -25,6 +25,7 @@ typedef enum {
 	MAKEFLOW_CLEAN_NONE,          /* Clean nothing, default. */
 	MAKEFLOW_CLEAN_INTERMEDIATES, /* Clean only intermediate files. */
 	MAKEFLOW_CLEAN_OUTPUTS,       /* Clean only output files. */
+	MAKEFLOW_CLEAN_CACHE,         /* Clean the dependency cache and the links pointing to it. */
 	MAKEFLOW_CLEAN_ALL            /* Clean all created files and logs. */
 } makeflow_clean_depth;
 

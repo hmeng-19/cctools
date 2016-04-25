@@ -52,10 +52,20 @@ char *path_which(const char *exec);
  */
 char *path_concat(const char *p1, const char *p2);
 
+/* path_has_symlink checks whether any level of a path is symbolic link.
+ * return 0 if all the levels of the path are not symlink; otherwise return non-zero.
+ */
+int path_has_symlink(const char *s);
 
 /* path_has_doubledots checks whether s includes double dots to reference a parent directory.
  * if s looks like "a/../b", return 1; if s looks like "a/b..b/c", return 0.
  */
 int path_has_doubledots(const char *s);
 
+/* path_depth checks the depth of a path. The path should not include double dots.
+ * If s is an absolute path, return the depth of the path relative to /.
+ * If s is a relative path, return the depth of the path relative to CWD.
+ * return the depth of the path.
+ */
+int path_depth(const char *s);
 #endif

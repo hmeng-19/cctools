@@ -188,7 +188,7 @@ void makeflow_clean(struct dag *d, struct batch_queue *queue, makeflow_clean_dep
 		if(dag_file_is_source(f))
 			continue;
 
-		if(clean_depth == MAKEFLOW_CLEAN_ALL){
+		if(clean_depth == MAKEFLOW_CLEAN_ALL) {
 			makeflow_clean_file(d, queue, f, silent);
 		} else if(set_lookup(d->outputs, f) && (clean_depth == MAKEFLOW_CLEAN_OUTPUTS)) {
 			makeflow_clean_file(d, queue, f, silent);

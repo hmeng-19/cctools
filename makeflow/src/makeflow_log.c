@@ -12,7 +12,9 @@ See the file COPYING for details.
 #include "timestamp.h"
 #include "list.h"
 #include "debug.h"
+#include "xxmalloc.h"
 
+#include <limits.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -65,6 +67,16 @@ timestamp - the unix time (in microseconds) when this line is written to the log
 collected - the number of files were collected in this garbage collection cycle.
 time_spent - the length of time this cycle took.
 total_collected - the total number of files has been collected so far since the start this makeflow execution.
+
+Line format: # MOUNT timestamp target source cache_name type
+
+timestamp - the unix time (in microseconds) when this line is written to the log file.
+target - the target of a dependency specified in a mountfile
+source - the source of a dependency specified in a mountfile
+cache_name - the file name of the dependency in the cache directory
+type - the type of this dependency source
+	0. LOCAL - The dependency comes from the local filesystem.
+	1. HTTP  - The dependency comes from the network via http.
 
 Line format: # STARTED timestamp
 Line format: # ABORTED timestamp
@@ -127,6 +139,16 @@ void makeflow_log_completed_event( struct dag *d )
 	makeflow_log_sync(d,1);
 }
 
+void makeflow_log_mount_event( struct dag *d, const char *target, const char *source, const char *cache_name, source_type type ) {
+	fprintf(d->logfile, "# MOUNT %" PRIu64 " %s %s %s %d\n", timestamp_get(), target, source, cache_name, type);
+	makeflow_log_sync(d,1);
+}
+
+void makeflow_log_cache_event( struct dag *d, const char *cache_dir ) {
+	fprintf(d->logfile, "# CACHE %" PRIu64 " %s\n", timestamp_get(), cache_dir);
+	makeflow_log_sync(d,1);
+}
+
 void makeflow_log_state_change( struct dag *d, struct dag_node *n, int newstate )
 {
 	debug(D_MAKEFLOW_RUN, "node %d %s -> %s\n", n->nodeid, dag_node_state_name(n->state), dag_node_state_name(newstate));
@@ -186,6 +208,8 @@ void makeflow_log_recover(struct dag *d, const char *filename, int verbose_mode,
 		printf("recovering from log file %s...\n",filename);
 
 		while((line = get_line(d->logfile))) {
+			char source[PATH_MAX], cache_dir[NAME_MAX], cache_name[NAME_MAX];
+			int type;
 			linenum++;
 
 			if(sscanf(line, "# %d %s %" SCNu64 "", &file_state, file, &previous_completion_time) == 3) {
@@ -198,6 +222,42 @@ void makeflow_log_recover(struct dag *d, const char *filename, int verbose_mode,
 				} else if(file_state == DAG_FILE_STATE_DELETE){
 					d->deleted_files += 1;
 				}
+				continue;
+			}
+			if(sscanf(line, "# CACHE %" SCNu64 " %s", &previous_completion_time, cache_dir) == 2) {
+				/* if the user specifies a cache dir using --cache dir, ignore the info from the log file */
+				if(!d->cache_dir) {
+					d->cache_dir = xxstrdup(cache_dir);
+					if(!d->cache_dir) {
+						LDEBUG("xxstrdup(%s) failed!\n", cache_dir);
+						return;
+					}
+				}
+				continue;
+			}
+			if(sscanf(line, "# MOUNT %" SCNu64 " %s %s %s %d", &previous_completion_time, file, source, cache_name, &type) == 5) {
+				char *p = NULL;
+				f = dag_file_lookup_or_create(d, file);
+
+				/* if the user specifies the same target in the mountfile, ignore the info from the log file */
+				if(f->source) continue;
+
+				p = xxstrdup(source);
+				if(!p) {
+					LDEBUG("xxstrdup(%s) failed!\n", source);
+					return;
+				}
+				f->source = p;
+
+				p = NULL;
+				p = xxstrdup(cache_name);
+				if(!p) {
+					LDEBUG("xxstrdup(%s) failed!\n", cache_name);
+					return;
+				}
+				f->cache_name = p;
+
+				f->type = type;
 				continue;
 			}
 			if(line[0] == '#')

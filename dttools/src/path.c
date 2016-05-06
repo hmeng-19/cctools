@@ -552,7 +552,7 @@ int path_depth(const char *s) {
 
 	assert(s);
 
-	t = s;
+	t = (char *)s;
 
 	while(*s) {
 		size_t i;

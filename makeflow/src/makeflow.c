@@ -1622,7 +1622,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* this func call guarantees the mount fields set up from the info of the makeflow log file are cleaned up
-     * even if the user does not use --mounts or -c option.
+	 * even if the user does not use --mounts or -c option.
 	 */
 	dag_file_mount_clean(d);
 

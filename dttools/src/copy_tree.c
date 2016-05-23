@@ -145,10 +145,6 @@ int copy_dir(const char *source, const char *target) {
 
 		// get the basename of the source
 		source_copy = xxstrdup(source);
-		if(!source_copy) {
-			LDEBUG("malloc failed: %s!\n", strerror(errno));
-			return -1;
-		}
 		path_remove_trailing_slashes((char *)source_copy);
 		source_basename = basename(source_copy);
 
@@ -209,10 +205,6 @@ char *get_exist_ancestor_dir(const char *s) {
 
 	/* the function needs to modify the string, so make a copy and modify the copied version */
 	q = xxstrdup(s);
-	if(!q) {
-		LDEBUG("xxstrdup(%s) failed: %s!\n", s, strerror(errno));
-		return NULL;
-	}
 
 	p = q;
 

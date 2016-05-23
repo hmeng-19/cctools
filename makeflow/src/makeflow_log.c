@@ -243,18 +243,10 @@ void makeflow_log_recover(struct dag *d, const char *filename, int verbose_mode,
 				if(f->source) continue;
 
 				p = xxstrdup(source);
-				if(!p) {
-					LDEBUG("xxstrdup(%s) failed!\n", source);
-					return;
-				}
 				f->source = p;
 
 				p = NULL;
 				p = xxstrdup(cache_name);
-				if(!p) {
-					LDEBUG("xxstrdup(%s) failed!\n", cache_name);
-					return;
-				}
 				f->cache_name = p;
 
 				f->type = type;

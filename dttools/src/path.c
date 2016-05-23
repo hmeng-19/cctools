@@ -488,10 +488,6 @@ int path_has_symlink(const char *s) {
 
 	/* the function needs to modify the string, so make a copy and modify the copied version */
 	q = xxstrdup(s);
-	if(!q) {
-		LDEBUG("xxstrdup(%s) failed: %s!\n", s, strerror(errno));
-		return -1;
-	}
 
 	p = q;
 

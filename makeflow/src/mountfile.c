@@ -318,7 +318,6 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 	 * If target is "dir1/dir2/file", then create dir1 and dir2 using `mkdir -p dir1/dir2`.
 	 */
 	p = xxstrdup(target);
-	if(!p) return -1;
 
 	dirpath = dirname(p); /* Please do NOT free dirpath, free p instead. */
 	if(access(dirpath, F_OK) && !create_dir(dirpath, 0755)) {
@@ -464,10 +463,6 @@ int mountfile_parse(const char *mountfile, struct dag *d) {
 		}
 
 		p = xxstrdup(source);
-		if(!p) {
-			LDEBUG("xxstrdup(%s) failed!\n", source);
-			err_num++;
-		}
 
 		/* df->source may already be set based on the information from the makeflow log file, so free it first. */
 		if(df->source) free(df->source);
@@ -568,10 +563,6 @@ int mount_install_all(struct dag *d) {
 	} else {
 		/* Create a unique cache dir */
 		cache_dir = xxstrdup(".makeflow_cache.XXXXXX");
-		if(!cache_dir) {
-			LDEBUG("xxstrdup failed: %s\n", strerror(errno));
-			return -1;
-		}
 
 		if(mkdtemp(cache_dir) == NULL) {
 			LDEBUG("mkdtemp(%s) failed: %s\n", cache_dir, strerror(errno));

@@ -366,47 +366,6 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 	}
 }
 
-/* mount_uninstall removes the target.
- * return 0 on success, -1 on failure.
- */
-int mount_uninstall(const char *target) {
-	file_type t_type;
-
-	if(!target || !*target) return 0;
-
-	/* Check whether target already exists. */
-	if(access(target, F_OK)) {
-		LDEBUG("the target (%s) does not exist!\n", target);
-		return 0;
-	}
-
-	/* Check whether the target is an absolute path. */
-	if(target[0] == '/') {
-		LDEBUG("the target (%s) should not be an absolute path!\n", target);
-		fprintf(stderr, "the target (%s) should not be an absolute path!\n", target);
-		return -1;
-	}
-
-	/* check whether target includes .. */
-	if(path_has_doubledots(target)) {
-		LDEBUG("the target (%s) include ..!\n", target);
-		fprintf(stderr, "the target (%s) include ..!\n", target);
-		return -1;
-	}
-
-	/* check whether target is REG, LNK, DIR */
-	if((t_type = check_file_type(target)) == FILE_TYPE_UNSUPPORTED)
-		return -1;
-
-	if(unlink_recursive(target)) {
-		LDEBUG("Fails to remove %s!\n", target);
-		fprintf(stderr, "Fails to remove %s!\n", target);
-		return -1;
-	}
-
-	return 0;
-}
-
 int mountfile_parse(const char *mountfile, struct dag *d) {
 	FILE *f;
 	char line[PATH_MAX*2 + 1]; /* each line of the mountfile includes the target path, a space and the source path. */
@@ -595,34 +554,6 @@ int mount_install_all(struct dag *d) {
 	}
 	list_delete(list);
 	return 0;
-}
-
-int mount_uninstall_all(struct dag *d) {
-	struct list *list;
-	struct dag_file *df;
-	int r = 0;
-	if(!d) return 0;
-
-	list = dag_input_files(d);
-	if(!list) {
-		return mount_uninstall(d->cache_dir);
-	}
-
-	list_first_item(list);
-	while((df = (struct dag_file *)list_next_item(list))) {
-		if(!df->source || !df->cache_name) {
-			continue;
-		}
-
-		/* mount_uninstall_all tries to remove as much as possible and does not stop when any error is encountered. */
-		if(mount_uninstall(df->filename)) r = -1;
-	}
-	list_delete(list);
-
-	/* remove the cache dir */
-	if(r == 0) r = mount_uninstall(d->cache_dir);
-
-	return r;
 }
 
 /* vim: set noexpandtab tabstop=4: */

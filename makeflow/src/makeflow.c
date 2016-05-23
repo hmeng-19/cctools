@@ -1602,16 +1602,9 @@ int main(int argc, char *argv[])
 
 	if(clean_mode != MAKEFLOW_CLEAN_NONE) {
 		printf("cleaning filesystem...\n");
-		makeflow_clean(d, remote_queue, clean_mode);
-
-		if(clean_mode == MAKEFLOW_CLEAN_CACHE || clean_mode == MAKEFLOW_CLEAN_ALL) {
-			/* Clean up all the targets referenced inside the mountfile. */
-			if(mount_uninstall_all(d)) {
-				fprintf(stderr, "Fails to clean up the dependencies specified in the mountfile!\n");
-				dag_mount_clean(d);
-				return -1;
-			}
-			dag_mount_clean(d);
+		if(makeflow_clean(d, remote_queue, clean_mode)) {
+			fprintf(stderr, "Fails to clean up makeflow!\n");
+			exit(EXIT_FAILURE);
 		}
 
 		if(clean_mode == MAKEFLOW_CLEAN_ALL) {

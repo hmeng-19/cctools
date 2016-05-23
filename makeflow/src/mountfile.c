@@ -47,29 +47,6 @@ int create_link(const char *link_target, const char *link_name) {
 	return 0;
 }
 
-/* md5_cal calculates the md5 checksum of string s.
- * @param s: a string pointer
- * return the md5 checksum of s on success, return NULL on failure.
- * The caller should free the returned string.
- */
-char *md5_cal(const char *s) {
-	unsigned char digest[MD5_DIGEST_LENGTH_HEX];
-	md5_context_t context;
-	char *p = NULL;
-
-	p = malloc(sizeof(char) * (MD5_DIGEST_LENGTH_HEX+1));
-	if(!p) {
-		LDEBUG("malloc failed: %s!\n", strerror(errno));
-		return NULL;
-	}
-
-	md5_init(&context);
-	md5_update(&context, (const unsigned char *)s, strlen(s));
-	md5_final(digest, &context);
-	sprintf(p, "%s", md5_string(digest));
-	return p;
-}
-
 /* mount_install_http downloads a dependency from source to cache_path.
  * @param source: a http url.
  * @param cache_path: a file path in the cache dir.

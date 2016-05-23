@@ -422,5 +422,25 @@ int dag_local_jobs_running( struct dag *d )
 	return itable_size(d->local_job_table);
 }
 
+int dag_mount_clean( struct dag *d ) {
+	struct list *list;
+	struct dag_file *df;
+	if(!d) return 0;
+
+	list = dag_input_files(d);
+	if(!list) return 0;
+
+	list_first_item(list);
+	while((df = (struct dag_file *)list_next_item(list))) {
+		dag_file_mount_clean(df);
+	}
+	list_delete(list);
+
+	if(d->cache_dir) {
+		free(d->cache_dir);
+		d->cache_dir = NULL;
+	}
+	return 0;
+}
 
 /* vim: set noexpandtab tabstop=4: */

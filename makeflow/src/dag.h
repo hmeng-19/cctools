@@ -67,4 +67,9 @@ int dag_width_uniform_task( struct dag *d );
 int dag_remote_jobs_running( struct dag *d );
 int dag_local_jobs_running( struct dag *d );
 
+/* dag_mount_clean cleans up the mem space allocated due to the usage of mountfile
+ * return 0 on success, return non-zero on failure.
+ */
+int dag_mount_clean( struct dag *d );
+
 #endif

@@ -53,9 +53,8 @@ int dag_file_is_sink( const struct dag_file *f );
 int dag_file_should_exist( const struct dag_file *f );
 int dag_file_in_trans( const struct dag_file *f );
 
-/* dag_file_mount_clean cleans up the mem space allocated for dag_file->source and dag_file->cache_name
- * return 0 on success, return non-zero on failure.
+/* dag_file_mount_clean cleans up the mem space allocated for dag_file due to the usage of mountfile
  */
-int dag_file_mount_clean( struct dag *d );
+void dag_file_mount_clean( struct dag_file *df );
 
 #endif

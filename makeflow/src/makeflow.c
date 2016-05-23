@@ -1591,10 +1591,10 @@ int main(int argc, char *argv[])
 	if(use_mountfile && !clean_mode) {
 		if(mount_install_all(d)) {
 			fprintf(stderr, "Fails to install the dependencies specified in the mountfile!\n");
-			dag_file_mount_clean(d);
+			dag_mount_clean(d);
 			return -1;
 		}
-		dag_file_mount_clean(d);
+		dag_mount_clean(d);
 	}
 
 	struct dag_file *f = dag_file_lookup_or_create(d, batchlogfilename);
@@ -1608,10 +1608,10 @@ int main(int argc, char *argv[])
 			/* Clean up all the targets referenced inside the mountfile. */
 			if(mount_uninstall_all(d)) {
 				fprintf(stderr, "Fails to clean up the dependencies specified in the mountfile!\n");
-				dag_file_mount_clean(d);
+				dag_mount_clean(d);
 				return -1;
 			}
-			dag_file_mount_clean(d);
+			dag_mount_clean(d);
 		}
 
 		if(clean_mode == MAKEFLOW_CLEAN_ALL) {
@@ -1624,7 +1624,7 @@ int main(int argc, char *argv[])
 	/* this func call guarantees the mount fields set up from the info of the makeflow log file are cleaned up
 	 * even if the user does not use --mounts or -c option.
 	 */
-	dag_file_mount_clean(d);
+	dag_mount_clean(d);
 
 	printf("starting workflow....\n");
 

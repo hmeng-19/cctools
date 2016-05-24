@@ -28,10 +28,10 @@ typedef enum {
 
 /* the type of a dependency specified in the mountfile */
 typedef enum {
-	SOURCE_LOCAL,
-	SOURCE_HTTP,
-	SOURCE_UNSUPPORTED
-} source_type;
+	DAG_FILE_SOURCE_LOCAL,
+	DAG_FILE_SOURCE_HTTP,
+	DAG_FILE_SOURCE_UNSUPPORTED
+} dag_file_source_t;
 
 struct dag_file {
 	const char *filename;
@@ -42,7 +42,7 @@ struct dag_file {
 	dag_file_state_t state;                  /* Enum: DAG_FILE_STATE_{INTIAL,EXPECT,...} */
 	char *source;                            /* the source of the file specified in the mountfile, by default is NULL */
 	char *cache_name;                        /* the name of a file dependency in the cache, by default is NULL */
-	source_type type;                        /* the type of the source of a dependency */
+	dag_file_source_t type;                  /* the type of the source of a dependency */
 };
 
 struct dag_file *dag_file_create( const char *filename );

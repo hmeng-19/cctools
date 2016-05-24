@@ -34,7 +34,7 @@ void makeflow_log_recover( struct dag *d, const char *filename, int verbose_mode
  * @param cache_name: the filename of the dependency in the cache
  * @param type: the mount type
  */
-void makeflow_log_mount_event( struct dag *d, const char *target, const char *source, const char *cache_name, source_type type );
+void makeflow_log_mount_event( struct dag *d, const char *target, const char *source, const char *cache_name, dag_file_source_t type );
 
 /* write the dirname of the cache into the logging system
  * @param d: a dag structure

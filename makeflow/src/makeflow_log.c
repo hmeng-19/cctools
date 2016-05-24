@@ -139,7 +139,7 @@ void makeflow_log_completed_event( struct dag *d )
 	makeflow_log_sync(d,1);
 }
 
-void makeflow_log_mount_event( struct dag *d, const char *target, const char *source, const char *cache_name, source_type type ) {
+void makeflow_log_mount_event( struct dag *d, const char *target, const char *source, const char *cache_name, dag_file_source_t type ) {
 	fprintf(d->logfile, "# MOUNT %" PRIu64 " %s %s %s %d\n", timestamp_get(), target, source, cache_name, type);
 	makeflow_log_sync(d,1);
 }

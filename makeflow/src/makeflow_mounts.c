@@ -254,7 +254,7 @@ char *amend_cache_path(char *cache_path, int depth) {
  * @param type: the mount type
  * return 0 on success; return -1 on failure.
  */
-int mount_install(const char *source, const char *target, const char *cache_dir, struct dag_file *df, source_type *type) {
+int mount_install(const char *source, const char *target, const char *cache_dir, struct dag_file *df, dag_file_source_t *type) {
 	char *cache_name = NULL;;
 	char *cache_path = NULL;
 	char *dirpath = NULL, *p = NULL;
@@ -269,13 +269,13 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 
 	/* set up the type of the source: http or local */
 	if(!strncmp(source, "http://", 7)) {
-		*type = SOURCE_HTTP;
+		*type = DAG_FILE_SOURCE_HTTP;
 	} else {
-		*type = SOURCE_LOCAL;
+		*type = DAG_FILE_SOURCE_LOCAL;
 	}
 
 	/* calculate the filename in the cache dir */
-	cache_name = md5_cal_source(source, *type == SOURCE_LOCAL);
+	cache_name = md5_cal_source(source, *type == DAG_FILE_SOURCE_LOCAL);
 	if(!cache_name) {
 		LDEBUG("md5_cal_source(%s) failed: %s!\n", source, strerror(errno));
 		return -1;
@@ -290,7 +290,7 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 	/* if cache_path does not exist, copy it from source to cache_path. */
 	if(access(cache_path, F_OK)) {
 		int r = 0;
-		if(*type == SOURCE_HTTP) {
+		if(*type == DAG_FILE_SOURCE_HTTP) {
 			r = mount_install_http(source, cache_path);
 		} else {
 			r = mount_install_local(source, target, cache_path, s_type);
@@ -540,7 +540,7 @@ int makeflow_mounts_install(struct dag *d) {
 
 	list_first_item(list);
 	while((df = (struct dag_file *)list_next_item(list))) {
-		source_type type;
+		dag_file_source_t type;
 		if(!df->source)
 			continue;
 

@@ -37,7 +37,7 @@ See the file COPYING for details.
 #include "makeflow_wrapper.h"
 #include "makeflow_wrapper_docker.h"
 #include "makeflow_wrapper_monitor.h"
-#include "mountfile.h"
+#include "makeflow_mounts.h"
 #include "parser.h"
 
 #include <fcntl.h>
@@ -1554,7 +1554,7 @@ int main(int argc, char *argv[])
 	if(mountfile && !clean_mode) {
 		/* check the validity of the mountfile and load the info from the mountfile into the dag */
 		printf("checking the consistency of the mountfile ...\n");
-		if(mountfile_parse(mountfile, d)) {
+		if(makeflow_mounts_parse_mountfile(mountfile, d)) {
 			fprintf(stderr, "Fails to parse the mountfile (%s)!\n", mountfile);
 			free(mountfile);
 			return -1;
@@ -1589,7 +1589,7 @@ int main(int argc, char *argv[])
 	}
 
 	if(use_mountfile && !clean_mode) {
-		if(mount_install_all(d)) {
+		if(makeflow_mounts_install(d)) {
 			fprintf(stderr, "Fails to install the dependencies specified in the mountfile!\n");
 			dag_mount_clean(d);
 			return -1;

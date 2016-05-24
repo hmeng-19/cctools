@@ -25,7 +25,7 @@ See the file COPYING for details.
 #include "makeflow_log.h"
 #include "md5.h"
 #include "mkdir_recursive.h"
-#include "mountfile.h"
+#include "makeflow_mounts.h"
 #include "path.h"
 #include "unlink_recursive.h"
 #include "xxmalloc.h"
@@ -366,7 +366,7 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 	}
 }
 
-int mountfile_parse(const char *mountfile, struct dag *d) {
+int makeflow_mounts_parse_mountfile(const char *mountfile, struct dag *d) {
 	FILE *f;
 	char line[PATH_MAX*2 + 1]; /* each line of the mountfile includes the target path, a space and the source path. */
 	size_t lineno = 0;
@@ -506,7 +506,7 @@ int check_cache_dir(const char *cache) {
 	return 0;
 }
 
-int mount_install_all(struct dag *d) {
+int makeflow_mounts_install(struct dag *d) {
 	struct list *list;
 	struct dag_file *df;
 	char *cache_dir;

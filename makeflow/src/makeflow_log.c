@@ -8,6 +8,7 @@ See the file COPYING for details.
 #include "makeflow_gc.h"
 #include "dag.h"
 #include "get_line.h"
+#include "makeflow_mounts.h"
 
 #include "timestamp.h"
 #include "list.h"
@@ -67,6 +68,11 @@ timestamp - the unix time (in microseconds) when this line is written to the log
 collected - the number of files were collected in this garbage collection cycle.
 time_spent - the length of time this cycle took.
 total_collected - the total number of files has been collected so far since the start this makeflow execution.
+
+Line format: # CACHE timestamp cache_dir
+
+timestamp - the unix time (in microseconds) when this line is written to the log file.
+cache_dir - the cache dir storing the files specified in a mountfile
 
 Line format: # MOUNT timestamp target source cache_name type
 
@@ -190,7 +196,7 @@ void makeflow_log_gc_event( struct dag *d, int collected, timestamp_t elapsed, i
 /** The clean_mode variable was added so that we could better print out error messages
  * apply in the situation. Currently only used to silence node rerun checking.
  */
-void makeflow_log_recover(struct dag *d, const char *filename, int verbose_mode, struct batch_queue *queue, makeflow_clean_depth clean_mode, int skip_file_check)
+int makeflow_log_recover(struct dag *d, const char *filename, int verbose_mode, struct batch_queue *queue, makeflow_clean_depth clean_mode, int skip_file_check)
 {
 	char *line, *name, file[MAX_BUFFER_SIZE];
 	int nodeid, state, jobid, file_state;
@@ -228,28 +234,32 @@ void makeflow_log_recover(struct dag *d, const char *filename, int verbose_mode,
 				/* if the user specifies a cache dir using --cache dir, ignore the info from the log file */
 				if(!d->cache_dir) {
 					d->cache_dir = xxstrdup(cache_dir);
-					if(!d->cache_dir) {
-						LDEBUG("xxstrdup(%s) failed!\n", cache_dir);
-						return;
+				} else {
+					/* There are two possible reasons for the inconsistency:
+					 * 1) the cache dir specified via the --cache opt and in the log file mismatch;
+					 * 2) the log file includes multiple different CACHE entries.
+					 */
+					if(strcmp(cache_dir, d->cache_dir)) {
+						fprintf(stderr, "The --cache option (%s) does not match the cache dir (%s) in the log file!\n", d->cache_dir, cache_dir);
+						return -1;
 					}
 				}
 				continue;
 			}
 			if(sscanf(line, "# MOUNT %" SCNu64 " %s %s %s %d", &previous_completion_time, file, source, cache_name, &type) == 5) {
-				char *p = NULL;
 				f = dag_file_lookup_or_create(d, file);
 
-				/* if the user specifies the same target in the mountfile, ignore the info from the log file */
-				if(f->source) continue;
-
-				p = xxstrdup(source);
-				f->source = p;
-
-				p = NULL;
-				p = xxstrdup(cache_name);
-				f->cache_name = p;
-
-				f->type = type;
+				if(!f->source) {
+					f->source = xxstrdup(source);
+					f->cache_name = xxstrdup(cache_name);
+					f->type = type;
+				} else {
+					/* If a mount entry is specified in the mountfile and logged in a log file at the same time, they must not conflict with each other. */
+					/* If a mount entry is logged in a log file multiple times deliberately or not, they must not conflict with each other. */
+					if(makeflow_mount_check_consistency(file, f->source, source, d->cache_dir, cache_name)) {
+						return -1;
+					}
+				}
 				continue;
 			}
 			if(line[0] == '#')
@@ -367,6 +377,8 @@ void makeflow_log_recover(struct dag *d, const char *filename, int verbose_mode,
 				f->ref_count += -1;
 		}
 	}
+
+	return 0;
 }
 
 /* vim: set noexpandtab tabstop=4: */

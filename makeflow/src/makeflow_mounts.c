@@ -147,13 +147,6 @@ int mount_check(const char *source, const char *target, file_type *s_type) {
 		return -1;
 	}
 
-	/* Check whether target already exists. */
-	if(!access(target, F_OK)) {
-		LDEBUG("the target (%s) already exists!\n", target);
-		fprintf(stderr, "the target (%s) already exists!\n", target);
-		return -1;
-	}
-
 	if(!strncmp(source, "http://", 7)) {
 		return mount_check_http(source);
 	} else {
@@ -303,8 +296,7 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 		}
 	}
 
-	if(df->cache_name) free(df->cache_name);
-	df->cache_name = cache_name;
+	if(!df->cache_name) df->cache_name = cache_name;
 
 	/* calculate the depth of target relative to CWD. For example, if target = "a/b/c", path_depth returns 3. */
 	depth = path_depth(target);
@@ -327,6 +319,12 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 	}
 	free(p);
 
+	/* if target already exists, do nothing here. */
+	if(!access(target, F_OK)) {
+		free(cache_path);
+		return 0;
+	}
+
 	/* link target to the file in the cache dir */
 	if(depth == 1) {
 		if(create_link(cache_path, target)) {
@@ -338,7 +336,7 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 		return 0;
 	}
 
-	/* construct the link_target of target */
+	/* if target does not exist, construct the link_target of target so that target points to the file under the cache_dir. */
 	if(link(cache_path, target)) {
 		char *link_cache_path = NULL;
 
@@ -509,28 +507,8 @@ int check_cache_dir(const char *cache) {
 int makeflow_mounts_install(struct dag *d) {
 	struct list *list;
 	struct dag_file *df;
-	char *cache_dir;
 
 	if(!d) return 0;
-
-	if(d->cache_dir) {
-		/* check the validity of the cache_dir and create it if neccessary and feasible. */
-		if(check_cache_dir(d->cache_dir)) {
-			return -1;
-		}
-
-	} else {
-		/* Create a unique cache dir */
-		cache_dir = xxstrdup(".makeflow_cache.XXXXXX");
-
-		if(mkdtemp(cache_dir) == NULL) {
-			LDEBUG("mkdtemp(%s) failed: %s\n", cache_dir, strerror(errno));
-			free(cache_dir);
-			return -1;
-		}
-
-		d->cache_dir = cache_dir;
-	}
 
 	/* log the cache dir info */
 	makeflow_log_cache_event(d, d->cache_dir);
@@ -551,6 +529,123 @@ int makeflow_mounts_install(struct dag *d) {
 
 		/* log the dependency */
 		makeflow_log_mount_event(d, df->filename, df->source, df->cache_name, type);
+	}
+	list_delete(list);
+	return 0;
+}
+
+/* check_link_relation checks whether s is a hardlink or symlink to t.
+ * @param s: an existing file path
+ * @param t: an existing file path
+ * return 0 if s is hardlink or symlink to t; otherwise return non-zero.
+ */
+int check_link_relation(const char *s, const char *t) {
+	struct stat st_s, st_t;
+
+	if(stat(s, &st_s)) {
+		fprintf(stderr, "lstat(%s) failed: %s!\n", s, strerror(errno));
+		return -1;
+	}
+
+	if(stat(t, &st_t)) {
+		fprintf(stderr, "lstat(%s) failed: %s!\n", t, strerror(errno));
+		return -1;
+	}
+
+	if(st_s.st_ino == st_t.st_ino) return 0;
+	else return -1;
+}
+
+int makeflow_mount_check_consistency(const char *target, const char *source, const char *source_log, const char *cache_dir, const char *cache_name) {
+	char *cache_path;
+
+	/* check whether the <source> field in the mountfile matches the <source> field in the log file */
+	if(strcmp(source, source_log)) {
+		fprintf(stderr, "The <source> field in the mountfile (%s)  and the <source> field in the makeflow log file (%s) for the <target (%s) does not match!\n", source, source_log, target);
+		return -1;
+	}
+
+	cache_path = path_concat(cache_dir, cache_name);
+	if(!cache_path) {
+		LDEBUG("malloc failed: %s!\n", strerror(errno));
+		return -1;
+	}
+
+	/* check whether the file already exists under the cache_dir */
+	if(access(cache_path, F_OK)) { /* cache_path does not exist */
+		/* If cache_path does not exist, the target must not exist. */
+		if(!access(target, F_OK)) {
+			fprintf(stderr, "The file (%s) already exists, and can not be specified in the mountfile!\n", target);
+			free(cache_path);
+			return -1;
+		}
+	} else { /* cache_path already exists */
+		/* If cache_path already exists, the target can either point to cache_path or not exist. */
+		if(!access(target, F_OK)) { /* the target already exists */
+			/* check wether the target is a hard link or symlink to cache_path */
+			if(check_link_relation(target, cache_path)) {
+				fprintf(stderr, "The file (%s) already exists and is not a hard link or symlink to the cache file (%s)!\n", target, cache_path);
+				free(cache_path);
+				return -1;
+			}
+		}
+	}
+
+	free(cache_path);
+	return 0;
+}
+
+/* check_mount_target checks whether the validity of the target of each mount entry.
+ * @param d: a dag structure
+ * return 0 on success; return non-zero on failure.
+ */
+int makeflow_mount_check_target(struct dag *d) {
+	struct list *list;
+	struct dag_file *df;
+
+	if(!d) return 0;
+
+	/* if --cache is not specified, and the log file does not include cache dir info, create the cache_dir. */
+	if(d->cache_dir) {
+		/* check the validity of the cache_dir and create it if neccessary and feasible. */
+		if(check_cache_dir(d->cache_dir)) {
+			return -1;
+		}
+
+	} else {
+		/* Create a unique cache dir */
+		char *cache_dir = xxstrdup(".makeflow_cache.XXXXXX");
+
+		if(mkdtemp(cache_dir) == NULL) {
+			LDEBUG("mkdtemp(%s) failed: %s\n", cache_dir, strerror(errno));
+			free(cache_dir);
+			return -1;
+		}
+
+		d->cache_dir = cache_dir;
+	}
+
+	/* check the validity of the target of each mount entry */
+	list = dag_input_files(d);
+	if(!list) return 0;
+
+	list_first_item(list);
+	while((df = (struct dag_file *)list_next_item(list))) {
+		char *cache_name;
+		if(!df->source)
+			continue;
+
+		cache_name = md5_cal_source(df->source, strncmp(df->source, "http://", 7));
+		if(!cache_name) {
+			return -1;
+		}
+
+		if(makeflow_mount_check_consistency(df->filename, df->source, df->source, d->cache_dir, cache_name)) {
+			free(cache_name);
+			list_delete(list);
+			return -1;
+		}
+		free(cache_name);
 	}
 	list_delete(list);
 	return 0;

@@ -189,7 +189,7 @@ int makeflow_clean(struct dag *d, struct batch_queue *queue, makeflow_clean_dept
 			makeflow_clean_file(d, queue, f, silent);
 
 		if(dag_file_is_source(f)) {
-			if(f->source) { /* this file is specified in the mountfile */
+			if(f->source && (clean_depth == MAKEFLOW_CLEAN_CACHE || clean_depth == MAKEFLOW_CLEAN_ALL)) { /* this file is specified in the mountfile */
 				if(makeflow_clean_mount_target(f->filename)) {
 					fprintf(stderr, "Fails to remove %s!\n", f->filename);
 					return -1;

@@ -1576,25 +1576,32 @@ int main(int argc, char *argv[])
 	setlinebuf(stdout);
 	setlinebuf(stderr);
 
-	makeflow_log_recover(d, logfilename, log_verbose_mode, remote_queue, clean_mode, skip_file_check );
+	if(mount_cache) d->cache_dir = mount_cache;
 
 	/* In case when the user uses --cache option to specify the mount cache dir and the log file also has
-	 * a cache dir logged, the dir specified by the --cache option wins.
+	 * a cache dir logged, these two dirs must be the same. Otherwise exit.
 	 */
-	if(mount_cache) {
-		if(d->cache_dir) {
-			free(d->cache_dir);
+	if(makeflow_log_recover(d, logfilename, log_verbose_mode, remote_queue, clean_mode, skip_file_check )) {
+		dag_mount_clean(d);
+		exit(EXIT_FAILURE);
+	}
+
+	/* This check must happen after makeflow_log_recover which may load the cache_dir info into d->cache_dir.
+	 * This check must happen before makeflow_mount_install to guarantee that the program ends before any mount is copied if any target is invliad.
+	 */
+	if(use_mountfile) {
+		if(makeflow_mount_check_target(d)) {
+			dag_mount_clean(d);
+			exit(EXIT_FAILURE);
 		}
-		d->cache_dir = mount_cache;
 	}
 
 	if(use_mountfile && !clean_mode) {
 		if(makeflow_mounts_install(d)) {
 			fprintf(stderr, "Fails to install the dependencies specified in the mountfile!\n");
 			dag_mount_clean(d);
-			return -1;
+			exit(EXIT_FAILURE);
 		}
-		dag_mount_clean(d);
 	}
 
 	struct dag_file *f = dag_file_lookup_or_create(d, batchlogfilename);

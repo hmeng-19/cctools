@@ -513,13 +513,13 @@ int path_has_symlink(const char *s) {
 		} else {
 			struct stat st;
 			if(lstat(q, &st)) {
-				LDEBUG("lstat(%s) failed: %s!\n", q, strerror(errno));
+				debug(D_DEBUG, "lstat(%s) failed: %s!\n", q, strerror(errno));
 				free(q);
 				return -1;
 			}
 
 			if(S_ISLNK(st.st_mode)) {
-				LDEBUG("%s includes symbolic link(%s)!\n", s, q);
+				debug(D_DEBUG, "%s includes symbolic link(%s)!\n", s, q);
 				free(q);
 				return -1;
 			}
@@ -564,7 +564,7 @@ int path_depth(const char *s) {
 		i = strcspn(s, "/");
 
 		if(i == 2 && *s == '.' && *(s+1) == '.') {
-			LDEBUG("path_depth does not support the path (%s) including double dots!\n", t);
+			debug(D_DEBUG, "path_depth does not support the path (%s) including double dots!\n", t);
 			return -1;
 		}
 

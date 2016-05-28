@@ -34,19 +34,19 @@ int copy_symlink(const char *source, const char *target) {
 	assert(target);
 
 	if(!access(target, F_OK)) {
-		LDEBUG("%s already exists!\n", target);
+		debug(D_DEBUG, "%s already exists!\n", target);
 		return -1;
 	}
 
 	r = readlink(source, linkname, sizeof(linkname));
 	if(r == -1) {
-		LDEBUG("readlink(`%s`) failed: %s!\n", source, strerror(errno));
+		debug(D_DEBUG, "readlink(`%s`) failed: %s!\n", source, strerror(errno));
 		return -1;
 	}
 	linkname[r] = '\0';
 
 	if(symlink(linkname, target)) {
-		LDEBUG("symlink(`%s`, `%s`) failed: %s\n", linkname, target, strerror(errno));
+		debug(D_DEBUG, "symlink(`%s`, `%s`) failed: %s\n", linkname, target, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -60,7 +60,7 @@ int copy_direntry(const char *s, const char *t) {
 	assert(t);
 
 	if(lstat(s, &s_stat)) {
-		LDEBUG("lstat(`%s`): %s\n", s, strerror(errno));
+		debug(D_DEBUG, "lstat(`%s`): %s\n", s, strerror(errno));
 		return -1;
 	}
 
@@ -72,7 +72,7 @@ int copy_direntry(const char *s, const char *t) {
 	} else if(S_ISLNK(s_stat.st_mode)) {
 		return copy_symlink(s, t);
 	} else {
-		LDEBUG("Ignore Copying %s: only dir, regular files, and symlink are supported!\n", s);
+		debug(D_DEBUG, "Ignore Copying %s: only dir, regular files, and symlink are supported!\n", s);
 		return -1;
 	}
 }
@@ -91,7 +91,7 @@ int copy_dir_real(const char *source, const char *target) {
 	assert(target);
 
 	if((dir = opendir(source)) == NULL) {
-		LDEBUG("opendir(`%s`) failed: %s!\n", source, strerror(errno));
+		debug(D_DEBUG, "opendir(`%s`) failed: %s!\n", source, strerror(errno));
 		return -1;
 	}
 
@@ -124,7 +124,7 @@ int copy_dir_real(const char *source, const char *target) {
 
 finish:
 	if(closedir(dir)) {
-		LDEBUG("closedir(`%s`) failed: %s!", source, strerror(errno));
+		debug(D_DEBUG, "closedir(`%s`) failed: %s!", source, strerror(errno));
 		rc = -1;
 	}
 	return rc;
@@ -156,7 +156,7 @@ int copy_dir(const char *source, const char *target) {
 		}
 
 		if(!access(t, F_OK)) {
-			LDEBUG("%s already exists!\n", t);
+			debug(D_DEBUG, "%s already exists!\n", t);
 			rc = -1;
 			goto finish;
 		}
@@ -183,7 +183,7 @@ file_type check_file_type(const char *source) {
 
 	struct stat st;
 	if(lstat(source, &st)) {
-		LDEBUG("lstat(`%s`) failed: %s!\n", source, strerror(errno));
+		debug(D_DEBUG, "lstat(`%s`) failed: %s!\n", source, strerror(errno));
 		return -1;
 	}
 
@@ -194,7 +194,7 @@ file_type check_file_type(const char *source) {
 	} else if(S_ISDIR(st.st_mode)) {
 		return FILE_TYPE_DIR;
 	} else {
-		LDEBUG("the file type of %s is not supported: only dir, regular files, and symlink are supported!\n", source);
+		debug(D_DEBUG, "the file type of %s is not supported: only dir, regular files, and symlink are supported!\n", source);
 		return FILE_TYPE_UNSUPPORTED;
 	}
 }
@@ -227,7 +227,7 @@ char *get_exist_ancestor_dir(const char *s) {
 
 	r = malloc(sizeof(char) * (p-q+1));
 	if(!r) {
-		LDEBUG("malloc failed: %s!\n", strerror(errno));
+		debug(D_DEBUG, "malloc failed: %s!\n", strerror(errno));
 		free(q);
 		return NULL;
 	}
@@ -247,7 +247,7 @@ int is_subdir(const char *source, const char *target) {
 
 	s_real = realpath(source, NULL);
 	if(!s_real) {
-		LDEBUG("realpath(`%s`) failed: %s!\n", source, strerror(errno));
+		debug(D_DEBUG, "realpath(`%s`) failed: %s!\n", source, strerror(errno));
 		return -1;
 	}
 
@@ -256,7 +256,7 @@ int is_subdir(const char *source, const char *target) {
 	else
 		t_real = realpath(t, NULL);
 	if(!t_real) {
-		LDEBUG("realpath(`%s`) failed: %s!\n", t, strerror(errno));
+		debug(D_DEBUG, "realpath(`%s`) failed: %s!\n", t, strerror(errno));
 		return -1;
 	}
 

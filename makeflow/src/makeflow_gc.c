@@ -306,20 +306,20 @@ int makeflow_clean_mount_target(const char *target) {
 
 	/* Check whether target already exists. */
 	if(access(target, F_OK)) {
-		LDEBUG("the target (%s) does not exist!\n", target);
+		debug(D_DEBUG, "the target (%s) does not exist!\n", target);
 		return 0;
 	}
 
 	/* Check whether the target is an absolute path. */
 	if(target[0] == '/') {
-		LDEBUG("the target (%s) should not be an absolute path!\n", target);
+		debug(D_DEBUG, "the target (%s) should not be an absolute path!\n", target);
 		fprintf(stderr, "the target (%s) should not be an absolute path!\n", target);
 		return -1;
 	}
 
 	/* check whether target includes .. */
 	if(path_has_doubledots(target)) {
-		LDEBUG("the target (%s) include ..!\n", target);
+		debug(D_DEBUG, "the target (%s) include ..!\n", target);
 		fprintf(stderr, "the target (%s) include ..!\n", target);
 		return -1;
 	}
@@ -329,7 +329,7 @@ int makeflow_clean_mount_target(const char *target) {
 		return -1;
 
 	if(unlink_recursive(target)) {
-		LDEBUG("Fails to remove %s!\n", target);
+		debug(D_DEBUG, "Fails to remove %s!\n", target);
 		fprintf(stderr, "Fails to remove %s!\n", target);
 		return -1;
 	}

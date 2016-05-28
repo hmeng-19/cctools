@@ -38,9 +38,9 @@ See the file COPYING for details.
  */
 int create_link(const char *link_target, const char *link_name) {
 	if(link(link_target, link_name)) {
-		LDEBUG("link(%s, %s) failed: %s!\n", link_target, link_name, strerror(errno));
+		debug(D_DEBUG, "link(%s, %s) failed: %s!\n", link_target, link_name, strerror(errno));
 		if(symlink(link_target, link_name)) {
-			LDEBUG("symlink(%s, %s) failed: %s!\n", link_target, link_name, strerror(errno));
+			debug(D_DEBUG, "symlink(%s, %s) failed: %s!\n", link_target, link_name, strerror(errno));
 			return -1;
 		}
 	}
@@ -54,7 +54,7 @@ int create_link(const char *link_target, const char *link_name) {
  */
 int mount_install_http(const char *source, const char *cache_path) {
 	if(http_fetch_to_file(source, cache_path, time(NULL) + HTTP_TIMEOUT) < 0) {
-		LDEBUG("http_fetch_to_file(%s, %s, ...) failed!\n", source, cache_path);
+		debug(D_DEBUG, "http_fetch_to_file(%s, %s, ...) failed!\n", source, cache_path);
 		return -1;
 	}
 	return 0;
@@ -66,7 +66,7 @@ int mount_install_http(const char *source, const char *cache_path) {
 int mount_check_http(const char *url) {
 	struct link *link = http_query(url, "HEAD", time(0) + HTTP_TIMEOUT);
 	if(!link) {
-		LDEBUG("http_query(%s, \"HEAD\", ...) failed!\n", url);
+		debug(D_DEBUG, "http_query(%s, \"HEAD\", ...) failed!\n", url);
 		fprintf(stderr, "http_query(%s, \"HEAD\", ...) failed!\n", url);
 		return -1;
 	}
@@ -84,18 +84,18 @@ int mount_install_local(const char *source, const char *target, const char *cach
 	switch(s_type) {
 	case FILE_TYPE_REG:
 		if(copy_file_to_file(source, cache_path) < 0) {
-			LDEBUG("copy_file_to_file from %s to %s failed.\n", source, cache_path);
+			debug(D_DEBUG, "copy_file_to_file from %s to %s failed.\n", source, cache_path);
 			return -1;
 		}
 		break;
 	case FILE_TYPE_LNK:
 		if(copy_symlink(source, cache_path)) {
-			LDEBUG("copy_symlink from %s to %s failed.\n", source, cache_path);
+			debug(D_DEBUG, "copy_symlink from %s to %s failed.\n", source, cache_path);
 			return -1;
 		}
 	case FILE_TYPE_DIR:
 		if(copy_dir(source, cache_path)) {
-			LDEBUG("copy_dir from %s to %s failed.\n", source, cache_path);
+			debug(D_DEBUG, "copy_dir from %s to %s failed.\n", source, cache_path);
 			return -1;
 		}
 		break;
@@ -115,34 +115,34 @@ int mount_install_local(const char *source, const char *target, const char *cach
  */
 int mount_check(const char *source, const char *target, file_type *s_type) {
 	if(!source || !*source) {
-		LDEBUG("the source (%s) can not be empty!\n", source);
+		debug(D_DEBUG, "the source (%s) can not be empty!\n", source);
 		fprintf(stderr, "the source (%s) can not be empty!\n", source);
 		return -1;
 	}
 
 	if(!target || !*target) {
-		LDEBUG("the target (%s) can not be empty!\n", target);
+		debug(D_DEBUG, "the target (%s) can not be empty!\n", target);
 		fprintf(stderr, "the target (%s) can not be empty!\n", target);
 		return -1;
 	}
 
 	/* Check whether the target is an absolute path. */
 	if(target[0] == '/') {
-		LDEBUG("the target (%s) should not be an absolute path!\n", target);
+		debug(D_DEBUG, "the target (%s) should not be an absolute path!\n", target);
 		fprintf(stderr, "the target (%s) should not be an absolute path!\n", target);
 		return -1;
 	}
 
 	/* check whether target includes .. */
 	if(path_has_doubledots(target)) {
-		LDEBUG("the target (%s) include ..!\n", target);
+		debug(D_DEBUG, "the target (%s) include ..!\n", target);
 		fprintf(stderr, "the target (%s) include ..!\n", target);
 		return -1;
 	}
 
 	/* check whether target includes any symlink link, this check prevent the makeflow breaks out the CWD. */
 	if(path_has_symlink(target)) {
-		LDEBUG("the target (%s) should not include any symbolic link!\n", target);
+		debug(D_DEBUG, "the target (%s) should not include any symbolic link!\n", target);
 		fprintf(stderr, "the target (%s) should not include any symbolic link!\n", target);
 		return -1;
 	}
@@ -152,7 +152,7 @@ int mount_check(const char *source, const char *target, file_type *s_type) {
 	} else {
 		/* Check whether source already exists. */
 		if(access(source, F_OK)) {
-			LDEBUG("the source (%s) does not exist!\n", source);
+			debug(D_DEBUG, "the source (%s) does not exist!\n", source);
 			fprintf(stderr, "the source (%s) does not exist!\n", source);
 			return -1;
 		}
@@ -165,7 +165,7 @@ int mount_check(const char *source, const char *target, file_type *s_type) {
 
 		/* check whether source is an ancestor directory of target */
 		if(is_subdir(source, target)) {
-			LDEBUG("source (%s) is an ancestor of target (%s), and can not be copied into target!\n", source, target);
+			debug(D_DEBUG, "source (%s) is an ancestor of target (%s), and can not be copied into target!\n", source, target);
 			fprintf(stderr, "source (%s) is an ancestor of target (%s), and can not be copied into target!\n", source, target);
 			return -1;
 		}
@@ -187,14 +187,14 @@ char *md5_cal_source(const char *source, int is_local) {
 		/* for local path, calculate the checksum of its realpath */
 		s_real = realpath(source, NULL);
 		if(!s_real) {
-			LDEBUG("realpath(`%s`) failed: %s!\n", source, strerror(errno));
+			debug(D_DEBUG, "realpath(`%s`) failed: %s!\n", source, strerror(errno));
 			return NULL;
 		}
 
 		cache_name = md5_cal(s_real);
 
 		if(!cache_name) {
-			LDEBUG("md5_cal(%s) failed: %s!\n", s_real, strerror(errno));
+			debug(D_DEBUG, "md5_cal(%s) failed: %s!\n", s_real, strerror(errno));
 		}
 		free(s_real);
 	} else {
@@ -217,7 +217,7 @@ char *amend_cache_path(char *cache_path, int depth) {
 	/* calculate how many ../ should be attached to cache_path. */
 	p = malloc(sizeof(char) * depth*3);
 	if(!p) {
-		LDEBUG("malloc failed: %s!\n", strerror(errno));
+		debug(D_DEBUG, "malloc failed: %s!\n", strerror(errno));
 		return NULL;
 	}
 
@@ -231,7 +231,7 @@ char *amend_cache_path(char *cache_path, int depth) {
 
 	link_cache_path = path_concat(p, cache_path);
 	if(!link_cache_path) {
-		LDEBUG("malloc failed: %s!\n", strerror(errno));
+		debug(D_DEBUG, "malloc failed: %s!\n", strerror(errno));
 	}
 
 	free(p);
@@ -256,7 +256,7 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 
 	/* check the validity of source and target */
 	if(mount_check(source, target, &s_type)) {
-		LDEBUG("mount_check(%s, %s) failed: %s!\n", source, target, strerror(errno));
+		debug(D_DEBUG, "mount_check(%s, %s) failed: %s!\n", source, target, strerror(errno));
 		return -1;
 	}
 
@@ -270,7 +270,7 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 	/* calculate the filename in the cache dir */
 	cache_name = md5_cal_source(source, *type == DAG_FILE_SOURCE_LOCAL);
 	if(!cache_name) {
-		LDEBUG("md5_cal_source(%s) failed: %s!\n", source, strerror(errno));
+		debug(D_DEBUG, "md5_cal_source(%s) failed: %s!\n", source, strerror(errno));
 		return -1;
 	}
 
@@ -301,10 +301,10 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 	/* calculate the depth of target relative to CWD. For example, if target = "a/b/c", path_depth returns 3. */
 	depth = path_depth(target);
 	if(depth < 1) {
-		LDEBUG("path_depth(%s) failed!\n", target);
+		debug(D_DEBUG, "path_depth(%s) failed!\n", target);
 		return -1;
 	}
-	LDEBUG("path_depth(%s) = %d!\n", target, depth);
+	debug(D_DEBUG, "path_depth(%s) = %d!\n", target, depth);
 
 	/* Create the parent directories for target.
 	 * If target is "dir1/dir2/file", then create dir1 and dir2 using `mkdir -p dir1/dir2`.
@@ -314,7 +314,7 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 	dirpath = dirname(p); /* Please do NOT free dirpath, free p instead. */
 	if(access(dirpath, F_OK) && !create_dir(dirpath, 0755)) {
 		free(p);
-		LDEBUG("failed to create the parent directories of the target (%s)!\n", target);
+		debug(D_DEBUG, "failed to create the parent directories of the target (%s)!\n", target);
 		return -1;
 	}
 	free(p);
@@ -328,7 +328,7 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 	/* link target to the file in the cache dir */
 	if(depth == 1) {
 		if(create_link(cache_path, target)) {
-			LDEBUG("create_link(%s, %s) failed!\n", cache_path, target);
+			debug(D_DEBUG, "create_link(%s, %s) failed!\n", cache_path, target);
 			free(cache_path);
 			return -1;
 		}
@@ -340,19 +340,19 @@ int mount_install(const char *source, const char *target, const char *cache_dir,
 	if(link(cache_path, target)) {
 		char *link_cache_path = NULL;
 
-		LDEBUG("link(%s, %s) failed: %s!\n", cache_path, target, strerror(errno));
+		debug(D_DEBUG, "link(%s, %s) failed: %s!\n", cache_path, target, strerror(errno));
 
 		/* link_cache_path must not equals to cache_path, because depth here is > 1. */
 		link_cache_path = amend_cache_path(cache_path, depth-1);
 		if(!link_cache_path) {
-			LDEBUG("amend_cache_path(%s, %d) failed: %s!\n", cache_path, depth, strerror(errno));
+			debug(D_DEBUG, "amend_cache_path(%s, %d) failed: %s!\n", cache_path, depth, strerror(errno));
 			free(cache_path);
 			return -1;
 		}
 		free(cache_path);
 
 		if(create_link(link_cache_path, target)) {
-			LDEBUG("create_link(%s, %s) failed!\n", link_cache_path, target);
+			debug(D_DEBUG, "create_link(%s, %s) failed!\n", link_cache_path, target);
 			free(link_cache_path);
 			return -1;
 		}
@@ -373,13 +373,13 @@ int makeflow_mounts_parse_mountfile(const char *mountfile, struct dag *d) {
 	debug(D_MAKEFLOW, "The --mounts option: %s\n", mountfile);
 
 	if(access(mountfile, F_OK)) {
-		LDEBUG("the mountfile (%s) does not exist!\n", mountfile);
+		debug(D_DEBUG, "the mountfile (%s) does not exist!\n", mountfile);
 		return -1;
 	}
 
 	f = fopen(mountfile, "r");
 	if(!f) {
-		LDEBUG("couldn't open mountfile (%s): %s\n", mountfile, strerror(errno));
+		debug(D_DEBUG, "couldn't open mountfile (%s): %s\n", mountfile, strerror(errno));
 		return -1;
 	}
 
@@ -398,7 +398,7 @@ int makeflow_mounts_parse_mountfile(const char *mountfile, struct dag *d) {
 
 		debug(D_MAKEFLOW, "Processing line %zu of the mountfile: %s", lineno, line);
 		if(sscanf(line, "%s %s", target, source) != 2) {
-			LDEBUG("The %zuth line of the mountfile (%s) has an error! The correct format is: <target> <source>\n", lineno, mountfile);
+			debug(D_DEBUG, "The %zuth line of the mountfile (%s) has an error! The correct format is: <target> <source>\n", lineno, mountfile);
 			fclose(f);
 			return -1;
 		}
@@ -414,7 +414,7 @@ int makeflow_mounts_parse_mountfile(const char *mountfile, struct dag *d) {
 		}
 
 		if(mount_check(source, target, &s_type)) {
-			LDEBUG("mount_check(%s, %s) failed: %s!\n", source, target, strerror(errno));
+			debug(D_DEBUG, "mount_check(%s, %s) failed: %s!\n", source, target, strerror(errno));
 			err_num++;
 			continue;
 		}
@@ -428,7 +428,7 @@ int makeflow_mounts_parse_mountfile(const char *mountfile, struct dag *d) {
 	}
 
 	if(fclose(f)) {
-		LDEBUG("fclose(`%s`) failed: %s!\n", mountfile, strerror(errno));
+		debug(D_DEBUG, "fclose(`%s`) failed: %s!\n", mountfile, strerror(errno));
 		return -1;
 	}
 
@@ -446,28 +446,28 @@ int check_cache_dir(const char *cache) {
 
 	/* Checking principle: the cache must locate under the CWD. */
 	if(!cache || !*cache) {
-		LDEBUG("the cache (%s) can not be empty!\n", cache);
+		debug(D_DEBUG, "the cache (%s) can not be empty!\n", cache);
 		fprintf(stderr, "the cache (%s) can not be empty!\n", cache);
 		return -1;
 	}
 
 	/* Check whether the cache is an absolute path. */
 	if(cache[0] == '/') {
-		LDEBUG("the cache (%s) should not be an absolute path!\n", cache);
+		debug(D_DEBUG, "the cache (%s) should not be an absolute path!\n", cache);
 		fprintf(stderr, "the cache (%s) should not be an absolute path!\n", cache);
 		return -1;
 	}
 
 	/* check whether cache includes .. */
 	if(path_has_doubledots(cache)) {
-		LDEBUG("the cache (%s) include ..!\n", cache);
+		debug(D_DEBUG, "the cache (%s) include ..!\n", cache);
 		fprintf(stderr, "the cache (%s) include ..!\n", cache);
 		return -1;
 	}
 
 	/* check whether cache includes any symlink link, this check prevent the makeflow breaks out the CWD. */
 	if(path_has_symlink(cache)) {
-		LDEBUG("the cache (%s) should not include any symbolic link!\n", cache);
+		debug(D_DEBUG, "the cache (%s) should not include any symbolic link!\n", cache);
 		fprintf(stderr, "the cache (%s) should not include any symbolic link!\n", cache);
 		return -1;
 	}
@@ -476,13 +476,13 @@ int check_cache_dir(const char *cache) {
 	if(access(cache, F_OK)) {
 		mode_t default_dirmode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
 		if(errno != ENOENT) {
-			LDEBUG("access(%s) failed: %s\n", cache, strerror(errno));
+			debug(D_DEBUG, "access(%s) failed: %s\n", cache, strerror(errno));
 			return -1;
 		}
 
-		LDEBUG("the cache (%s) does not exist, creating it ...\n", cache);
+		debug(D_DEBUG, "the cache (%s) does not exist, creating it ...\n", cache);
 		if(mkdir_recursive(cache, default_dirmode)) {
-			LDEBUG("mkdir_recursive(%s) failed: %s\n", cache, strerror(errno));
+			debug(D_DEBUG, "mkdir_recursive(%s) failed: %s\n", cache, strerror(errno));
 			return -1;
 		}
 		return 0;
@@ -491,12 +491,12 @@ int check_cache_dir(const char *cache) {
 	/* check whether cache is a dir */
 	if(lstat(cache, &st) == 0) {
 		if(!S_ISDIR(st.st_mode)) {
-			LDEBUG("the cache (%s) should be a dir!\n", cache);
+			debug(D_DEBUG, "the cache (%s) should be a dir!\n", cache);
 			fprintf(stderr, "the cache (%s) should be a dir!\n", cache);
 			return -1;
 		}
 	} else {
-		LDEBUG("lstat(%s) failed: %s!\n", cache, strerror(errno));
+		debug(D_DEBUG, "lstat(%s) failed: %s!\n", cache, strerror(errno));
 		fprintf(stderr, "lstat(%s) failed: %s!\n", cache, strerror(errno));
 		return -1;
 	}
@@ -567,7 +567,7 @@ int makeflow_mount_check_consistency(const char *target, const char *source, con
 
 	cache_path = path_concat(cache_dir, cache_name);
 	if(!cache_path) {
-		LDEBUG("malloc failed: %s!\n", strerror(errno));
+		debug(D_DEBUG, "malloc failed: %s!\n", strerror(errno));
 		return -1;
 	}
 
@@ -617,7 +617,7 @@ int makeflow_mount_check_target(struct dag *d) {
 		char *cache_dir = xxstrdup(".makeflow_cache.XXXXXX");
 
 		if(mkdtemp(cache_dir) == NULL) {
-			LDEBUG("mkdtemp(%s) failed: %s\n", cache_dir, strerror(errno));
+			debug(D_DEBUG, "mkdtemp(%s) failed: %s\n", cache_dir, strerror(errno));
 			free(cache_dir);
 			return -1;
 		}

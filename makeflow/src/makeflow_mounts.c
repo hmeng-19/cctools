@@ -140,13 +140,6 @@ int mount_check(const char *source, const char *target, file_type *s_type) {
 		return -1;
 	}
 
-	/* check whether target includes any symlink link, this check prevent the makeflow breaks out the CWD. */
-	if(path_has_symlink(target)) {
-		debug(D_DEBUG, "the target (%s) should not include any symbolic link!\n", target);
-		fprintf(stderr, "the target (%s) should not include any symbolic link!\n", target);
-		return -1;
-	}
-
 	if(!strncmp(source, "http://", 7)) {
 		return mount_check_http(source);
 	} else {

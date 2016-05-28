@@ -463,12 +463,19 @@ char *path_which(const char *exec) {
 	}
 }
 
-char *path_concat(const char *p1, const char *p2) {
+char *path_concat(const char *s, const char *t) {
 	char *p = NULL;
+	char p1[PATH_MAX], p2[PATH_MAX];
 	size_t s1, s2;
 
-	assert(p1);
-	assert(p2);
+	assert(s);
+	assert(t);
+
+	path_collapse(s, p1, 0);
+	path_collapse(t, p2, 0);
+
+	path_remove_trailing_slashes(p1);
+	path_remove_trailing_slashes(p2);
 
 	s1 = strlen(p1);
 	s2 = strlen(p2);

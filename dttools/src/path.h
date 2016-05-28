@@ -45,12 +45,12 @@ Returns NULL if none is found.
 char *path_which(const char *exec);
 
 /* path_concat concatenates two file paths, with a slash as the separator.
- * @param p1: a file path
- * @param p2: a file path
+ * @param s: a file path
+ * @param t: a file path
  * @return p: return the concatenated string on success, return NULL on failure.
  * The caller should free the returned string.
  */
-char *path_concat(const char *p1, const char *p2);
+char *path_concat(const char *s, const char *t);
 
 /* path_has_symlink checks whether any level of a path is symbolic link.
  * return 0 if all the levels of the path are not symlink; otherwise return non-zero.

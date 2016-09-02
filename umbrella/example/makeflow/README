@@ -14,3 +14,10 @@ umbrella \
 --sandbox_mode docker \
 --log umbrella.log \
 run
+
+umbrella \
+--spec work_queue_worker_S.umbrella \
+--localdir /tmp/umbrella_test/ \
+--sandbox_mode parrot \
+--log umbrella.log \
+run 'work_queue_worker daspos1.crc.nd.edu 9123'

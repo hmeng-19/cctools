@@ -115,7 +115,7 @@ else:
 	import simplejson as json #json module is introduce in python 2.4.3
 
 #Replace the version of cctools inside umbrella is easy: set cctools_binary_version.
-cctools_binary_source = "http://ccl.cse.nd.edu/research/data/hep-case-study/parrot"
+cctools_binary_source = "http://ccl.cse.nd.edu/research/data/hep-case-study/parrot_test"
 cctools_binary_version = "5.2.0"
 cctools_dest = ""
 
@@ -1311,6 +1311,19 @@ def construct_mountfile_full(sandbox_dir, os_image_dir, mount_dict, input_dict, 
 						mountfile.write(mount_str)
 					mount_list.append(tmplist[0])
 					mountfile.write(line)
+		else:
+			common_mounts = ["/proc", "/dev", "/sys"]
+			for mount in common_mounts:
+				print mount
+				line = "%s %s\n" % (mount, mount)
+				print line
+				mount_str = create_fake_mount(os_image_dir, sandbox_dir, mount_list, remove_trailing_slashes(os.path.dirname(mount)))
+				if mount_str:
+					logging.debug("Adding fake mount items (%s) into %s", mount_str, mountfile_path)
+					mountfile.write(mount_str)
+				print mount_str
+				mount_list.append(mount)
+				mountfile.write(line)
 
 		logging.debug("Add /etc/hosts and /etc/resolv.conf into %s", mountfile_path)
 		mount_str = create_fake_mount(os_image_dir, sandbox_dir, mount_list, '/etc')
@@ -1928,7 +1941,7 @@ def workflow_repeat(cwd_setting, sandbox_dir, sandbox_mode, output_f_dict, outpu
 
 			print "Start executing the user's task: %s" % user_cmd[0]
 			return_code, stdout, stderr = func_call_withenv(user_cmd[0], env_dict)
-
+			print "return_code: %d" % return_code
 			print "\n********** STDOUT of the command **********"
 			print stdout
 
@@ -3926,7 +3939,7 @@ To check the help doc for a specific behavoir, use: %prog <behavior> help""",
 		logging.debug("Create the sandbox_dir: %s", sandbox_dir)
 
 		#add sandbox_dir into tempdir_list
-		tempdir_list.append(sandbox_dir)
+		#tempdir_list.append(sandbox_dir)
 
 	osf_auth = []
 	#osf_auth info

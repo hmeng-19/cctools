@@ -1,0 +1,2 @@
+capitol.jpg:
+	date >capitol.jpg

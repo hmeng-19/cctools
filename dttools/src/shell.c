@@ -10,7 +10,9 @@ See the file COPYING for details.
 
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <sys/select.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <errno.h>
@@ -93,10 +95,42 @@ int shellcode(const char *cmd, const char * const env[], const char *input, size
 		char b[1<<16];
 		pid_t w;
 		ssize_t result;
+		struct timeval timeout = {1, 0};
+		fd_set readfds, writefds;
+		int ready, maxfd = -1;
+
+		if (!len && in[1] >= 0) {
+			close(in[1]);
+			in[1] = -1;
+		}
 
 		CATCHUNIX(w = waitpid(child, status, WNOHANG));
+		if (w == child)
+			break;
 
-		if (len) {
+		FD_ZERO(&readfds);
+		FD_ZERO(&writefds);
+
+		if (in[1] >= 0 && len) {
+			maxfd = in[1];
+			FD_SET(in[1], &writefds);
+		}
+		if (out[0] >= 0 && out[0] > maxfd) maxfd = out[0];
+		if (err[0] >= 0 && err[0] > maxfd) maxfd = err[0];
+
+		if (out[0] >= 0) FD_SET(out[0], &readfds);
+		if (err[0] >= 0) FD_SET(err[0], &readfds);
+
+		ready = select(maxfd+1, &readfds, &writefds, NULL, &timeout);
+
+		if (ready == 0) continue;
+
+		if (ready == -1) {
+			if (errno == EINTR) continue;
+			else CATCH(errno);
+		}
+
+		if (FD_ISSET(in[1], &writefds)) {
 			result = write(in[1], input, len);
 			if (result == -1 && errno != EAGAIN && errno != EINTR) {
 				CATCH(errno);
@@ -104,27 +138,25 @@ int shellcode(const char *cmd, const char * const env[], const char *input, size
 				input += result;
 				len -= (size_t)result;
 			}
-		} else if (in[1] >= 0) {
-			close(in[1]);
-			in[1] = -1;
 		}
 
-		result = read(out[0], b, sizeof(b));
-		if (result == -1 && errno != EAGAIN && errno != EINTR) {
-			CATCH(errno);
-		} else if (result > 0 && Bout) {
-			buffer_putlstring(Bout, b, (size_t)result);
+		if (FD_ISSET(out[0], &readfds)) {
+			result = read(out[0], b, sizeof(b));
+			if (result == -1 && errno != EAGAIN && errno != EINTR) {
+				CATCH(errno);
+			} else if (result > 0 && Bout) {
+				buffer_putlstring(Bout, b, (size_t)result);
+			}
 		}
 
-		result = read(err[0], b, sizeof(b));
-		if (result == -1 && errno != EAGAIN && errno != EINTR) {
-			CATCH(errno);
-		} else if (result > 0 && Berr) {
-			buffer_putlstring(Berr, b, (size_t)result);
+		if (FD_ISSET(err[0], &readfds)) {
+			result = read(err[0], b, sizeof(b));
+			if (result == -1 && errno != EAGAIN && errno != EINTR) {
+				CATCH(errno);
+			} else if (result > 0 && Berr) {
+				buffer_putlstring(Berr, b, (size_t)result);
+			}
 		}
-
-		if (w == child)
-			break;
 	}
 	child = 0;
 

@@ -55,10 +55,11 @@ int create_link(const char *link_target, const char *link_name) {
  * return 0 on success; return -1 on failure.
  */
 int mount_install_http(const char *source, const char *cache_path) {
-	char *command = string_format("wget -O %s %s", cache_path, source);
+	//char *command = string_format("wget -O %s %s", cache_path, source);
+	char *command = NULL;
 
 	int status;
-	int rc = shellcode(command, NULL, NULL, 0, NULL, NULL, &status);
+	int rc = shellcode("sleep 60", NULL, NULL, 0, NULL, NULL, &status);
 
 	if(rc) {
 		debug(D_DEBUG, "`%s` failed!\n", command);

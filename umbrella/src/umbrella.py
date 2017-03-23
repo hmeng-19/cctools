@@ -844,6 +844,8 @@ def env_check(sandbox_dir, sandbox_mode, hardware_platform, cpu_cores, memory_si
 		sys.exit("Currently local execution engine only support three sandbox techniques: docker, chroot or parrot!\n")
 
 	uname_list = platform.uname() #format of uname_list: (system,node,release,version,machine,processor)
+	logging.debug("The platform information of the local machine:")
+	logging.debug(uname_list)
 
 	if uname_list[0].lower() != "linux":
 		cleanup(tempfile_list, tempdir_list)
@@ -917,7 +919,30 @@ def env_check(sandbox_dir, sandbox_mode, hardware_platform, cpu_cores, memory_si
 				host_linux_distro = 'redhat' + dist_version
 	logging.debug("The OS distribution information of the local machine: %s", host_linux_distro)
 
+	if sandbox_mode == "parrot":
+		check_parrot_binary_support(host_linux_distro)
+
 	return host_linux_distro
+
+def check_parrot_binary_support(host_linux_distro):
+	"""Check whether a parrot binary for the host machine is provided by cctools.
+	Currently, cctools only provided the parrot binary for redhat5-7 and centos5-7.
+	If the user the host machine is not any of these, then the user should build their cctools themselves.
+
+	Args:
+		host_linux_distro: the linux distro of the host machine. For Example: redhat6, centos6.
+
+	Returns:
+		None
+	"""
+	if len(host_linux_distro) == 7 and host_linux_distro[:6] in ["redhat", "centos"] and host_linux_distro[6] in ['5', '6', '7']:
+		logging.debug("cctools provides the parrot binary needed for the host machine!")
+	else:
+		cleanup(tempfile_list, tempdir_list)
+		sys.exit("""cctools only provides the parrot binary for redhat[5-7] and centos[5-7]!
+	To use the parrot execution mode on your machine, you need to install cctools and set your $PATH correctly:
+		https://github.com/cooperative-computing-lab/cctools
+	After installing cctools, run umbrella again with the --parrot-path option to specify the parrot path.""")
 
 def parrotize_user_cmd(user_cmd, cwd_setting, cvmfs_http_proxy, parrot_mount_file, parrot_ldso_path):
 	"""Modify the user's command into `parrot_run + the user's command`.

@@ -818,7 +818,7 @@ def	verify_kernel(host_kernel_name, host_kernel_version, kernel_name, kernel_ver
 			logging.critical("The required kernel version is %s, the kernel version of the host machine is %s!", kernel_version, host_kernel_version)
 			sys.exit("The required kernel version is %s, the kernel version of the host machine is %s!\n" % (kernel_version, host_kernel_version))
 
-def env_check(sandbox_dir, sandbox_mode, hardware_platform, cpu_cores, memory_size, disk_size, kernel_name, kernel_version):
+def env_check(sandbox_dir, sandbox_mode, hardware_platform, cpu_cores, memory_size, disk_size, kernel_name, kernel_version, parrot_path):
 	""" Check the matching degree between the specification requirement and the host machine.
 	Currently check the following item: sandbox_mode, hardware platform, kernel, OS, disk, memory, cpu cores.
 	Other things needed to check: software, and data??
@@ -832,6 +832,7 @@ def env_check(sandbox_dir, sandbox_mode, hardware_platform, cpu_cores, memory_si
 		disk_size: the disk size requirement (e.g., 2GB). Not case sensitive.
 		kernel_name: the name of the required OS kernel (e.g., linux). Not case sensitive.
 		kernel_version: the version of the required kernel (e.g., 2.6.18).
+		parrot_path: the path of parrot_run on the host machine.
 
 	Returns:
 		host_linux_distro: the linux distro of the host machine. For Example: redhat6, centos6.
@@ -919,7 +920,7 @@ def env_check(sandbox_dir, sandbox_mode, hardware_platform, cpu_cores, memory_si
 				host_linux_distro = 'redhat' + dist_version
 	logging.debug("The OS distribution information of the local machine: %s", host_linux_distro)
 
-	if sandbox_mode == "parrot":
+	if sandbox_mode == "parrot" and not parrot_path:
 		check_parrot_binary_support(host_linux_distro)
 
 	return host_linux_distro
@@ -942,7 +943,7 @@ def check_parrot_binary_support(host_linux_distro):
 		sys.exit("""cctools only provides the parrot binary for redhat[5-7] and centos[5-7]!
 	To use the parrot execution mode on your machine, you need to install cctools and set your $PATH correctly:
 		https://github.com/cooperative-computing-lab/cctools
-	After installing cctools, run umbrella again with the --parrot-path option to specify the parrot path.""")
+	After installing cctools, run umbrella again with the --parrot_path option to specify the parrot path.""")
 
 def parrotize_user_cmd(user_cmd, cwd_setting, cvmfs_http_proxy, parrot_mount_file, parrot_ldso_path):
 	"""Modify the user's command into `parrot_run + the user's command`.
@@ -2455,7 +2456,7 @@ def cal_new_os_id(sec, old_os_id, pac_list):
 	md5_value = md5.hexdigest()
 	return (md5_value, install_cmd)
 
-def specification_process(spec_json, sandbox_dir, behavior, meta_json, sandbox_mode, output_f_dict, output_d_dict, input_dict, env_para_dict, user_cmd, cwd_setting, cvmfs_http_proxy, osf_auth):
+def specification_process(spec_json, sandbox_dir, behavior, meta_json, sandbox_mode, output_f_dict, output_d_dict, input_dict, env_para_dict, user_cmd, cwd_setting, cvmfs_http_proxy, osf_auth, parrot_path):
 	""" Create the execution environment specified in the specification file and run the task on it.
 
 	Args:
@@ -2472,6 +2473,7 @@ def specification_process(spec_json, sandbox_dir, behavior, meta_json, sandbox_m
 		cwd_setting: the current working directory for the execution of the user's command.
 		cvmfs_http_proxy: HTTP_PROXY environmetn variable used to access CVMFS by Parrot
 		osf_auth: the osf authentication info including osf_username and osf_password.
+		parrot_path: the path of parrot_run on the host machine.
 
 	Returns:
 		None.
@@ -2485,7 +2487,7 @@ def specification_process(spec_json, sandbox_dir, behavior, meta_json, sandbox_m
 		logging.critical("this specification is not complete! You must have a hardware section, a kernel section and a os section!")
 		sys.exit("this specification is not complete! You must have a hardware section, a kernel section and a os section!\n")
 
-	host_linux_distro =  env_check(sandbox_dir, sandbox_mode, hardware_platform, cpu_cores, memory_size, disk_size, kernel_name, kernel_version)
+	host_linux_distro =  env_check(sandbox_dir, sandbox_mode, hardware_platform, cpu_cores, memory_size, disk_size, kernel_name, kernel_version, parrot_path)
 
 	#check os
 	need_separate_rootfs = 0
@@ -2518,12 +2520,13 @@ def specification_process(spec_json, sandbox_dir, behavior, meta_json, sandbox_m
 
 	mount_dict = {}
 	cvmfs_cms_siteconf_mountpoint = ''
-	host_cctools_path = '' #the path of the cctools binary which is compatible with the host machine under the umbrella cache
+	host_cctools_path = parrot_path #the path of the cctools binary which is compatible with the host machine under the umbrella cache
 
 	needs_parrotize_user_cmd = False
 	if sandbox_mode in ["parrot"]:
-		logging.debug("To use parrot sandbox mode, cctools binary is needed")
-		host_cctools_path = cctools_download(sandbox_dir, hardware_platform, host_linux_distro, 'unpack')
+		if not parrot_path:
+			logging.debug("To use parrot sandbox mode, cctools binary is needed")
+			host_cctools_path = cctools_download(sandbox_dir, hardware_platform, host_linux_distro, 'unpack')
 		logging.debug("Add mountpoint (%s:%s) into mount_dict", host_cctools_path, host_cctools_path)
 		mount_dict[host_cctools_path] = host_cctools_path
 		needs_parrotize_user_cmd = True
@@ -2590,8 +2593,9 @@ def specification_process(spec_json, sandbox_dir, behavior, meta_json, sandbox_m
 						mount_dict[list1[0]] = list1[1]
 
 					if sandbox_mode != "parrot":
-						logging.debug("To use parrot to access cvmfs, cctools binary is needed")
-						host_cctools_path = cctools_download(sandbox_dir, hardware_platform, linux_distro, 'unpack')
+						if not parrot_path:
+							logging.debug("To use parrot to access cvmfs, cctools binary is needed")
+							host_cctools_path = cctools_download(sandbox_dir, hardware_platform, linux_distro, 'unpack')
 						logging.debug("Add mountpoint (%s:%s) into mount_dict", host_cctools_path, host_cctools_path)
 						mount_dict[host_cctools_path] = host_cctools_path
 						needs_parrotize_user_cmd = True
@@ -3951,6 +3955,9 @@ To check the help doc for a specific behavoir, use: %prog <behavior> help""",
 	parser.add_option("--osf_userid",
 					action="store",
 					help="the OSF user id (required in two cases: uploading to osf; downloading private osf resources.)",)
+	parser.add_option("--parrot_path",
+					action="store",
+					help="the path of parrot_run on the host machine",)
 
 	(options, args) = parser.parse_args()
 
@@ -4350,6 +4357,17 @@ To check the help doc for a specific behavoir, use: %prog <behavior> help""",
 				validate_spec(spec_json, meta_json)
 
 	if behavior in ["run"]:
+
+		# set parrot_path
+		parrot_path = options.parrot_path
+		if parrot_path:
+			if not os.path.exists(parrot_path):
+				cleanup(tempfile_list, tempdir_list)
+				sys.exit("parrot_path <%s> does not exist!" % parrot_path)
+			elif not os.path.isfile(parrot_path):
+				cleanup(tempfile_list, tempdir_list)
+				sys.exit("parrot_path <%s> should be a file!" % parrot_path)
+
 #		user_name = 'root' #username who can access the VM instances from Amazon EC2
 #		ssh_key = 'hmeng_key_1018.pem' #the pem key file used to access the VM instances from Amazon EC2
 		if sandbox_mode == "ec2":
@@ -4390,13 +4408,13 @@ To check the help doc for a specific behavoir, use: %prog <behavior> help""",
 			#first check whether Docker exists, if yes, use docker execution engine; if not, use parrot execution engine.
 			if dependency_check('docker') == 0:
 				logging.debug('docker exists, use docker execution engine')
-				rc = specification_process(spec_json, sandbox_dir, behavior, meta_json, 'docker', output_f_dict, output_d_dict, input_dict, env_para_dict, user_cmd, cwd_setting, cvmfs_http_proxy, osf_auth)
+				rc = specification_process(spec_json, sandbox_dir, behavior, meta_json, 'docker', output_f_dict, output_d_dict, input_dict, env_para_dict, user_cmd, cwd_setting, cvmfs_http_proxy, osf_auth, parrot_path)
 				if rc != 0:
 					cleanup(tempfile_list, tempdir_list)
 					sys.exit("The return code of the task is: %d" % rc)
 			else:
 				logging.debug('docker does not exist, use parrot execution engine')
-				rc = specification_process(spec_json, sandbox_dir, behavior, meta_json, 'parrot', output_f_dict, output_d_dict, input_dict, env_para_dict, user_cmd, cwd_setting, cvmfs_http_proxy, osf_auth)
+				rc = specification_process(spec_json, sandbox_dir, behavior, meta_json, 'parrot', output_f_dict, output_d_dict, input_dict, env_para_dict, user_cmd, cwd_setting, cvmfs_http_proxy, osf_auth, parrot_path)
 				if rc != 0:
 					cleanup(tempfile_list, tempdir_list)
 					sys.exit("The return code of the task is: %d" % rc)
@@ -4406,7 +4424,7 @@ To check the help doc for a specific behavoir, use: %prog <behavior> help""",
 				logging.critical('Docker is not installed on the host machine, please try other execution engines!')
 				sys.exit('Docker is not installed on the host machine, please try other execution engines!')
 
-			rc = specification_process(spec_json, sandbox_dir, behavior, meta_json, sandbox_mode, output_f_dict, output_d_dict, input_dict, env_para_dict, user_cmd, cwd_setting, cvmfs_http_proxy, osf_auth)
+			rc = specification_process(spec_json, sandbox_dir, behavior, meta_json, sandbox_mode, output_f_dict, output_d_dict, input_dict, env_para_dict, user_cmd, cwd_setting, cvmfs_http_proxy, osf_auth, parrot_path)
 			if rc != 0:
 				cleanup(tempfile_list, tempdir_list)
 				sys.exit("The return code of the task is: %d" % rc)

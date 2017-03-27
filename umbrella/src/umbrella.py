@@ -2520,7 +2520,12 @@ def specification_process(spec_json, sandbox_dir, behavior, meta_json, sandbox_m
 
 	mount_dict = {}
 	cvmfs_cms_siteconf_mountpoint = ''
-	host_cctools_path = parrot_path #the path of the cctools binary which is compatible with the host machine under the umbrella cache
+
+	#the path of the cctools binary which is compatible with the host machine under the umbrella cache
+	host_cctools_path = os.path.dirname(os.path.dirname(parrot_path))
+
+	global cctools_dest
+	cctools_dest = host_cctools_path
 
 	needs_parrotize_user_cmd = False
 	if sandbox_mode in ["parrot"]:
